@@ -1,0 +1,10 @@
+Package: Coereba
+Type: Package
+Title: Dichotomized Boolean Clustering of Spectral Flow Cytometry Files
+Version: 0.1.0
+Author: David Rach
+Maintainer: David Rach <drach@som.umaryland.edu>
+Description: What is hiding from your unsupervised analysis? Let's find out
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
