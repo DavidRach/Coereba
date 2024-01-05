@@ -1,3 +1,23 @@
+#' Cluster your .fcs files by designated gates.
+#'
+#' @param x A Gating Set Object (ex. gs or gs[[1]])
+#' @param column Columns you want to cluster by, defined by numeric position
+#' @param subsample Optional: Downsample to a certain number of cells
+#' @param ratio Return values as a ratio of the total starting cells
+#' @param starter Column to start split on (ex. "BV711")
+#' @param sample.name The keyword your individual samples are identified by (ex. "GUID")
+#' @param experiment A way to provide the experiment name directly (ex. "January2024Optimization")
+#' @param experiment.name The keyword your experiment name is stored, when experiment = NULL. (ex. "$DATE")
+#' @param condition A way to provide condition name directly (ex. "PMA")
+#' @param condition.name  The keyword your condition name is stored, when condition = NULL. (ex. "TUBENAME")
+#' @param bins Number of bins the cells are plotted as in the ggplots (ex. 270)
+#' @param cutoff The minimal number of cells in a cluster (ex. 3)
+#' @param reference The imported .csv file containing the gating location for panels fluorophores.
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter, sample.name, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL, bins, cutoff = NULL, reference){
   library(dplyr)
   New <- reference
