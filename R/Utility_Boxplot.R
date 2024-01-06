@@ -1,5 +1,22 @@
+#' Plot boxplot/beeswarm
+#'
+#' @param data A data.frame of your data
+#' @param var A column of data interest
+#' @param myfactor A column containing the factor you want to compare between
+#' @param shape_palette palette corresponding to the factor, specifying the shape
+#' @param fill_palette palette corresponding to the factor, specifying the fill
+#'
+#' @import ggplot2
+#' @import tidyr
+#' @import broom
+#' @import ggpubr
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 Utility_BoxPlot <- function(data, var, myfactor, shape_palette, fill_palette){
-  library(ggplot2); library(tidyr); library(broom); library(purrr); library(ggpubr); library(ggbeeswarm); library(Rita); library(moments)
+  library(ggplot2); library(tidyr); library(broom); library(purrr); library(ggpubr); library(ggbeeswarm);
   theme_set(theme_bw())
   set.seed(1989)
 

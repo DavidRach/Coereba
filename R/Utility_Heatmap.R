@@ -1,3 +1,12 @@
+#' Returns a Coereba Heatmap
+#'
+#' @param cells Unclear, Coereba output including Cluster column
+#' @param filename Name to save .png file as
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 Utility_Heatmap <- function(cells, filename){
   Cells <- Cells %>% mutate(Cluster = row_number()) %>% relocate(Cluster, .after = Identity)
   Cz <- Cells

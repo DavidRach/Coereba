@@ -1,7 +1,24 @@
+#' Coereba's main function. Runs normality, runs stats, plots the results.
+#'
+#' @param data A data.frame of your data.
+#' @param var A column containing your variables of interest.
+#' @param myfactor A column containing the factor you want to compare
+#' @param normality Choice of normality test, "dagostino" or "shapiro"
+#' @param shape_palette Palette corresponding to factor levels, designating each's shape
+#' @param fill_palette Palette corresponding to factor levels, designating each's fill
+#' @param switch Unclear
+#'
+#' @import ggplot2
+#' @import tidyr
+#' @import broom
+#' @import ggpubr
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette, fill_palette, switch){
-  library(ggplot2); library(tidyr); library(broom); library(purrr); library(ggpubr); library(ggbeeswarm); library(Rita); library(moments); library(stringr)
-  theme_set(theme_bw())
-  set.seed(1989)
+ theme_set(theme_bw())
 
   theYlim <- max(data[[var]])
   FactorLevels <- levels(data[[myfactor]])

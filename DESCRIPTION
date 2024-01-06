@@ -1,6 +1,6 @@
 Package: Coereba
 Type: Package
-Title: Dichotomized clustering and heatmaps for Spectral Flow Cytometry
+Title: Dichotomized Boolean Clustering and Heatmaps for Spectral Flow Cytometry
 Version: 0.1.0
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),

@@ -1,7 +1,28 @@
+#' Similar to Behemoth, drops the greatest value for all groups.
+#'
+#' @param data1 A data.frame object
+#' @param var A column of the data.frame containing variable of interest
+#' @param myfactor A column of the data.frame containing the factor to compare
+#' @param normality Choice of normality test, "dagostino" or "shapiro"
+#' @param shape_palette Palette using names of the factor and corresponding shape
+#' @param fill_palette Palette using names of the factor and corresponding fill
+#' @param switch Unclear
+#' @param panel Unclear
+#' @param scalefactor Multiply the ratio by this number for easier interpretability
+#' @param scalefactorlabel Relabel the axis with the cell type of interest. (Ex. "Vd2 T cells")
+#'
+#' @import ggplot2
+#' @import tidyr
+#' @import broom
+#' @import purrr
+#' @import ggbeeswarm
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 Utility_Leviathan <- function(data1, var, myfactor, normality, shape_palette, fill_palette, switch, panel, scalefactor, scalefactorlabel){
-  library(ggplot2); library(tidyr); library(broom); library(purrr); library(ggpubr); library(ggbeeswarm); library(Rita); library(moments); library(stringr)
   theme_set(theme_bw())
-  set.seed(1989)
 
   indices <- data1 %>% group_by(.data[[myfactor]]) %>% slice_max(order_by = .data[[var]]) %>% ungroup() %>% pull(bid)
   data <- data1 %>% filter(!bid %in% indices)
