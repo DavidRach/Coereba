@@ -11,6 +11,7 @@
 #'         purrr,
 #'         ggpubr,
 #'         ggbeeswarm,
+#'
 #' @return NULL
 #' @export
 #'
