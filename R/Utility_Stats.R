@@ -7,11 +7,11 @@
 #' @param shape_palette provide the shape palette matches your provided factor names
 #' @param fill_palette provide the fill palette matches your provided factor names
 #' @param switch Unclear
-#' @import ggplot2,
-#'        tidyr,
-#'        broom,
-#'        purrr,
-#'        ggbeeswarm,
+#' @import ggplot2
+#' @import tidyr
+#' @import broom
+#' @import purrr
+#' @import ggbeeswarm
 #'
 #' @return NULL
 #' @export

@@ -6,6 +6,20 @@
 \usage{
 Utility_LinePlot(data, varX, varY, myfactor, color_palette)
 }
+\arguments{
+\item{data}{A data.frame object}
+
+\item{varX}{The column to plot on X axis}
+
+\item{varY}{The column to plot on Y axis}
+
+\item{myfactor}{The column denoting the factor of interest to compare}
+
+\item{color_palette}{The color palette to use for the factor variable}
+}
 \description{
 Generate a line plot
+}
+\examples{
+NULL
 }

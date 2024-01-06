@@ -1,16 +1,16 @@
 #' Generate a line plot
 #'
-#' @param data
-#' @param varX
-#' @param varY
-#' @param myfactor
-#' @param color_palette
-#' @import ggplot2,
-#'         tidyr,
-#'         broom,
-#'         purrr,
-#'         ggpubr,
-#'         ggbeeswarm,
+#' @param data A data.frame object
+#' @param varX The column to plot on X axis
+#' @param varY The column to plot on Y axis
+#' @param myfactor The column denoting the factor of interest to compare
+#' @param color_palette The color palette to use for the factor variable
+#' @import ggplot2
+#' @import tidyr
+#' @import broom
+#' @import purrr
+#' @import ggpubr
+#' @import ggbeeswarm
 #'
 #' @return NULL
 #' @export

@@ -3,10 +3,10 @@
 #' @param data A data.frame object
 #' @param var The column containing your values
 #' @param myfactor The column containing the factor designations that you want to compare.
-#' @import ggplot2,
-#'         tidyr,
-#'         broom,
-#'         ggpubr,
+#' @import ggplot2
+#' @import tidyr
+#' @import broom
+#' @import ggpubr
 #'
 #' @return NULL
 #' @export
