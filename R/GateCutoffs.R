@@ -1,3 +1,13 @@
+#' Rough estimate of the location of the dichotomized gates.
+#'
+#' @param x A GatingSet object (ex. gs or gs[[1]])
+#' @param columns Columns of interest, numeric.
+#' @param sample.name Keyword for sample names (ex. "GUID")
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 GateCutoffs <- function(x, columns, sample.name){
   library(tidyr)
   name <- keyword(x, sample.name)

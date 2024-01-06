@@ -1,3 +1,13 @@
+#' Downsamples a population of interest
+#'
+#' @param x A GatingSet object (ex. gs or gs[[1]])
+#' @param sample Keyword denoting sample name (ex. "GUID")
+#' @param cellNumber Desired number of cells to downsample to.
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 my_wholesale <- function(x, sample, cellNumber){
   name <- keyword(x, sample)
   df <- flowCore::exprs(x)[,11:39]

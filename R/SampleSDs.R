@@ -1,3 +1,15 @@
+#' Returns Standard Deviations for Normalized Detectors
+#'
+#' @param x A GatingSet object (ex. gs or gs[[1]])
+#' @param subsets A subset of interest, (ex. "lymph)
+#' @param sample Keyword denoting the sample name (ex. "GUID")
+#' @param experiment Keyword denoting the experiment name (ex. "GROUPNAME")
+#' @param condition Keyword denoting the condition name (ex. "TUBENAME")
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 SampleSDs <- function(x, subsets, sample, experiment, condition){
   gc()
   x <- x

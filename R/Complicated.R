@@ -1,3 +1,13 @@
+#' Original Reach Implementation (superceeded)
+#'
+#' @param x  A GatingSet object (ex. gs or gs[[1]])
+#' @param cutoff Number of cells required to retain the cluster
+#' @param starter A column to start division on, (ex. "BV711-A")
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 Complicated <-  function(x, cutoff, starter){
   df <- flowCore::exprs(x[,11:39])
   name <- keyword(x, "GROUPNAME")

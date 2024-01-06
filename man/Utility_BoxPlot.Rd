@@ -20,3 +20,6 @@ Utility_BoxPlot(data, var, myfactor, shape_palette, fill_palette)
 \description{
 Plot boxplot/beeswarm
 }
+\examples{
+NULL
+}

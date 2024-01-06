@@ -1,3 +1,14 @@
+#' Combine FlowJo Q1 Q2 columns
+#'
+#' @param x A data.frame object
+#' @param variable A column name
+#' @param first Return name first column
+#' @param second Return name second column
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 CytokineCleanup <- function(x, variable, first, second){
   x <- x
   Targets <- colnames(x)[str_detect(colnames(x), variable)]

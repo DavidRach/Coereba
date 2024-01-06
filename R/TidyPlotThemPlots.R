@@ -1,5 +1,27 @@
+#' Early version Luciernaga's single color plot functionality
+#'
+#' @param x A GatingSet object (ex. gs or gs[[1]])
+#' @param subsets Your population of interest (ex. "root")
+#' @param column A list of columns (superceeded)
+#' @param sample.name Keyword for which samples name is stored (ex. "GUID")
+#' @param experiment Directly assign experiment name (ex. "JAN2024")
+#' @param experiment.name Keyword for which experiment name is stored (ex. "GROUPNAME")
+#' @param condition Directly assign condition name (ex. "Control")
+#' @param condition.name Keyword for which condition name is stored (ex. "TUBENAME")
+#' @param bins Granularity of the plots by how many bins the cells are divided into
+#' @param clearance A number by which the quantile value is multiplied to provide a margin
+#' @param outpath Location to which to store the generated plots
+#' @param sourcelocation Location to find the plot file.
+#'
+#' @import flowCore
+#' @import dplyr
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 TidyPlotThemPlots <- function(x, subsets, column, sample.name, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL, bins, clearance, outpath, sourcelocation){
-  library(flowCore); library(dplyr)
+
   x <- x
   name <- keyword(x, sample.name)
   if(is.null(experiment)){experiment <- keyword(x, experiment.name)

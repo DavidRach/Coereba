@@ -26,3 +26,6 @@ Utility_AssociationNotAutomaticallyCausation(
 \description{
 Plot for Pearson/Spearman
 }
+\examples{
+NULL
+}
