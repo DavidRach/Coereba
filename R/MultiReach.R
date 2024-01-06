@@ -15,7 +15,7 @@
 #' @param reference The imported .csv file containing the gating location for panels fluorophores.
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter, sample.name, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL, bins, cutoff = NULL, reference){
