@@ -1,5 +1,18 @@
+#' Generate QQ plots to assess normality
+#'
+#' @param data A data.frame object
+#' @param var The column containing your values
+#' @param myfactor The column containing the factor designations that you want to compare.
+#' @import ggplot2,
+#'         tidyr,
+#'         broom,
+#'         ggpubr,
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 Utility_QQplots <- function(data, var, myfactor){
-  library(ggplot2); library(tidyr); library(broom); library(purrr); library(ggpubr); library(Rita); library(moments)
   theme_set(theme_bw())
 
   plot <- ggqqplot(Final, x = var, facet.by = myfactor) +

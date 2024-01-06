@@ -1,3 +1,22 @@
+#' Detect changes a heatmap level below your target
+#'
+#' @param BinaryFile Unclear
+#' @param OriginalData Unclear
+#' @param filename Name to give the results
+#' @param outfolder Folder to which to output the results
+#' @param panel Unclear
+#' @param starter Unclear
+#' @param myFactor Column containing factor designation that you want to differentially compare
+#' @param normality Normality test to be used, ex. "dagostino" or "sharpwilks"
+#' @param shape_palette palette that list your factors of interest
+#' @param fill_palette palette that list your factor of interest
+#' @param scalefactor Number you are multiplying the ratio by to make more interpretable (ex. 1000)
+#' @param scalefactorlabel The cells of interest, ex. "Vd2 T cells"
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder, panel, starter, myFactor, normality, shape_palette, fill_palette, scalefactor, scalefactorlabel){
 
   Metadata <- OriginalData %>% select(!starts_with(starter))

@@ -1,3 +1,12 @@
+#' Take FlowJo .csv files and convert values to designated root.
+#'
+#' @param data A data.frame object
+#' @param column A given column of the data.frame
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 Utility_Rooted <- function(data, column){
   input <- column
   interest <- sub(".*/", "", input)

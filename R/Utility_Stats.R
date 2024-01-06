@@ -1,7 +1,24 @@
+#' Normality Test followed by t-test/Anova
+#'
+#' @param data A data.frame object containing the data values
+#' @param var A data.frame column of interest
+#' @param myfactor A data.frame column for which you want to differentionally compare if they are different
+#' @param normality The Normality test to be applied, "dagostino" or "shapiro"
+#' @param shape_palette provide the shape palette matches your provided factor names
+#' @param fill_palette provide the fill palette matches your provided factor names
+#' @param switch Unclear
+#' @import ggplot2,
+#'        tidyr,
+#'        broom,
+#'        purrr,
+#'        ggbeeswarm,
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
 Utility_Stats <- function(data, var, myfactor, normality, shape_palette, fill_palette, switch){
-  library(ggplot2); library(tidyr); library(broom); library(purrr); library(ggpubr); library(ggbeeswarm); library(Rita); library(moments)
   theme_set(theme_bw())
-  set.seed(1989)
 
   theYlim <- max(data[[var]])
   FactorLevels <- levels(data[[myfactor]])

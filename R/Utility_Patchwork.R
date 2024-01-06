@@ -1,5 +1,17 @@
+#' Generate the plots into a single pdf
+#'
+#' @param x A list of plots
+#' @param filename Name to save the .pdf as
+#' @param outfolder Location to save the .pdf
+#' @param thecolumns The number of columns per page
+#' @param therows The number of rows per page
+#' @import patchwork,
+#' @return NULL
+#' @export
+#'
+#' @examples NULL
+#'
 Utility_Patchwork <- function(x, filename, outfolder, thecolumns, therows){
-  library(patchwork);
   theList <- x
   theList <- Filter(Negate(is.null), theList)
   theListLength <- length(theList)
