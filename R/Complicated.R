@@ -3,14 +3,20 @@
 #' @param x  A GatingSet object (ex. gs or gs[[1]])
 #' @param cutoff Number of cells required to retain the cluster
 #' @param starter A column to start division on, (ex. "BV711-A")
+#' @importFrom flowCore exprs
+#' @importFrom flowCore keyword
+#' @importFrom dplyr filter
+#'
 #'
 #' @return NULL
 #' @export
 #'
 #' @examples NULL
+
+
 Complicated <-  function(x, cutoff, starter){
-  df <- flowCore::exprs(x[,11:39])
-  name <- keyword(x, "GROUPNAME")
+  df <- flowCore::exprs(x[,11:39]) #Remove the hard-coded version
+  name <- keyword(x, "GROUPNAME") #Remove the hard-coded version
   dsf <- data.frame(df, check.names = FALSE)
   colnames(dsf) <- gsub("-A", "", colnames(dsf), fixed = TRUE)
   colnames(dsf) <- gsub("-", "", colnames(dsf), fixed = TRUE)

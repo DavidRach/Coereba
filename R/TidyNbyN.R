@@ -16,8 +16,6 @@
 #' @param sourcelocation Location of the plotting file
 #' @param reference A data.frame containing the location of the dividing lines per specimen.
 #'
-#' @import dplyr
-#' @import flowCore
 #'
 #' @return NULL
 #' @export

@@ -11,12 +11,6 @@
 #' @param scalefactor Multiply the ratio by this number for easier interpretability
 #' @param scalefactorlabel Relabel the axis with the cell type of interest. (Ex. "Vd2 T cells")
 #'
-#' @import ggplot2
-#' @import tidyr
-#' @import broom
-#' @import purrr
-#' @import ggbeeswarm
-#'
 #' @return NULL
 #' @export
 #'

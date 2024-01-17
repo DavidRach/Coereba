@@ -4,7 +4,6 @@
 #' @param columns Columns of interest, numeric.
 #' @param sample.name Keyword for sample names (ex. "GUID")
 #'
-#' @import tidyr
 #'
 #' @return NULL
 #' @export

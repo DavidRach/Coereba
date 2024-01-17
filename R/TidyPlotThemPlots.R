@@ -13,8 +13,6 @@
 #' @param outpath Location to which to store the generated plots
 #' @param sourcelocation Location to find the plot file.
 #'
-#' @import flowCore
-#' @import dplyr
 #'
 #' @return NULL
 #' @export

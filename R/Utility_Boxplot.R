@@ -6,11 +6,6 @@
 #' @param shape_palette palette corresponding to the factor, specifying the shape
 #' @param fill_palette palette corresponding to the factor, specifying the fill
 #'
-#' @import ggplot2
-#' @import tidyr
-#' @import broom
-#' @import ggpubr
-#'
 #' @return NULL
 #' @export
 #'

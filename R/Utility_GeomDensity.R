@@ -4,11 +4,6 @@
 #' @param var Column in the data.frame of specific data interested in
 #' @param myfactor Column containing the factor you want to compare between.
 #'
-#' @import ggplot2
-#' @import tidyr
-#' @import broom
-#' @import ggpubr
-#'
 #'
 #' @return NULL
 #' @export

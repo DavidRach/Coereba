@@ -8,11 +8,6 @@
 #' @param fill_palette Palette corresponding to factor levels, designating each's fill
 #' @param switch Unclear
 #'
-#' @import ggplot2
-#' @import tidyr
-#' @import broom
-#' @import ggpubr
-#'
 #' @return NULL
 #' @export
 #'

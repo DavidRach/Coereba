@@ -5,12 +5,6 @@
 #' @param varY The column to plot on Y axis
 #' @param myfactor The column denoting the factor of interest to compare
 #' @param color_palette The color palette to use for the factor variable
-#' @import ggplot2
-#' @import tidyr
-#' @import broom
-#' @import purrr
-#' @import ggpubr
-#' @import ggbeeswarm
 #'
 #' @return NULL
 #' @export

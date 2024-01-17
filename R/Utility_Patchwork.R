@@ -5,7 +5,6 @@
 #' @param outfolder Location to save the .pdf
 #' @param thecolumns The number of columns per page
 #' @param therows The number of rows per page
-#' @import patchwork
 #' @return NULL
 #' @export
 #'
