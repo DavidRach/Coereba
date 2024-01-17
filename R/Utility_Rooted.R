@@ -24,7 +24,7 @@ Utility_Rooted <- function(data, column){
 
   MyColumns <- c(rev(gates), input)
   SelectColumns <- which(colnames(data) %in% MyColumns)
-  Mini <- data[, ..SelectColumns]
+  Mini <- data[, SelectColumns]
 
   Mini <- Mini/100 #Return Everything to Decimal
   result <- rowwise(Mini) %>% mutate(NewColumn = prod(c_across(everything()))) #Multiply all by each other
