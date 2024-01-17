@@ -4,12 +4,14 @@
 #' @param columns Columns of interest, numeric.
 #' @param sample.name Keyword for sample names (ex. "GUID")
 #'
+#' @import tidyr
+#'
 #' @return NULL
 #' @export
 #'
 #' @examples NULL
 GateCutoffs <- function(x, columns, sample.name){
-  library(tidyr)
+
   name <- keyword(x, sample.name)
   df <- flowCore::exprs(x[,columns]) #specify a colunm vector in the future
   dsf <- data.frame(df, check.names = FALSE)
@@ -23,7 +25,7 @@ GateCutoffs <- function(x, columns, sample.name){
   min_value <- quantile(x[[i]], 0.05)
   if(min_value < 0) {MyRange <- abs(-max_value + min_value)} else {MyRange <- max_value - min_value}
   DivisionPoint <- max_value-(MyRange/2)
-  MyBin <- x[[i]][x[[i]] < DivisionPoint]
+  MyBin <- x[[i]][x[[i]] < DivisionPoint] #Returns values below Division Point
   Value <- quantile(MyBin, 0.95)
   #Value <- DivisionPoint
   ColumnValue <- round(Value, 2)
