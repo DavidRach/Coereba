@@ -13,7 +13,6 @@
 #'
 #' @examples NULL
 Utility_Stats <- function(data, var, myfactor, normality, shape_palette, fill_palette, switch){
-  theme_set(theme_bw())
 
   theYlim <- max(data[[var]])
   FactorLevels <- levels(data[[myfactor]])

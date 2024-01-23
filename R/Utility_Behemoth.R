@@ -13,7 +13,6 @@
 #'
 #' @examples NULL
 Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette, fill_palette, switch){
- theme_set(theme_bw())
 
   theYlim <- max(data[[var]])
   FactorLevels <- levels(data[[myfactor]])
@@ -95,7 +94,7 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette, fill
 
 
   plot <- ggplot(data, aes(x =.data[[myfactor]], y = .data[[var]])) + geom_boxplot(show.legend = FALSE) + stat_summary(fun = median, show.legend = FALSE, geom = "crossbar", width = 0.75) + geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]], fill = .data[[myfactor]]), method = "center", side = 0, priority = "density", cex = 1.8, size = 4) + scale_shape_manual(values = shape_palette) +
-    scale_fill_manual(values = fill_palette) + labs(title = wrapped_title, x = NULL, y = NULL) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), plot.title = element_text(hjust = 0.5, size = 8))
+    scale_fill_manual(values = fill_palette) + labs(title = wrapped_title, x = NULL, y = NULL) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), plot.title = element_text(hjust = 0.5, size = 8))
 
   plot2 <- if(Method %in% c("Two Sample t-test", "Wilcoxon rank sum test with continuity correction")){
     plot + geom_line(data=tibble(x=c(1,2), y=c(SingleY, SingleY)), aes(x=x, y=y), inherit.aes = FALSE)+

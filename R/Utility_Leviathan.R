@@ -16,7 +16,6 @@
 #'
 #' @examples NULL
 Utility_Leviathan <- function(data1, var, myfactor, normality, shape_palette, fill_palette, switch, panel, scalefactor, scalefactorlabel){
-  theme_set(theme_bw())
 
   indices <- data1 %>% group_by(.data[[myfactor]]) %>% slice_max(order_by = .data[[var]]) %>% ungroup() %>% pull(bid)
   data <- data1 %>% filter(!bid %in% indices)
@@ -107,7 +106,7 @@ Utility_Leviathan <- function(data1, var, myfactor, normality, shape_palette, fi
 
 
   plot <- ggplot(data, aes(x =.data[[myfactor]], y = .data[[var]])) + geom_boxplot(show.legend = FALSE) + stat_summary(fun = median, show.legend = FALSE, geom = "crossbar", width = 0.75) + geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]], fill = .data[[myfactor]]), method = "center", side = 0, priority = "density", cex = 0.8, size = 4) + scale_shape_manual(values = shape_palette) +
-    scale_fill_manual(values = fill_palette) + labs(title = wrapped_title, x = NULL, y = NULL) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), plot.title = element_text(hjust = 0.5, size = 9)) + scale_y_continuous(labels = scales::label_number(scale = scalefactor, suffix = "")) + ylab(scalefactorlabel)
+    scale_fill_manual(values = fill_palette) + labs(title = wrapped_title, x = NULL, y = NULL) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), plot.title = element_text(hjust = 0.5, size = 9)) + scale_y_continuous(labels = scales::label_number(scale = scalefactor, suffix = "")) + ylab(scalefactorlabel)
 
   plot2 <- if(Method %in% c("Two Sample t-test", "Wilcoxon rank sum test with continuity correction")){
     plot + geom_line(data=tibble(x=c(1,2), y=c(SingleY, SingleY)), aes(x=x, y=y), inherit.aes = FALSE)+
