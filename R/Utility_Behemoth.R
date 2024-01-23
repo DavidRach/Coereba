@@ -8,6 +8,10 @@
 #' @param fill_palette Palette corresponding to factor levels, designating each's fill
 #' @param switch Unclear
 #'
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggbeeswarm geom_beeswarm
+#'
+#'
 #' @return NULL
 #' @export
 #'

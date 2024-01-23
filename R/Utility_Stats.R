@@ -8,6 +8,9 @@
 #' @param fill_palette provide the fill palette matches your provided factor names
 #' @param switch Unclear
 #'
+#' @importFrom tidyr unnest
+#' @importFrom broom tidy
+#'
 #' @return NULL
 #' @export
 #'
@@ -19,7 +22,7 @@ Utility_Stats <- function(data, var, myfactor, normality, shape_palette, fill_pa
   FactorLevelsCount <- length(levels(data[[myfactor]]))
 
   dago_wrapper <- function(x){
-    A <- fBasics::dagoTest(x)
+    A <- Coereba::dagoTest(x)
     method <- A@test$method
     p.value <- A@test$p.value[[1]]
     C <- data.frame(cbind(p.value, method))

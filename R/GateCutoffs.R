@@ -4,6 +4,10 @@
 #' @param columns Columns of interest, numeric.
 #' @param sample.name Keyword for sample names (ex. "GUID")
 #'
+#' @importFrom flowCore exprs
+#' @importFrom flowWorkspace keyword
+#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr mutate_if
 #'
 #' @return NULL
 #' @export

@@ -16,13 +16,16 @@
 #' @param sourcelocation Location of the plotting file
 #' @param reference A data.frame containing the location of the dividing lines per specimen.
 #'
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore exprs
 #'
 #' @return NULL
 #' @export
 #'
 #' @examples NULL
 TidyNbyN <- function(x, subsets, level, column, starter, sample.name, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL, bins, clearance, outpath, sourcelocation, reference){
-  library(flowCore); library(dplyr)
+
   x <- x
   yD <- subsets
   yX <- starter

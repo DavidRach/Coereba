@@ -13,6 +13,9 @@
 #' @param outpath Location to which to store the generated plots
 #' @param sourcelocation Location to find the plot file.
 #'
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore exprs
 #'
 #' @return NULL
 #' @export

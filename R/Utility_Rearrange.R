@@ -4,6 +4,8 @@
 #' @param pattern recognizable string
 #' @param target Level of nesting
 #'
+#' @importFrom stringr str_extract_all
+#'
 #' @return NULL
 #' @export
 #'

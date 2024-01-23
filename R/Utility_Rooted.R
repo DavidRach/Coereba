@@ -3,6 +3,8 @@
 #' @param data A data.frame object
 #' @param column A given column of the data.frame
 #'
+#' @import stringr strsplit
+#'
 #' @return NULL
 #' @export
 #'
