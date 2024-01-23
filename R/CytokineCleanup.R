@@ -5,10 +5,17 @@
 #' @param first Return name first column
 #' @param second Return name second column
 #'
+#' @importFrom stringr str_detect
+#' @importFrom dplyr mutate
+#' @importFrom dplyr rename_with
+#' @importFrom dplyr bind_cols
+#' @importFrom dplyr select
+#'
 #' @return NULL
 #' @export
 #'
 #' @examples NULL
+
 CytokineCleanup <- function(x, variable, first, second){
   x <- x
   Targets <- colnames(x)[str_detect(colnames(x), variable)]

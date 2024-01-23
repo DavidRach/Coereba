@@ -13,6 +13,19 @@
 #' @param scalefactor Number you are multiplying the ratio by to make more interpretable (ex. 1000)
 #' @param scalefactorlabel The cells of interest, ex. "Vd2 T cells"
 #'
+#' @importFrom dplyr select
+#' @importFrom tidyr starts_with
+#' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom reshape2 melt
+#' @import ggplot2
+#' @importFrom tidyr as_tibble
+#' @importFrom dplyr rowwise
+#' @importFrom dplyr c_across
+#' @importFrom dplyr filter
+#' @importFrom purrr flatten
+#'
 #' @return NULL
 #' @export
 #'

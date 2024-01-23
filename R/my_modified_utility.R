@@ -5,6 +5,10 @@
 #' @param channel A list of columns of interest to retrieve data from, numeric.
 #' @param cellNumber Total number of cells to downsample to.
 #'
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowCore exprs
+#' @importFrom dplyr slice_sample
+#'
 #' @return NULL
 #' @export
 #'

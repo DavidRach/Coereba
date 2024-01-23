@@ -6,6 +6,10 @@
 #' @param experiment Keyword denoting the experiment name (ex. "GROUPNAME")
 #' @param condition Keyword denoting the condition name (ex. "TUBENAME")
 #'
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore exprs
+#'
 #' @return NULL
 #' @export
 #'

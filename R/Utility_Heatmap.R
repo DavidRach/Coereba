@@ -3,6 +3,11 @@
 #' @param cells Unclear, Coereba output including Cluster column
 #' @param filename Name to save .png file as
 #'
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom reshape2 melt
+#' @import ggplot2
+#'
 #' @return NULL
 #' @export
 #'

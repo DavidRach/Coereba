@@ -4,6 +4,10 @@
 #' @param sample Keyword denoting sample name (ex. "GUID")
 #' @param cellNumber Desired number of cells to downsample to.
 #'
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowCore exprs
+#' @importFrom dplyr slice_sample
+#'
 #' @return NULL
 #' @export
 #'
