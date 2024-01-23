@@ -14,12 +14,20 @@
 #' @param cutoff The minimal number of cells in a cluster (ex. 3)
 #' @param reference The imported .csv file containing the gating location for panels fluorophores.
 #'
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowCore exprs
+#' @importFrom dplyr slice_sample
+#' @importFrom dplyr case_when
+#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#'
 #' @return NULL
 #' @export
 #'
 #' @examples NULL
 MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter, sample.name, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL, bins, cutoff = NULL, reference){
-  library(dplyr)
+
   New <- reference
   name <- keyword(x, sample.name)
   if(is.null(experiment)){experiment <- keyword(x, experiment.name)
@@ -41,7 +49,6 @@ MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter, sampl
   starter <- gsub(" ", "", starter, fixed = TRUE)
   starter <- gsub(".", "", starter, fixed = TRUE)
 
-  set.seed(1989)
   if(!is.null(subsample)){My.Data <- slice_sample(dsf, n = subsample, replace = FALSE)
   } else{My.Data <- dsf}
 

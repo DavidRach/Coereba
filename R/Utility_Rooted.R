@@ -3,7 +3,10 @@
 #' @param data A data.frame object
 #' @param column A given column of the data.frame
 #'
-#' @import stringr strsplit
+#' @importFrom dplyr mutate
+#' @importFrom dplyr select
+#' @importFrom dplyr rowwise
+#' @importFrom dplyr c_across
 #'
 #' @return NULL
 #' @export

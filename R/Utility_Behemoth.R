@@ -11,11 +11,11 @@
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggbeeswarm geom_beeswarm
 #'
-#'
 #' @return NULL
 #' @export
 #'
 #' @examples NULL
+#'
 Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette, fill_palette, switch){
 
   theYlim <- max(data[[var]])
@@ -23,7 +23,7 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette, fill
   FactorLevelsCount <- length(levels(data[[myfactor]]))
 
   dago_wrapper <- function(x){
-    A <- fBasics::dagoTest(x)
+    A <- Coereba::dagoTest(x)
     method <- A@test$method
     p.value <- A@test$p.value[[1]]
     C <- data.frame(cbind(p.value, method))

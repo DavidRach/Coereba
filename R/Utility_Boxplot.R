@@ -8,7 +8,7 @@
 #'
 #' @import ggplot2
 #' @importFrom broom tidy
-#' @import ggbeeswarm geom_beeswarm
+#' @importFrom ggbeeswarm geom_beeswarm
 #'
 #' @return NULL
 #' @export

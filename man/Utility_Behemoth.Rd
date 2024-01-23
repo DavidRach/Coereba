@@ -34,4 +34,5 @@ Coereba's main function. Runs normality, runs stats, plots the results.
 }
 \examples{
 NULL
+
 }

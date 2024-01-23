@@ -3,9 +3,13 @@
 #' @param x  A GatingSet object (ex. gs or gs[[1]])
 #' @param cutoff Number of cells required to retain the cluster
 #' @param starter A column to start division on, (ex. "BV711-A")
+#'
 #' @importFrom flowCore exprs
 #' @importFrom flowCore keyword
 #' @importFrom dplyr filter
+#' @importFrom dplyr mutate
+#' @importFrom dplyr select
+#' @importFrom tidyr pivot_wider
 #'
 #'
 #' @return NULL
