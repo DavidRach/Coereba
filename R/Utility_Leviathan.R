@@ -13,6 +13,9 @@
 #'
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggbeeswarm geom_beeswarm
+#' @importFrom tidyr unnest
+#' @importFrom stringr str_wrap
+#'
 #'
 #'
 #' @return NULL
