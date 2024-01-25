@@ -19,8 +19,6 @@
 #' @importFrom dplyr slice_sample
 #' @importFrom dplyr case_when
 #' @importFrom dplyr mutate
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
 #'
 #' @return NULL
 #' @export

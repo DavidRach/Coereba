@@ -10,6 +10,7 @@
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr select
 #' @importFrom broom tidy
+#' @importFrom stats cor.test
 #'
 #'
 #' @return NULL

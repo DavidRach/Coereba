@@ -5,6 +5,7 @@
 #'
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
+#' @importFrom dplyr row_number
 #' @importFrom reshape2 melt
 #' @import ggplot2
 #' @importFrom viridis scale_fill_viridis

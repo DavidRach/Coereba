@@ -5,10 +5,12 @@
 #' @param starter A column to start division on, (ex. "BV711-A")
 #'
 #' @importFrom flowCore exprs
-#' @importFrom flowCore keyword
+#' @importFrom flowWorkspace keyword
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
+#' @importFrom dplyr case_when
 #' @importFrom dplyr select
+#' @importFrom dplyr bind_rows
 #' @importFrom tidyr pivot_wider
 #'
 #'

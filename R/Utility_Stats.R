@@ -10,6 +10,15 @@
 #'
 #' @importFrom tidyr unnest
 #' @importFrom broom tidy
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarize
+#' @importFrom stats shapiro.test
+#' @importFrom stats t.test
+#' @importFrom stats wilcox.test
+#' @importFrom stats pairwise.t.test
+#' @importFrom stats aov
+#' @importFrom stats kruskal.test
+#' @importFrom stats pairwise.wilcox.test
 #'
 #' @return NULL
 #' @export

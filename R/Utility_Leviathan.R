@@ -11,11 +11,23 @@
 #' @param scalefactor Multiply the ratio by this number for easier interpretability
 #' @param scalefactorlabel Relabel the axis with the cell type of interest. (Ex. "Vd2 T cells")
 #'
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggbeeswarm geom_beeswarm
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarize
+#' @importFrom dplyr filter
+#' @importFrom dplyr slice_max
+#' @importFrom dplyr ungroup
 #' @importFrom tidyr unnest
+#' @importFrom broom tidy
+#' @importFrom stats shapiro.test
+#' @importFrom stats t.test
+#' @importFrom stats wilcox.test
+#' @importFrom stats pairwise.t.test
+#' @importFrom stats aov
+#' @importFrom stats kruskal.test
+#' @importFrom stats pairwise.wilcox.test
+#' @import ggplot2
+#' @importFrom ggbeeswarm geom_beeswarm
 #' @importFrom stringr str_wrap
-#'
 #'
 #'
 #' @return NULL

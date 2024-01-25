@@ -7,7 +7,6 @@
 #' @param fill_palette palette corresponding to the factor, specifying the fill
 #'
 #' @import ggplot2
-#' @importFrom broom tidy
 #' @importFrom ggbeeswarm geom_beeswarm
 #'
 #' @return NULL

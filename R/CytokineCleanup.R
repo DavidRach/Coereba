@@ -6,6 +6,7 @@
 #' @param second Return name second column
 #'
 #' @importFrom stringr str_detect
+#' @importFrom stringr str_extract
 #' @importFrom dplyr mutate
 #' @importFrom dplyr rename_with
 #' @importFrom dplyr bind_cols

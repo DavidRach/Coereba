@@ -8,9 +8,19 @@
 #' @param fill_palette Palette corresponding to factor levels, designating each's fill
 #' @param switch Unclear
 #'
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggbeeswarm geom_beeswarm
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarize
 #' @importFrom tidyr unnest
+#' @importFrom broom tidy
+#' @importFrom stats shapiro.test
+#' @importFrom stats t.test
+#' @importFrom stats wilcox.test
+#' @importFrom stats pairwise.t.test
+#' @importFrom stats aov
+#' @importFrom stats kruskal.test
+#' @importFrom stats pairwise.wilcox.test
+#' @import ggplot2
+#' @importFrom ggbeeswarm geom_beeswarm
 #' @importFrom stringr str_wrap
 #'
 #' @return NULL
