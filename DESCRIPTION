@@ -15,12 +15,17 @@ RoxygenNote: 7.2.3
 Imports: 
     broom,
     dplyr,
+    fBasics,
     flowCore,
     flowWorkspace,
+    ggbeeswarm,
     ggcyto,
     ggplot2,
+    ggpubr,
     openCyto,
     patchwork,
     purrr,
+    reshape2,
+    stringr,
     tidyr,
     viridis
