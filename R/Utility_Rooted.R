@@ -32,7 +32,8 @@ Utility_Rooted <- function(data, column){
   Mini <- data[, SelectColumns]
 
   Mini <- Mini/100 #Return Everything to Decimal
-  result <- rowwise(Mini) %>% mutate(NewColumn = prod(c_across(everything()))) #Multiply all by each other
+  result <- rowwise(Mini) %>% mutate(NewColumn = prod(
+    c_across(everything()))) #Multiply all by each other
   result <- mutate(result, NewColumn = NewColumn*100) #Return to decimal
   result$NewColumn <- as.numeric(result$NewColumn)
   result1 <- result %>% select(NewColumn) %>% as.data.frame()

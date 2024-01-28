@@ -14,7 +14,8 @@
 #' @examples NULL
 Utility_LinePlot <- function(data, varX, varY, myfactor, color_palette){
 
-  plot <- ggplot(data, aes(x =.data[[varX]], y = .data[[varY]], color = .data[[myfactor]])) +
+  plot <- ggplot(data, aes(x =.data[[varX]], y = .data[[varY]],
+                           color = .data[[myfactor]])) +
     geom_point(aes(fill = .data[[myfactor]]), size = 3) +
     geom_smooth(method = "lm", formula = y ~ x, se = FALSE, size = 1) +
     stat_cor(method = "spearman", aes(group = NULL)) +

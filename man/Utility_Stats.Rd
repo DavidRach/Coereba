@@ -23,9 +23,11 @@ Utility_Stats(
 
 \item{normality}{The Normality test to be applied, "dagostino" or "shapiro"}
 
-\item{shape_palette}{provide the shape palette matches your provided factor names}
+\item{shape_palette}{provide the shape palette matches your provided factor
+names}
 
-\item{fill_palette}{provide the fill palette matches your provided factor names}
+\item{fill_palette}{provide the fill palette matches your provided factor
+names}
 
 \item{switch}{Unclear}
 }

@@ -33,9 +33,11 @@ Utility_Patchwork <- function(x, filename, outfolder, thecolumns, therows){
 
   MergedName <- paste(outfolder, filename, sep = "/")
 
-  pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL), width = 9, height = 7) #Optional Adjustments for Second
+  pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL), width = 9,
+      height = 7) #Optional Adjustments for Second
 
-  for(i in sublists){p <- wrap_plots(i, ncol = thecolumns, nrow = therows, widths = 0.8, heights = 0.8)
+  for(i in sublists){p <- wrap_plots(i, ncol = thecolumns, nrow = therows,
+                                     widths = 0.8, heights = 0.8)
   print(p)
   }
 

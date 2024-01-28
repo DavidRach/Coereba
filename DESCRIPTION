@@ -5,7 +5,7 @@ Version: 0.1.0
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
-Description: What is hiding from your unsupervised analysis? Let's find out.
+Description: Acknowledging the limitations of unsupervized analysis and downsampling, through a semi-supervised gating implements dichotomized boolean gates to cluster every cell from an experiment and querry the resulting subclusters.
 License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: FALSE
@@ -21,9 +21,13 @@ Imports:
     ggbeeswarm,
     ggplot2,
     ggpubr,
+    grDevices,
+    magrittr,
     patchwork,
     purrr,
     reshape2,
+    scales,
+    stats,
     stringr,
     tidyr,
     tidyselect,
@@ -31,11 +35,10 @@ Imports:
 Suggests: 
     ggcyto,
     knitr,
-    magrittr,
     openCyto,
     rmarkdown,
-    scales,
     testthat (>= 3.0.0),
     withr
+biocViews: FlowCytometry, Preprocessing, Software
 Config/testthat/edition: 3
 VignetteBuilder: knitr

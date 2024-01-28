@@ -4,12 +4,15 @@
 #' @param var A column of the data.frame containing variable of interest
 #' @param myfactor A column of the data.frame containing the factor to compare
 #' @param normality Choice of normality test, "dagostino" or "shapiro"
-#' @param shape_palette Palette using names of the factor and corresponding shape
+#' @param shape_palette Palette using names of the factor and corresponding
+#'  shape
 #' @param fill_palette Palette using names of the factor and corresponding fill
 #' @param switch Unclear
 #' @param panel Unclear
-#' @param scalefactor Multiply the ratio by this number for easier interpretability
-#' @param scalefactorlabel Relabel the axis with the cell type of interest. (Ex. "Vd2 T cells")
+#' @param scalefactor Multiply the ratio by this number for easier
+#' interpretability
+#' @param scalefactorlabel Relabel the axis with the cell type of interest.
+#'  (Ex. "Vd2 T cells")
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
@@ -28,6 +31,7 @@
 #' @import ggplot2
 #' @importFrom ggbeeswarm geom_beeswarm
 #' @importFrom stringr str_wrap
+#' @importFrom scales label_number
 #'
 #'
 #' @return NULL
@@ -36,7 +40,8 @@
 #' @examples NULL
 Utility_Leviathan <- function(data1, var, myfactor, normality, shape_palette, fill_palette, switch, panel, scalefactor, scalefactorlabel){
 
-  indices <- data1 %>% group_by(.data[[myfactor]]) %>% slice_max(order_by = .data[[var]]) %>% ungroup() %>% pull(bid)
+  indices <- data1 %>% group_by(.data[[myfactor]]) %>%
+    slice_max(order_by = .data[[var]]) %>% ungroup() %>% pull(bid)
   data <- data1 %>% filter(!bid %in% indices)
 
   theYlim <- max(data[[var]])
@@ -50,30 +55,41 @@ Utility_Leviathan <- function(data1, var, myfactor, normality, shape_palette, fi
     C <- data.frame(cbind(p.value, method))
   }
 
-  if (normality == "dagostino") {Stashed <- data %>% group_by(.data[[myfactor]]) %>% summarize(dagostino_result = dago_wrapper(.data[[var]])) %>% unnest(dagostino_result)
-  } else if (normality == "shapiro") {Stashed <- data %>% group_by(.data[[myfactor]]) %>% summarize(shapiro_result = list(tidy(shapiro.test(.data[[var]])))) %>% unnest(shapiro_result)
+  if (normality == "dagostino") {Stashed <- data %>%
+    group_by(.data[[myfactor]]) %>%
+    summarize(dagostino_result = dago_wrapper(.data[[var]])) %>%
+    unnest(dagostino_result)
+  } else if (normality == "shapiro") {Stashed <- data %>%
+    group_by(.data[[myfactor]]) %>%
+    summarize(shapiro_result = list(tidy(shapiro.test(.data[[var]])))) %>%
+    unnest(shapiro_result)
   } else ("Forgot to input Normality test choice. Use 'dagostino' or 'shapiro'")
 
-  Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"} else{"nonparametric"}
+  Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"} else{
+    "nonparametric"}
 
   TheTest <- if (Distribution == "parametric" & FactorLevelsCount == 2) {
-    tt<- tidy(t.test(data[[var]] ~ data[[myfactor]], alternative = "two.sided", var.equal = TRUE))
+    tt<- tidy(t.test(data[[var]] ~ data[[myfactor]],
+                     alternative = "two.sided", var.equal = TRUE))
   } else if (Distribution == "parametric" & FactorLevelsCount > 2){
     at<- tidy(aov(data[[var]] ~ data[[myfactor]], data = data))
     at$method <- "One-way Anova"
     if(at$p.value[1] < 0.05) {
       subset_data <- subset(data, select = c(var, myfactor))
-      ptt <- tidy(pairwise.t.test(subset_data[[var]], subset_data[[myfactor]], p.adjust.method = "BH"))
+      ptt <- tidy(pairwise.t.test(subset_data[[var]],
+                            subset_data[[myfactor]], p.adjust.method = "BH"))
       ptt$method <- "Pairwise t-test"
       ptt
     } else(at)
   } else if (Distribution == "nonparametric" & FactorLevelsCount == 2){
-    wt <- tidy(wilcox.test(data[[var]] ~ data[[myfactor]], alternative = "two.sided", var.equal = TRUE))
+    wt <- tidy(wilcox.test(data[[var]] ~ data[[myfactor]],
+                           alternative = "two.sided", var.equal = TRUE))
   } else if (Distribution == "nonparametric" & FactorLevelsCount > 2){
     kt <- tidy(kruskal.test(data[[var]] ~ data[[myfactor]], data = data))
     if (kt$p.value < 0.05) {
       subset_data <- subset(data, select = c(var, myfactor))
-      pwt <- tidy(pairwise.wilcox.test(subset_data[[var]], g=subset_data[[myfactor]], p.adjust.method = "BH"))
+      pwt <- tidy(pairwise.wilcox.test(subset_data[[var]],
+                      g=subset_data[[myfactor]], p.adjust.method = "BH"))
       pwt$method <- "Pairwise Wilcox test"
       pwt
     } else {kt}
@@ -81,11 +97,14 @@ Utility_Leviathan <- function(data1, var, myfactor, normality, shape_palette, fi
 
   #My pvalue cleanup function
   pval_mold <- function(x){
-    if (x > 0.1){"n.s"} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {round(x, 5)} else if (x > 0.000001) {round(x, 6)}
+    if (x > 0.1){"n.s"} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
+      round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {
+        round(x, 5)} else if (x > 0.000001) {round(x, 6)}
   }
 
   Method <- unique(TheTest$method)
-  MyPval <- if(Method %in% c("Two Sample t-test", "Wilcoxon rank sum test with continuity correction")){
+  MyPval <- if(Method %in% c("Two Sample t-test",
+                "Wilcoxon rank sum test with continuity correction")){
     thepvalue <- pval_mold(TheTest$p.value)
   } else if (Method %in% c("One-way Anova", "Kruskal-Wallis rank sum test")){
     Pval <- TheTest$p.value
@@ -124,34 +143,66 @@ Utility_Leviathan <- function(data1, var, myfactor, normality, shape_palette, fi
   wrapped_title <- str_wrap(Cleaned_string2, width = 70)
 
 
-  plot <- ggplot(data, aes(x =.data[[myfactor]], y = .data[[var]])) + geom_boxplot(show.legend = FALSE) + stat_summary(fun = median, show.legend = FALSE, geom = "crossbar", width = 0.75) + geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]], fill = .data[[myfactor]]), method = "center", side = 0, priority = "density", cex = 0.8, size = 4) + scale_shape_manual(values = shape_palette) +
-    scale_fill_manual(values = fill_palette) + labs(title = wrapped_title, x = NULL, y = NULL) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), plot.title = element_text(hjust = 0.5, size = 9)) + scale_y_continuous(labels = scales::label_number(scale = scalefactor, suffix = "")) + ylab(scalefactorlabel)
+  plot <- ggplot(data, aes(x =.data[[myfactor]], y = .data[[var]])) +
+    geom_boxplot(show.legend = FALSE) + stat_summary(fun = median,
+        show.legend = FALSE, geom = "crossbar", width = 0.75) +
+    geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]],
+        fill = .data[[myfactor]]), method = "center", side = 0,
+        priority = "density", cex = 0.8, size = 4) +
+    scale_shape_manual(values = shape_palette) +
+    scale_fill_manual(values = fill_palette) +
+    labs(title = wrapped_title, x = NULL, y = NULL) +
+    theme_bw() + theme(panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(), plot.title = element_text(
+        hjust = 0.5, size = 9)) + scale_y_continuous(labels = label_number(
+          scale = scalefactor, suffix = "")) + ylab(scalefactorlabel)
 
-  plot2 <- if(Method %in% c("Two Sample t-test", "Wilcoxon rank sum test with continuity correction")){
-    plot + geom_line(data=tibble(x=c(1,2), y=c(SingleY, SingleY)), aes(x=x, y=y), inherit.aes = FALSE)+
-      geom_line(data=tibble(x=c(1,1), y=c(SingleY*0.98,SingleY*1.02)), aes(x=x, y=y), inherit.aes = FALSE)+
-      geom_line(data=tibble(x=c(2,2), y=c(SingleY*0.98,SingleY*1.02)), aes(x=x, y=y), inherit.aes = FALSE) +
-      geom_text(data=tibble(x=1.5, y=SingleY*1.04), aes(x=x, y=y, label = SingleP), size = 4, inherit.aes = FALSE) +
+  plot2 <- if(Method %in% c("Two Sample t-test",
+              "Wilcoxon rank sum test with continuity correction")){
+    plot + geom_line(data=tibble(x=c(1,2), y=c(SingleY, SingleY)),
+                     aes(x=x, y=y), inherit.aes = FALSE)+
+      geom_line(data=tibble(x=c(1,1), y=c(SingleY*0.98,SingleY*1.02)),
+                aes(x=x, y=y), inherit.aes = FALSE)+
+      geom_line(data=tibble(x=c(2,2), y=c(SingleY*0.98,SingleY*1.02)),
+                aes(x=x, y=y), inherit.aes = FALSE) +
+      geom_text(data=tibble(x=1.5, y=SingleY*1.04), aes(x=x, y=y,
+                label = SingleP), size = 4, inherit.aes = FALSE) +
       labs(caption = Method)
   } else if (Method %in% c("One-way Anova", "Kruskal-Wallis rank sum test")){
-    plot + geom_line(data=tibble(x=c(1,3), y=c(SingleY, SingleY)), aes(x=x, y=y), inherit.aes = FALSE)+
-      geom_line(data=tibble(x=c(1,1), y=c(SingleY*0.98,SingleY*1.02)), aes(x=x, y=y), inherit.aes = FALSE)+
-      geom_line(data=tibble(x=c(3,3), y=c(SingleY*0.98,SingleY*1.02)), aes(x=x, y=y), inherit.aes = FALSE) +
-      geom_text(data=tibble(x=2, y=SingleY*1.04), aes(x=x, y=y, label = SingleP), size = 4, inherit.aes = FALSE) +
+    plot + geom_line(data=tibble(x=c(1,3), y=c(SingleY, SingleY)),
+                     aes(x=x, y=y), inherit.aes = FALSE)+
+      geom_line(data=tibble(x=c(1,1), y=c(SingleY*0.98,SingleY*1.02)),
+                aes(x=x, y=y), inherit.aes = FALSE)+
+      geom_line(data=tibble(x=c(3,3), y=c(SingleY*0.98,SingleY*1.02)),
+                aes(x=x, y=y), inherit.aes = FALSE) +
+      geom_text(data=tibble(x=2, y=SingleY*1.04), aes(x=x, y=y, label = SingleP),
+                size = 4, inherit.aes = FALSE) +
       labs(caption = Method)
   } else if (Method %in% c("Pairwise t-test", "Pairwise Wilcox test")) {
-    plot + geom_line(data=tibble(x=c(1,1.9), y=c(FirstY, FirstY)), aes(x=x, y=y), inherit.aes = FALSE)+
-      geom_line(data=tibble(x=c(1,1), y=c(FirstY*0.98,FirstY*1.02)), aes(x=x, y=y), inherit.aes = FALSE)+
-      geom_line(data=tibble(x=c(1.9,1.9), y=c(FirstY*0.98,FirstY*1.02)), aes(x=x, y=y), inherit.aes = FALSE) +
-      geom_text(data=tibble(x=1.5, y=FirstY*1.04), aes(x=x, y=y, label = FirstP), size = 4, inherit.aes = FALSE) +
-      geom_line(data=tibble(x=c(2.1,3), y=c(ThirdY, ThirdY)), aes(x=x, y=y), inherit.aes = FALSE)+
-      geom_line(data=tibble(x=c(2.1,2.1), y=c(ThirdY*0.98,ThirdY*1.02)), aes(x=x, y=y), inherit.aes = FALSE)+
-      geom_line(data=tibble(x=c(3,3), y=c(ThirdY*0.98,ThirdY*1.02)), aes(x=x, y=y), inherit.aes = FALSE) +
-      geom_text(data=tibble(x=2.55, y=ThirdY*1.04), aes(x=x, y=y, label = ThirdP), size = 4, inherit.aes = FALSE)+
-      geom_line(data=tibble(x=c(1,3), y=c(SecondY, SecondY)), aes(x=x, y=y), inherit.aes = FALSE)+
-      geom_line(data=tibble(x=c(1,1), y=c(SecondY*0.98,SecondY*1.02)), aes(x=x, y=y), inherit.aes = FALSE)+
-      geom_line(data=tibble(x=c(3,3), y=c(SecondY*0.98,SecondY*1.02)), aes(x=x, y=y), inherit.aes = FALSE) +
-      geom_text(data=tibble(x=2, y=SecondY*1.04), aes(x=x, y=y, label = SecondP), size = 4, inherit.aes = FALSE) +
+    plot + geom_line(data=tibble(x=c(1,1.9), y=c(FirstY, FirstY)),
+                     aes(x=x, y=y), inherit.aes = FALSE)+
+      geom_line(data=tibble(x=c(1,1), y=c(FirstY*0.98,FirstY*1.02)),
+                aes(x=x, y=y), inherit.aes = FALSE)+
+      geom_line(data=tibble(x=c(1.9,1.9), y=c(FirstY*0.98,FirstY*1.02)),
+                aes(x=x, y=y), inherit.aes = FALSE) +
+      geom_text(data=tibble(x=1.5, y=FirstY*1.04), aes(x=x, y=y,
+                label = FirstP), size = 4, inherit.aes = FALSE) +
+      geom_line(data=tibble(x=c(2.1,3), y=c(ThirdY, ThirdY)), aes(x=x, y=y),
+                inherit.aes = FALSE)+
+      geom_line(data=tibble(x=c(2.1,2.1), y=c(ThirdY*0.98,ThirdY*1.02)),
+                aes(x=x, y=y), inherit.aes = FALSE)+
+      geom_line(data=tibble(x=c(3,3), y=c(ThirdY*0.98,ThirdY*1.02)),
+                aes(x=x, y=y), inherit.aes = FALSE) +
+      geom_text(data=tibble(x=2.55, y=ThirdY*1.04), aes(x=x, y=y, label = ThirdP),
+                size = 4, inherit.aes = FALSE)+
+      geom_line(data=tibble(x=c(1,3), y=c(SecondY, SecondY)), aes(x=x, y=y),
+                inherit.aes = FALSE)+
+      geom_line(data=tibble(x=c(1,1), y=c(SecondY*0.98,SecondY*1.02)),
+                aes(x=x, y=y), inherit.aes = FALSE)+
+      geom_line(data=tibble(x=c(3,3), y=c(SecondY*0.98,SecondY*1.02)),
+                aes(x=x, y=y), inherit.aes = FALSE) +
+      geom_text(data=tibble(x=2, y=SecondY*1.04), aes(x=x, y=y,
+            label = SecondP), size = 4, inherit.aes = FALSE) +
       labs(caption = Method)
   } else {plot}
 

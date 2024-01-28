@@ -24,13 +24,16 @@
 #' @export
 #'
 #' @examples NULL
-MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter, sample.name, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL, bins, cutoff = NULL, reference){
+MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter,
+                       sample.name, experiment = NULL, experiment.name = NULL,
+                       condition = NULL, condition.name = NULL, bins,
+                       cutoff = NULL, reference){
 
   New <- reference
   name <- keyword(x, sample.name)
   if(is.null(experiment)){experiment <- keyword(x, experiment.name)
-  experiment <- gsub("DTR_2023_", "", experiment) #Not Tidy Data Manipulation
-  experiment <- gsub("^(.*?\\d{2}).*", "\\1", experiment) #Not Tidy Data Manipulation;
+  experiment <- gsub("DTR_2023_", "", experiment) #Not Tidy
+  experiment <- gsub("^(.*?\\d{2}).*", "\\1", experiment) #NotTidy
   } else {experiment = experiment}
   if(is.null(condition)) {condition <- keyword(x, condition.name)
   } else {condition = condition}
@@ -47,7 +50,8 @@ MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter, sampl
   starter <- gsub(" ", "", starter, fixed = TRUE)
   starter <- gsub(".", "", starter, fixed = TRUE)
 
-  if(!is.null(subsample)){My.Data <- slice_sample(dsf, n = subsample, replace = FALSE)
+  if(!is.null(subsample)){My.Data <- slice_sample(dsf, n = subsample,
+                                                  replace = FALSE)
   } else{My.Data <- dsf}
 
   StartingCount <- nrow(My.Data)
@@ -64,9 +68,12 @@ MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter, sampl
     My.Data[[starter]] > New[New[[sample.name]] == name, starter] ~ paste(
       starter, "pos", sep = "", collapse = NULL)))
 
-  for(i in Columns) {MyNewestData <- MyNewestData %>% mutate(Cluster = case_when(
-    MyNewestData[[i]] < New[New[[sample.name]] == name, i] ~ paste(MyNewestData$Cluster, i, "neg", sep = ""),
-    MyNewestData[[i]] > New[New[[sample.name]] == name, i] ~ paste(MyNewestData$Cluster, i, "pos", sep = "")
+  for(i in Columns) {MyNewestData <- MyNewestData %>%
+    mutate(Cluster = case_when(
+    MyNewestData[[i]] < New[New[[sample.name]] == name, i] ~
+      paste(MyNewestData$Cluster, i, "neg", sep = ""),
+    MyNewestData[[i]] > New[New[[sample.name]] == name, i] ~
+      paste(MyNewestData$Cluster, i, "pos", sep = "")
   ))
   }
 

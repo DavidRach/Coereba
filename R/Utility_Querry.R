@@ -6,11 +6,13 @@
 #' @param outfolder Folder to which to output the results
 #' @param panel Unclear
 #' @param starter Unclear
-#' @param myFactor Column containing factor designation that you want to differentially compare
+#' @param myFactor Column containing factor designation that you want to
+#'  differentially compare
 #' @param normality Normality test to be used, ex. "dagostino" or "sharpwilks"
 #' @param shape_palette palette that list your factors of interest
 #' @param fill_palette palette that list your factor of interest
-#' @param scalefactor Number you are multiplying the ratio by to make more interpretable (ex. 1000)
+#' @param scalefactor Number you are multiplying the ratio by to make more
+#' interpretable (ex. 1000)
 #' @param scalefactorlabel The cells of interest, ex. "Vd2 T cells"
 #'
 #' @importFrom dplyr select
@@ -31,7 +33,9 @@
 #' @export
 #'
 #' @examples NULL
-Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder, panel, starter, myFactor, normality, shape_palette, fill_palette, scalefactor, scalefactorlabel){
+Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder,
+        panel, starter, myFactor, normality, shape_palette, fill_palette,
+        scalefactor, scalefactorlabel){
 
   Metadata <- OriginalData %>% select(!starts_with(starter))
 
@@ -39,22 +43,27 @@ Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder, panel,
 
   Internal_Heatmap <- function(filteredCells, panel){
     MyPanel <- read.csv(panel)
-    Fluorophore <- filteredCells %>% select(2:length(filteredCells)) %>% colnames()
+    Fluorophore <- filteredCells %>% select(2:length(filteredCells)) %>%
+      colnames()
     Fluorophore <- data.frame(Fluorophore)
     Attempt2 <- left_join(Fluorophore, MyPanel, by = "Fluorophore")
     Names <- Attempt2$Marker
     colnames(filteredCells)[2:length(filteredCells)] <- Names
     #filteredCells
 
-    theCells <- filteredCells %>% mutate(Cluster = row_number()) %>% relocate(Cluster, .after = Identity)
+    theCells <- filteredCells %>% mutate(Cluster = row_number()) %>%
+      relocate(Cluster, .after = Identity)
     retained <- colnames(theCells[,1:2])
     MeltedCells <- reshape2::melt(theCells, id = retained)
     MeltedCells$Cluster <- factor(MeltedCells$Cluster)
     MeltedCells$variable <- factor(MeltedCells$variable)
 
-    MyHeatmap <- ggplot(MeltedCells, aes(Cluster, variable, fill = value)) + geom_tile() +
-      scale_fill_viridis(option = "cividis", discrete=FALSE) + theme_classic() +
-      theme(legend.position = "none", axis.text.x = element_text(size = 5, angle = 300)) + labs(y = NULL)
+    MyHeatmap <- ggplot(MeltedCells, aes(Cluster, variable, fill = value)) +
+      geom_tile() +
+      scale_fill_viridis(option = "cividis", discrete=FALSE) +
+      theme_classic() +
+      theme(legend.position = "none", axis.text.x = element_text(size = 5,
+                        angle = 300)) + labs(y = NULL)
     MyHeatmap
   }
 
@@ -76,14 +85,20 @@ Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder, panel,
       TheInternalBypass <- Positive$Identity
       TheInternalBypass <- gsub("_", "", TheInternalBypass)
       TheInternalBypass <- gsub("-", "", TheInternalBypass)
-      InternalData <- OriginalData[, names(OriginalData) %in% TheInternalBypass] #Input from HeatMap filtered.
+      InternalData <- OriginalData[, names(OriginalData) %in%
+                  TheInternalBypass] #Input from HeatMap filtered.
       InternalData <- as_tibble(InternalData)
-      Subsetted <- InternalData %>% rowwise() %>% mutate(aggregate = sum(c_across(everything()), na.rm = TRUE))
+      Subsetted <- InternalData %>% rowwise() %>% mutate(
+        aggregate = sum(c_across(everything()), na.rm = TRUE))
       InternalFinal <- Subsetted %>% select(aggregate) %>% cbind(Metadata, .)
       #StarterValue <- ncol(Metadata) + 1
       EndValue <- ncol(InternalFinal)
 
-      Behemoth <- map(names(InternalFinal)[EndValue], ~ Utility_Behemoth(data = InternalFinal, var = .x, myfactor = myFactor, normality = normality, shape_palette = shape_palette, fill_palette = fill_palette, panel = MyPanel, scalefactor = scalefactor, scalefactorlabel = scalefactorlabel))
+      Behemoth <- map(names(InternalFinal)[EndValue], ~ Utility_Behemoth(
+        data = InternalFinal, var = .x, myfactor = myFactor,
+        normality = normality, shape_palette = shape_palette,
+        fill_palette = fill_palette, panel = MyPanel,
+        scalefactor = scalefactor, scalefactorlabel = scalefactorlabel))
       FinalPosBehemoth <- Behemoth[[1]] + ggtitle(ThePlotName)
 
       Heatmap <- Internal_Heatmap(filteredCells = Positive, panel = panel)
@@ -104,14 +119,20 @@ Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder, panel,
       TheInternalBypass <- Negative$Identity
       TheInternalBypass <- gsub("_", "", TheInternalBypass)
       TheInternalBypass <- gsub("-", "", TheInternalBypass)
-      InternalData <- OriginalData[, names(OriginalData) %in% TheInternalBypass] #Input from HeatMap filtered.
+      InternalData <- OriginalData[, names(OriginalData) %in%
+                    TheInternalBypass] #Input from HeatMap filtered.
       InternalData <- as_tibble(InternalData)
-      Subsetted <- InternalData %>% rowwise() %>% mutate(aggregate = sum(c_across(everything()), na.rm = TRUE))
+      Subsetted <- InternalData %>% rowwise() %>% mutate(
+        aggregate = sum(c_across(everything()), na.rm = TRUE))
       InternalFinal <- Subsetted %>% select(aggregate) %>% cbind(Metadata, .)
       #StarterValue <- ncol(Metadata) + 1
       EndValue <- ncol(InternalFinal)
 
-      Behemoth <- map(names(InternalFinal)[EndValue], ~ Utility_Behemoth(data = InternalFinal, var = .x, myfactor = myFactor, normality = normality, shape_palette = shape_palette, fill_palette = fill_palette, panel = MyPanel, scalefactor = scalefactor, scalefactorlabel = scalefactorlabel))
+      Behemoth <- map(names(InternalFinal)[EndValue], ~ Utility_Behemoth(
+        data = InternalFinal, var = .x, myfactor = myFactor,
+        normality = normality, shape_palette = shape_palette,
+        fill_palette = fill_palette, panel = MyPanel,
+        scalefactor = scalefactor, scalefactorlabel = scalefactorlabel))
       FinalNegBehemoth <- Behemoth[[1]] + ggtitle(ThePlotName)
 
       Heatmap <- Internal_Heatmap(filteredCells = Negative, panel = panel)
@@ -128,5 +149,6 @@ Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder, panel,
   theflattenedplots <- Filter(Negate(is.null), theflattenedplots)
   theflattestplots <- flatten(theflattenedplots)
 
-  Utility_Patchwork(x = theflattestplots, filename = filename, outfolder = outfolder, thecolumns = 2, therows = 2)
+  Utility_Patchwork(x = theflattestplots, filename = filename,
+                    outfolder = outfolder, thecolumns = 2, therows = 2)
 }

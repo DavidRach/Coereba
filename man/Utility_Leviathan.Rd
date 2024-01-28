@@ -26,7 +26,8 @@ Utility_Leviathan(
 
 \item{normality}{Choice of normality test, "dagostino" or "shapiro"}
 
-\item{shape_palette}{Palette using names of the factor and corresponding shape}
+\item{shape_palette}{Palette using names of the factor and corresponding
+shape}
 
 \item{fill_palette}{Palette using names of the factor and corresponding fill}
 
@@ -34,9 +35,11 @@ Utility_Leviathan(
 
 \item{panel}{Unclear}
 
-\item{scalefactor}{Multiply the ratio by this number for easier interpretability}
+\item{scalefactor}{Multiply the ratio by this number for easier
+interpretability}
 
-\item{scalefactorlabel}{Relabel the axis with the cell type of interest. (Ex. "Vd2 T cells")}
+\item{scalefactorlabel}{Relabel the axis with the cell type of interest.
+(Ex. "Vd2 T cells")}
 }
 \description{
 Similar to Behemoth, drops the greatest value for all groups.

@@ -11,7 +11,8 @@ Utility_QQplots(data, var, myfactor)
 
 \item{var}{The column containing your values}
 
-\item{myfactor}{The column containing the factor designations that you want to compare.}
+\item{myfactor}{The column containing the factor designations that
+you want to compare.}
 }
 \description{
 Generate QQ plots to assess normality

@@ -12,7 +12,8 @@
 #' @examples NULL
 Utility_GeomDensity <- function(data, var, myfactor){
 
-  plot <- ggplot(data, aes(x =.data[[var]], fill = .data[[myfactor]])) + theme_bw() +
+  plot <- ggplot(data, aes(x =.data[[var]], fill = .data[[myfactor]])) +
+    theme_bw() +
     geom_density(alpha = 0.5) +
     labs(title = var, x = NULL, y = "Frequency")
 

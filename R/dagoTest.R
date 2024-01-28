@@ -109,8 +109,6 @@ dagoTest <- function(x, title = NULL, description = NULL)
     B = (6*(n*n-5*n+2)/((n+7)*(n+9)))*sqrt((6*(n+3)*(n+5))/(n*(n-2)*(n-3)))
     A = 6+(8/B)*((2/B)+sqrt(1+4/(B**2)))
     jm = sqrt(2/(9*A))
-    ## Georgi: see similar change in .kurtosis.test()
-    ## was: pos = ((1-2/A)/(1+U4*sqrt(2/(A-4))))**(1/3)
     pos0 = ((1-2/A)/(1+U4*sqrt(2/(A-4))))
     pos <- sign(pos0) * abs(pos0) ^ (1/3)
 
@@ -156,9 +154,6 @@ dagoTest <- function(x, title = NULL, description = NULL)
     B = (6*(n*n-5*n+2)/((n+7)*(n+9)))*sqrt((6*(n+3)*(n+5))/(n*(n-2)*(n-3)))
     A = 6+(8/B)*((2/B)+sqrt(1+4/(B**2)))
     jm = sqrt(2/(9*A))
-    ## (2023-02-27) Georgi: 'pos' becomes NaN for a power of negative number, reported by
-    ##         Cameron Wilden. Implementing his suggestion for fix.
-    ## was: pos = ((1-2/A)/(1+U4*sqrt(2/(A-4))))**(1/3)
     pos0 = ((1-2/A)/(1+U4*sqrt(2/(A-4))))
     pos <- sign(pos0) * abs(pos0) ^ (1/3)
 
@@ -181,21 +176,6 @@ dagoTest <- function(x, title = NULL, description = NULL)
 .skewness.test <- function(x)
 {
   # Internal Function for D'Agostino Normality Test:
-
-  # Note:
-  #   D'Agostino Test
-  #   http://adela.karlin.mff.cuni.cz/~klaster/vyuka/
-  #   Materi???ly pro cvicen????, kter??? byla v labu, jsou zde: cv01.txt,
-  #   cv02.txt, cv03.txt, cv05.txt, cv06.txt, data maths, police a
-  #   vysky a makro dagost.r. V????ber nejak????ch pr????kladu ze cvicen???? je
-  #   tady.
-  #   Program R lze zdarma (GNU General Public Licence) st???hnout z
-  #   www.r-project.org. Alespon k letm???mu nahl???dnut???? doporucuji t????
-  #   minimanu??/l An Introduction to R, kter???? roste tamt????. Dal?????
-  #   materi???ly vcetne dvou zac???tecnick????ch pr????rucek najdete na
-  #   str???nk???ch Dr. Kulicha.
-
-  # FUNCTION:
 
   DNAME = deparse(substitute(x))
   if (exists("complete.cases")) {

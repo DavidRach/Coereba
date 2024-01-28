@@ -27,7 +27,8 @@ GateCutoffs <- function(x, columns, sample.name){
   TheEstimate <- function(x, i) {Fluorophore <- i
   max_value <- quantile(x[[i]], 0.95)
   min_value <- quantile(x[[i]], 0.05)
-  if(min_value < 0) {MyRange <- abs(-max_value + min_value)} else {MyRange <- max_value - min_value}
+  if(min_value < 0) {MyRange <- abs(-max_value + min_value)} else {
+    MyRange <- max_value - min_value}
   DivisionPoint <- max_value-(MyRange/2)
   MyBin <- x[[i]][x[[i]] < DivisionPoint] #Returns values below Division Point
   Value <- quantile(MyBin, 0.95)

@@ -32,7 +32,8 @@ Utility_Querry(
 
 \item{starter}{Unclear}
 
-\item{myFactor}{Column containing factor designation that you want to differentially compare}
+\item{myFactor}{Column containing factor designation that you want to
+differentially compare}
 
 \item{normality}{Normality test to be used, ex. "dagostino" or "sharpwilks"}
 
@@ -40,7 +41,8 @@ Utility_Querry(
 
 \item{fill_palette}{palette that list your factor of interest}
 
-\item{scalefactor}{Number you are multiplying the ratio by to make more interpretable (ex. 1000)}
+\item{scalefactor}{Number you are multiplying the ratio by to make more
+interpretable (ex. 1000)}
 
 \item{scalefactorlabel}{The cells of interest, ex. "Vd2 T cells"}
 }
