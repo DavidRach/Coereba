@@ -35,6 +35,7 @@ Imports:
     tidyr,
     tidyselect,
     viridis
+Depends: R (>= 4.0.0)
 Suggests: 
     BiocStyle,
     ggcyto,

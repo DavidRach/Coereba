@@ -29,13 +29,43 @@ The Coereba package promises to do these following things...
 # Installing Coereba
 
 ```{r setup}
-#install.packages("devtools")
-#devtools::install_github("https://github.com/DavidRach/Coereba")
+# install.packages("devtools")
+# devtools::install_github("https://github.com/DavidRach/Coereba")
+
+#install.packages("BiocManager")
+#BiocManager::install("Coereba")
 
 library(Coereba)
 ```
 
 # How To Begin
+
+First off, make sure that you have all the required R packages installed, then
+load the libraries. 
+
+```{r, echo=FALSE, results = "hide", warning=FALSE}
+suppressPackageStartupMessages({
+library(Coereba)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(data.table)
+library(dplyr)
+library(ggcyto)
+library(purrr)  
+})
+```
+
+```{r Libraries}
+library(Coereba)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(data.table)
+library(dplyr)
+library(ggcyto)
+library(purrr)
+```
 
 To begin, lets access the example .fcs files found with the Coereba package. 
 
