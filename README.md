@@ -17,7 +17,7 @@ status](https://github.com/DavidRach/Coereba/workflows/rworkflows/badge.svg)](ht
 [![](https://img.shields.io/github/last-commit/DavidRach/Coereba.svg)](https://github.com/DavidRach/Coereba/commits/master)
 <br> <!-- badges: end -->
 
-<img src="inst/hex/hex.png" style="width:50.0%" data-align="center" />
+<img src="inst/hex/hex.png" width="50%" style="display: block; margin: auto;" />
 
 ## `Coereba`: Dichotomized Boolean Clustering and Heatmaps for Spectral Flow Cytometry
 
