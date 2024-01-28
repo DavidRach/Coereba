@@ -17,6 +17,9 @@ Utility_BoxPlot(data, var, myfactor, shape_palette, fill_palette)
 
 \item{fill_palette}{palette corresponding to the factor, specifying the fill}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Plot boxplot/beeswarm
 }

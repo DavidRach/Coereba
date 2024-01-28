@@ -13,6 +13,9 @@ Utility_Rearrange(x, pattern, target)
 
 \item{target}{Level of nesting}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Rearrange FlowJo .csv files for nested questions
 }

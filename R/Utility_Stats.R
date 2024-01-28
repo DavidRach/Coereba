@@ -22,7 +22,7 @@
 #' @importFrom stats kruskal.test
 #' @importFrom stats pairwise.wilcox.test
 #'
-#' @return NULL
+#' @return Some additional value to edit
 #' @export
 #'
 #' @examples NULL

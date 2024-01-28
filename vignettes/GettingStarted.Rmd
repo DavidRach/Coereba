@@ -1,7 +1,15 @@
 ---
 title: "Getting Started"
-output: rmarkdown::html_vignette
-vignette: >
+author:
+- name: David Rach
+  affiliation: University of Maryland, Baltimore
+  email: drach@som.umaryland.edu
+package: Coereba
+output:
+  BiocStyle::html_document
+abstract: |
+  How to set up Coereba
+vignette: |
   %\VignetteIndexEntry{Getting Started}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
@@ -14,9 +22,20 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Introduction
+
+The Coereba package promises to do these following things...
+
+# Installing Coereba
+
 ```{r setup}
+#install.packages("devtools")
+#devtools::install_github("https://github.com/DavidRach/Coereba")
+
 library(Coereba)
 ```
+
+# How To Begin
 
 To begin, lets access the example .fcs files found with the Coereba package. 
 
@@ -25,4 +44,8 @@ FileLocation <- system.file("extdata", package = "Coereba")
 fcsFilePattern <- ".fcs$"
 myFCSfiles <- list.files(path = FileLocation, pattern = fcsFilePattern, full.names = TRUE, recursive = TRUE)
 myFCSfiles
+```
+
+```{r sessionInfo, echo = FALSE}
+sessionInfo()
 ```

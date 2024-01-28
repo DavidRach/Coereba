@@ -8,7 +8,7 @@
 #' @importFrom dplyr rowwise
 #' @importFrom dplyr c_across
 #'
-#' @return NULL
+#' @return Some additional value to edit
 #' @export
 #'
 #' @examples NULL

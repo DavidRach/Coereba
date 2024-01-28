@@ -15,6 +15,9 @@ my_modified_utility(x, sample, channel, cellNumber)
 
 \item{cellNumber}{Total number of cells to downsample to.}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Downsample for cell population or marker of choice
 }

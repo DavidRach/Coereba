@@ -46,6 +46,9 @@ interpretable (ex. 1000)}
 
 \item{scalefactorlabel}{The cells of interest, ex. "Vd2 T cells"}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Detect changes a heatmap level below your target
 }

@@ -13,6 +13,9 @@ Utility_Heatmap(cells, filename, return)
 
 \item{return}{Whether to save the file as a png, TRUE/FALSE}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Returns a Coereba Heatmap
 }

@@ -31,21 +31,29 @@ MultiReach(
 
 \item{starter}{Column to start split on (ex. "BV711")}
 
-\item{sample.name}{The keyword your individual samples are identified by (ex. "GUID")}
+\item{sample.name}{The keyword your individual samples are identified by
+(ex. "GUID")}
 
-\item{experiment}{A way to provide the experiment name directly (ex. "January2024Optimization")}
+\item{experiment}{A way to provide the experiment name directly
+(ex. "January2024Optimization")}
 
-\item{experiment.name}{The keyword your experiment name is stored, when experiment = NULL. (ex. "$DATE")}
+\item{experiment.name}{The keyword your experiment name is stored,
+when experiment = NULL. (ex. "$DATE")}
 
 \item{condition}{A way to provide condition name directly (ex. "PMA")}
 
-\item{condition.name}{The keyword your condition name is stored, when condition = NULL. (ex. "TUBENAME")}
+\item{condition.name}{The keyword your condition name is stored,
+when condition = NULL. (ex. "TUBENAME")}
 
 \item{bins}{Number of bins the cells are plotted as in the ggplots (ex. 270)}
 
 \item{cutoff}{The minimal number of cells in a cluster (ex. 3)}
 
-\item{reference}{The imported .csv file containing the gating location for panels fluorophores.}
+\item{reference}{The imported .csv file containing the gating location
+for panels fluorophores.}
+}
+\value{
+A data.frame object of the sub-clusters
 }
 \description{
 Cluster your .fcs files by designated gates.

@@ -5,7 +5,10 @@ Version: 0.1.0
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
-Description: Acknowledging the limitations of unsupervized analysis and downsampling, through a semi-supervised gating implements dichotomized boolean gates to cluster every cell from an experiment and querry the resulting subclusters.
+Description: Acknowledging the limitations of unsupervized analysis and 
+  downsampling, through a semi-supervised gating implements dichotomized 
+  boolean gates to cluster every cell from an experiment and querry the
+  resulting subclusters.
 License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: FALSE
@@ -33,12 +36,13 @@ Imports:
     tidyselect,
     viridis
 Suggests: 
+    BiocStyle,
     ggcyto,
     knitr,
     openCyto,
     rmarkdown,
     testthat (>= 3.0.0),
     withr
-biocViews: FlowCytometry, Preprocessing, Software
+biocViews: Clustering, FlowCytometry, Preprocessing, Software
 Config/testthat/edition: 3
 VignetteBuilder: knitr

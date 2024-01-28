@@ -8,7 +8,7 @@
 #' @importFrom flowCore exprs
 #' @importFrom dplyr slice_sample
 #'
-#' @return NULL
+#' @return Some additional value to edit
 #' @export
 #'
 #' @examples NULL

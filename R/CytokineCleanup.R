@@ -13,8 +13,10 @@
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
 #'
-#' @return NULL
+#' @return A data.frame object with the modified columns
 #' @export
+#'
+#'
 #'
 #' @examples NULL
 

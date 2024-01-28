@@ -29,6 +29,9 @@ Utility_Behemoth(
 
 \item{switch}{Unclear}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Coereba's main function. Runs normality, runs stats, plots the results.
 }

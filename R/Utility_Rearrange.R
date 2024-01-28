@@ -6,7 +6,7 @@
 #'
 #' @importFrom stringr str_extract_all
 #'
-#' @return NULL
+#' @return Some additional value to edit
 #' @export
 #'
 #' @examples NULL

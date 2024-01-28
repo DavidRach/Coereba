@@ -31,6 +31,9 @@ names}
 
 \item{switch}{Unclear}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Normality Test followed by t-test/Anova
 }

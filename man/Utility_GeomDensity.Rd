@@ -13,6 +13,9 @@ Utility_GeomDensity(data, var, myfactor)
 
 \item{myfactor}{Column containing the factor you want to compare between.}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Returns distribution overlay of population of interest
 }

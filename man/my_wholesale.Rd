@@ -13,6 +13,9 @@ my_wholesale(x, sample, cellNumber)
 
 \item{cellNumber}{Desired number of cells to downsample to.}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Downsamples a population of interest
 }

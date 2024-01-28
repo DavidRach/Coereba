@@ -13,6 +13,10 @@ GateCutoffs(x, columns, sample.name)
 
 \item{sample.name}{Keyword for sample names (ex. "GUID")}
 }
+\value{
+A data.frame object of fluorophores by specimens, with estimated
+ cutoffs
+}
 \description{
 Rough estimate of the location of the dichotomized gates.
 }

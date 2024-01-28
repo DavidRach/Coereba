@@ -23,7 +23,7 @@
 #' @importFrom ggbeeswarm geom_beeswarm
 #' @importFrom stringr str_wrap
 #'
-#' @return NULL
+#' @return Some additional value to edit
 #' @export
 #'
 #' @examples NULL

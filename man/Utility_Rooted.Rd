@@ -11,6 +11,9 @@ Utility_Rooted(data, column)
 
 \item{column}{A given column of the data.frame}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Take FlowJo .csv files and convert values to designated root.
 }

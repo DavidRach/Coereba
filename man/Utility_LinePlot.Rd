@@ -17,6 +17,9 @@ Utility_LinePlot(data, varX, varY, myfactor, color_palette)
 
 \item{color_palette}{The color palette to use for the factor variable}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Generate a line plot
 }

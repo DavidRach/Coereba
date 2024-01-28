@@ -11,7 +11,7 @@
 #' @importFrom flowCore exprs
 #' @importFrom stats sd
 #'
-#' @return NULL
+#' @return Some additional value to edit
 #' @export
 #'
 #' @examples NULL

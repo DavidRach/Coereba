@@ -17,6 +17,9 @@ SampleSDs(x, subsets, sample, experiment, condition)
 
 \item{condition}{Keyword denoting the condition name (ex. "TUBENAME")}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Returns Standard Deviations for Normalized Detectors
 }

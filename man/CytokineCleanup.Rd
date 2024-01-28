@@ -15,6 +15,9 @@ CytokineCleanup(x, variable, first, second)
 
 \item{second}{Return name second column}
 }
+\value{
+A data.frame object with the modified columns
+}
 \description{
 Combine FlowJo Q1 Q2 columns
 }

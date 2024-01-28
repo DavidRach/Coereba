@@ -10,7 +10,8 @@
 #' @importFrom dplyr mutate_if
 #' @importFrom stats quantile
 #'
-#' @return NULL
+#' @return A data.frame object of fluorophores by specimens, with estimated
+#'  cutoffs
 #' @export
 #'
 #' @examples NULL
@@ -43,7 +44,6 @@ GateCutoffs <- function(x, columns, sample.name){
   Rough <- pivot_wider(Meowdy, names_from = Fluorophore, values_from = ColumnValue)
   Rough <- Rough %>% mutate_if(is.character, as.numeric)
   Data <- cbind(name, Rough)
-  Data
 
-  #No Hyphens or Spaces Have been removed at this step.
+  return(Data)
 }

@@ -34,7 +34,7 @@
 #' @importFrom scales label_number
 #'
 #'
-#' @return NULL
+#' @return Some additional value to edit
 #' @export
 #'
 #' @examples NULL

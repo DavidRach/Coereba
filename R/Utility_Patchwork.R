@@ -10,7 +10,7 @@
 #' @importFrom grDevices dev.off
 #' @importFrom grDevices pdf
 #'
-#' @return NULL
+#' @return Some additional value to edit
 #' @export
 #'
 #' @examples NULL

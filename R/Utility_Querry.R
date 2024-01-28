@@ -29,7 +29,7 @@
 #' @importFrom purrr flatten
 #' @importFrom viridis scale_fill_viridis
 #'
-#' @return NULL
+#' @return Some additional value to edit
 #' @export
 #'
 #' @examples NULL

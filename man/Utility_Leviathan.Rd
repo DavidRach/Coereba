@@ -41,6 +41,9 @@ interpretability}
 \item{scalefactorlabel}{Relabel the axis with the cell type of interest.
 (Ex. "Vd2 T cells")}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Similar to Behemoth, drops the greatest value for all groups.
 }

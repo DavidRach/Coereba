@@ -17,6 +17,9 @@ Utility_Patchwork(x, filename, outfolder, thecolumns, therows)
 
 \item{therows}{The number of rows per page}
 }
+\value{
+Some additional value to edit
+}
 \description{
 Generate the plots into a single pdf
 }
