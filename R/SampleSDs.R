@@ -9,6 +9,7 @@
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore exprs
+#' @importFrom stats sd
 #'
 #' @return NULL
 #' @export
@@ -25,7 +26,7 @@ SampleSDs <- function(x, subsets, sample, experiment, condition){
   condition <- gsub("_Unstained", "", fixed = TRUE, condition)
 
   ff <- gs_pop_get_data(x, subsets)
-  df <- flowCore::exprs(ff[[1]])
+  df <- exprs(ff[[1]])
   DF <- as.data.frame(df, check.names = FALSE)
   CleanedDF <- DF[,-grep("Time|FS|SC|SS|Original", names(DF))]
   BackupNames <- colnames(CleanedDF)

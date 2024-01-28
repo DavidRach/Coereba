@@ -5,6 +5,8 @@
 #' @param description Some Text
 #'
 #' @importClassesFrom fBasics fHTEST
+#' @importFrom stats pchisq
+#' @importFrom stats pnorm
 #'
 #' @return Some Text
 #' @export

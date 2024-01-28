@@ -25,6 +25,7 @@
 #' @importFrom dplyr c_across
 #' @importFrom dplyr filter
 #' @importFrom purrr flatten
+#' @importFrom viridis scale_fill_viridis
 #'
 #' @return NULL
 #' @export
@@ -51,7 +52,9 @@ Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder, panel,
     MeltedCells$Cluster <- factor(MeltedCells$Cluster)
     MeltedCells$variable <- factor(MeltedCells$variable)
 
-    MyHeatmap <- ggplot(MeltedCells, aes(Cluster, variable, fill = value)) + geom_tile() + scale_fill_viridis(option = "cividis", discrete=FALSE) + theme_classic() + theme(legend.position = "none", axis.text.x = element_text(size = 5, angle = 300)) + labs(y = NULL)
+    MyHeatmap <- ggplot(MeltedCells, aes(Cluster, variable, fill = value)) + geom_tile() +
+      scale_fill_viridis(option = "cividis", discrete=FALSE) + theme_classic() +
+      theme(legend.position = "none", axis.text.x = element_text(size = 5, angle = 300)) + labs(y = NULL)
     MyHeatmap
   }
 
@@ -121,9 +124,9 @@ Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder, panel,
   }
 
   #theplots
-  theflattenedplots <- purrr::flatten(theplots)
+  theflattenedplots <- flatten(theplots)
   theflattenedplots <- Filter(Negate(is.null), theflattenedplots)
-  theflattestplots <- purrr::flatten(theflattenedplots)
+  theflattestplots <- flatten(theflattenedplots)
 
   Utility_Patchwork(x = theflattestplots, filename = filename, outfolder = outfolder, thecolumns = 2, therows = 2)
 }

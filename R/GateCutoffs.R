@@ -8,6 +8,7 @@
 #' @importFrom flowWorkspace keyword
 #' @importFrom tidyr pivot_wider
 #' @importFrom dplyr mutate_if
+#' @importFrom stats quantile
 #'
 #' @return NULL
 #' @export
@@ -16,7 +17,7 @@
 GateCutoffs <- function(x, columns, sample.name){
 
   name <- keyword(x, sample.name)
-  df <- flowCore::exprs(x[,columns]) #specify a colunm vector in the future
+  df <- exprs(x[,columns]) #specify a colunm vector in the future
   dsf <- data.frame(df, check.names = FALSE)
   Vector <- colnames(dsf)
   #Fluorophore <- Vector[1]

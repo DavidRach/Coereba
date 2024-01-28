@@ -7,6 +7,8 @@
 #' @param therows The number of rows per page
 #'
 #' @importFrom patchwork wrap_plots
+#' @importFrom grDevices dev.off
+#' @importFrom grDevices pdf
 #'
 #' @return NULL
 #' @export

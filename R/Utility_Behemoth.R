@@ -41,8 +41,10 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette, fill
     C <- data.frame(cbind(p.value, method))
   }
 
-  if (normality == "dagostino") {Stashed <- data %>% group_by(.data[[myfactor]]) %>% summarize(dagostino_result = dago_wrapper(.data[[var]])) %>% unnest(dagostino_result)
-  } else if (normality == "shapiro") {Stashed <- data %>% group_by(.data[[myfactor]]) %>% summarize(shapiro_result = list(tidy(shapiro.test(.data[[var]])))) %>% unnest(shapiro_result)
+  if (normality == "dagostino") {Stashed <- data %>% group_by(.data[[myfactor]]) %>%
+    summarize(dagostino_result = dago_wrapper(.data[[var]])) %>% unnest(dagostino_result)
+  } else if (normality == "shapiro") {Stashed <- data %>% group_by(.data[[myfactor]]) %>%
+    summarize(shapiro_result = list(tidy(shapiro.test(.data[[var]])))) %>% unnest(shapiro_result)
   } else ("Forgot to input Normality test choice. Use 'dagostino' or 'shapiro'")
 
   Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"} else{"nonparametric"}
@@ -72,7 +74,9 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette, fill
 
   #My pvalue cleanup function
   pval_mold <- function(x){
-    if (x > 0.1){"n.s"} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {round(x, 5)} else if (x > 0.000001) {round(x, 6)}
+    if (x > 0.1){"n.s"} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
+      round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {
+        round(x, 5)} else if (x > 0.000001) {round(x, 6)}
   }
 
   Method <- unique(TheTest$method)
@@ -109,8 +113,14 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette, fill
   wrapped_title <- str_wrap(Cleaned_string2, width = 100)
 
 
-  plot <- ggplot(data, aes(x =.data[[myfactor]], y = .data[[var]])) + geom_boxplot(show.legend = FALSE) + stat_summary(fun = median, show.legend = FALSE, geom = "crossbar", width = 0.75) + geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]], fill = .data[[myfactor]]), method = "center", side = 0, priority = "density", cex = 1.8, size = 4) + scale_shape_manual(values = shape_palette) +
-    scale_fill_manual(values = fill_palette) + labs(title = wrapped_title, x = NULL, y = NULL) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), plot.title = element_text(hjust = 0.5, size = 8))
+  plot <- ggplot(data, aes(x =.data[[myfactor]], y = .data[[var]])) +
+    geom_boxplot(show.legend = FALSE) + stat_summary(fun = median, show.legend = FALSE, geom = "crossbar", width = 0.75) +
+    geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]], fill = .data[[myfactor]]),
+                  method = "center", side = 0, priority = "density", cex = 1.8, size = 4) +
+    scale_shape_manual(values = shape_palette) + scale_fill_manual(values = fill_palette) +
+    labs(title = wrapped_title, x = NULL, y = NULL) + theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+          plot.title = element_text(hjust = 0.5, size = 8))
 
   plot2 <- if(Method %in% c("Two Sample t-test", "Wilcoxon rank sum test with continuity correction")){
     plot + geom_line(data=tibble(x=c(1,2), y=c(SingleY, SingleY)), aes(x=x, y=y), inherit.aes = FALSE)+

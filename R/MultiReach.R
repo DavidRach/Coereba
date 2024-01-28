@@ -36,7 +36,7 @@ MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter, sampl
   } else {condition = condition}
 
 
-  df <- flowCore::exprs(x[,column])
+  df <- exprs(x[,column])
   dsf <- data.frame(df, check.names = FALSE)
   colnames(dsf) <- gsub("-A", "", colnames(dsf), fixed = TRUE)
   colnames(dsf) <- gsub("-", "", colnames(dsf), fixed = TRUE)

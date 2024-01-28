@@ -10,6 +10,8 @@ Utility_Heatmap(cells, filename, return)
 \item{cells}{Unclear, Coereba output including Cluster column}
 
 \item{filename}{Name to save .png file as}
+
+\item{return}{Whether to save the file as a png, TRUE/FALSE}
 }
 \description{
 Returns a Coereba Heatmap

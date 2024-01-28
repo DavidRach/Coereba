@@ -11,6 +11,7 @@
 #' @importFrom dplyr rename_with
 #' @importFrom dplyr bind_cols
 #' @importFrom dplyr select
+#' @importFrom tidyselect all_of
 #'
 #' @return NULL
 #' @export

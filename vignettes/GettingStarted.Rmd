@@ -1,0 +1,28 @@
+---
+title: "Getting Started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(Coereba)
+```
+
+To begin, lets access the example .fcs files found with the Coereba package. 
+
+```{r Access Package Data}
+FileLocation <- system.file("extdata", package = "Coereba")
+fcsFilePattern <- ".fcs$"
+myFCSfiles <- list.files(path = FileLocation, pattern = fcsFilePattern, full.names = TRUE, recursive = TRUE)
+myFCSfiles
+```

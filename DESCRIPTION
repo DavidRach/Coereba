@@ -5,7 +5,7 @@ Version: 0.1.0
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
-Description: What is hiding from your unsupervised analysis? Let's find out
+Description: What is hiding from your unsupervised analysis? Let's find out.
 License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: FALSE
@@ -19,16 +19,23 @@ Imports:
     flowCore,
     flowWorkspace,
     ggbeeswarm,
-    ggcyto,
     ggplot2,
     ggpubr,
-    openCyto,
     patchwork,
     purrr,
     reshape2,
     stringr,
     tidyr,
+    tidyselect,
     viridis
 Suggests: 
-    testthat (>= 3.0.0)
+    ggcyto,
+    knitr,
+    magrittr,
+    openCyto,
+    rmarkdown,
+    scales,
+    testthat (>= 3.0.0),
+    withr
 Config/testthat/edition: 3
+VignetteBuilder: knitr

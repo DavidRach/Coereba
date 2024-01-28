@@ -37,8 +37,10 @@ Utility_Stats <- function(data, var, myfactor, normality, shape_palette, fill_pa
     C <- data.frame(cbind(p.value, method))
   }
 
-  if (normality == "dagostino") {Stashed <- data %>% group_by(.data[[myfactor]]) %>% summarize(dagostino_result = dago_wrapper(.data[[var]])) %>% unnest(dagostino_result)
-  } else if (normality == "shapiro") {Stashed <- data %>% group_by(.data[[myfactor]]) %>% summarize(shapiro_result = list(tidy(shapiro.test(.data[[var]])))) %>% unnest(shapiro_result)
+  if (normality == "dagostino") {Stashed <- data %>% group_by(.data[[myfactor]]) %>%
+    summarize(dagostino_result = dago_wrapper(.data[[var]])) %>% unnest(dagostino_result)
+  } else if (normality == "shapiro") {Stashed <- data %>% group_by(.data[[myfactor]]) %>%
+    summarize(shapiro_result = list(tidy(shapiro.test(.data[[var]])))) %>% unnest(shapiro_result)
   } else ("Forgot to input Normality test choice. Use 'dagostino' or 'shapiro'")
 
   Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"} else{"nonparametric"}
