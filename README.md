@@ -15,6 +15,7 @@ status](https://github.com/DavidRach/Coereba/workflows/rworkflows/badge.svg)](ht
 [![](https://img.shields.io/badge/devel%20version-0.1.0-black.svg)](https://github.com/DavidRach/Coereba)
 [![](https://img.shields.io/github/languages/code-size/DavidRach/Coereba.svg)](https://github.com/DavidRach/Coereba)
 [![](https://img.shields.io/github/last-commit/DavidRach/Coereba.svg)](https://github.com/DavidRach/Coereba/commits/master)
+[![codecov](https://codecov.io/gh/DavidRach/Coereba/graph/badge.svg?token=1SRXI13GOE)](https://codecov.io/gh/DavidRach/Coereba)
 <br> <!-- badges: end -->
 
 <img src="inst/hex/hex.png" width="50%" style="display: block; margin: auto;" />
