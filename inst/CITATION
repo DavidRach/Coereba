@@ -1,7 +1,8 @@
 bibentry(
-  title    = {Coereba: Dichotomized Boolean Clustering and Heatmaps for Spectral Flow Cytometry},
-  author   = {David Rach},
-  year     = {2024},
-  note = {R package version 0.1.0},
-  url = {https://github.com/DavidRach/Coereba},
+  bibtype  = "Manual",
+  title    = "Coereba: Dichotomized Boolean Clustering and Heatmaps for Spectral Flow Cytometry",
+  author   = "David Rach",
+  year     = "2024",
+  note   = "R package version 0.1.0",
+  url   = "https://github.com/DavidRach/Coereba"
 )
