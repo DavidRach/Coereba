@@ -47,11 +47,20 @@ MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter,
 
   #Retrieve metadata
   name <- keyword(x, sample.name)
-  if(is.null(experiment)){experiment <- keyword(x, experiment.name)
-  experiment <- gsub("DTR_2023_", "", experiment) #Not Tidy
-  experiment <- gsub("^(.*?\\d{2}).*", "\\1", experiment) #NotTidy
+
+  if(is.null(experiment)){
+    experiment <- keyword(x, experiment.name)
+    #experiment <- gsub("DTR_2023_", "", experiment) #Not Tidy
+    #experiment <- gsub("^(.*?\\d{2}).*", "\\1", experiment) #NotTidy
   } else {experiment = experiment}
-  if(is.null(condition)) {condition <- keyword(x, condition.name)
+
+  TheConditions <- c("BCG", "IL2", "ZOL", "PMA", "Ctrl", "SEB", "PPD")
+
+  #Internal Function
+  if(is.null(condition)) {
+    if (condition.name == "Decipher"){
+      condition <- TheConditions[str_detect(name, TheConditions)]
+    } else {condition <- keyword(x, condition.name)}
   } else {condition = condition}
 
   #Clean up data's colnames.
