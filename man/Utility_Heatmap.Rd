@@ -4,7 +4,7 @@
 \alias{Utility_Heatmap}
 \title{Returns a Coereba Heatmap}
 \usage{
-Utility_Heatmap(cells, filename, return)
+Utility_Heatmap(cells, filename, return, panel)
 }
 \arguments{
 \item{cells}{Unclear, Coereba output including Cluster column}
