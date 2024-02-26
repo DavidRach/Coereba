@@ -25,13 +25,13 @@
 #' @importFrom zoo rollapply
 #' @import ggplot2
 #'
-#'
 #' @return A data.frame with estimated gate cutoffs for every marker for every specimen
 #' @export
 #'
 #' @examples NULL
 #'
 ModernGateCutoffs <- function(x, subset, sample.name, remove.strings) {
+  #x <- gs[1]
 
   name <- keyword(x, sample.name)
   alternate.name <- NameCleanUp(name = name, remove.strings)
@@ -42,7 +42,7 @@ ModernGateCutoffs <- function(x, subset, sample.name, remove.strings) {
   DFNames <- colnames(TheDFlocal[,-grep("Time|FS|SC|SS|Original|W$|H$",
                                         names(TheDFlocal))])
 
-  #x <- DFNames[9]
+  #x <- DFNames[6]
   #DFNames <- DFNames[DFNames != "Comp-R780-A"] #Temporary Test
 
   AssembledData <- map(.x = DFNames, ColumnExprs, TheDF = TheDFlocal, w = 2, span = 0.1) %>% bind_rows()
@@ -55,7 +55,7 @@ ModernGateCutoffs <- function(x, subset, sample.name, remove.strings) {
 
 ColumnExprs <- function(x, TheDF, w, span, ...) {
   Fluorophore <- x
-  TheData <- TheDFlocal %>% select(all_of(x)) %>% round(., 0)
+  TheData <- TheDF %>% select(all_of(x)) %>% round(., 0)
   colnames(TheData) <- "xVal"
   freq_table <- data.frame(table(TheData)) %>% rename(yVal = Freq)
   freq_table1 <- freq_table
@@ -83,7 +83,7 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
   freqX <- freq_table1 %>% pull(xVal)
   freqY <- freq_table1 %>% pull(yVal)
 
-  Minima <- LocalMinima(theX = freqX, theY = freqY,
+  Minima <- Coereba:::LocalMinima(theX = freqX, theY = freqY,
                         w = w, therepeats = 4, span=span, alternatename = Fluorophore)
 
   if(nrow(Minima) == 0){
@@ -131,6 +131,11 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
     filter(yVal < TheYmaxLimit)
   index <- which(freq_table2$yVal > lag(freq_table2$yVal),
                  arr.ind = TRUE)[1] - 1
+
+  if(length(index) != 0){CutoffMinima <- freq_table2[index,] %>% pull(xVal)} else{
+    CutoffMinima <- CutoffMinima #Temporary Glue.
+  }
+
   CutoffMinima <- freq_table2[index,] %>% pull(xVal)
 
   } else if (shape == "greater" & orientation == "right"){code <- paste(shape, orientation, Fluorophore, sep = " ")
@@ -146,6 +151,11 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
   freq_table2 <- freq_table1 %>% filter(xVal < TheMax) %>% filter(yVal < TheYmaxLimit)
   index <- which(freq_table2$yVal < lag(freq_table2$yVal), arr.ind = TRUE)
   index <- index[length(index)] - 1
+
+  if(length(index) != 0){CutoffMinima <- freq_table2[index,] %>% pull(xVal)} else{
+    CutoffMinima <- Minima1[1] #Temporary Glue.
+  }
+
   CutoffMinima <- freq_table2[index,] %>% pull(xVal)
 
   } else if (shape == "sandwhich" & orientation == "left") {code <- paste(shape, orientation, Fluorophore, sep = " ")
@@ -164,6 +174,11 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
       TheYmaxLimit <- TheYMax*0.2
       freq_table2 <- freq_table1 %>% filter(xVal > TheMax) %>% filter(yVal < TheYmaxLimit)
       index <- which(freq_table2$yVal > lag(freq_table2$yVal), arr.ind = TRUE)[1] - 1
+
+      if(length(index) != 0){CutoffMinima <- freq_table2[index,] %>% pull(xVal)} else{
+        CutoffMinima <- CutoffMinima #Temporary Glue.
+      }
+
       CutoffMinima <- freq_table2[index,] %>% pull(xVal)
     } else if (orientation == "right"){
       #Theoretical Flip Side, check the code with an example.
