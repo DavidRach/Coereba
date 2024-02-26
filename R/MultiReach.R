@@ -34,7 +34,18 @@ MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter,
                        condition = NULL, condition.name = NULL, bins,
                        cutoff = NULL, reference){
 
+  #Internal Testing: x <- cs[[1]] #to retrieve a flowFrame
+
+  #Clean up Gate Cutoff colnames to match samples.
   New <- reference
+  colnames(New) <- gsub("-A", "", colnames(New), fixed = TRUE)
+  colnames(New) <- gsub("-", "", colnames(New), fixed = TRUE)
+  colnames(New) <- gsub(" ", "", colnames(New), fixed = TRUE)
+  colnames(New) <- gsub(".", "", colnames(New), fixed = TRUE)
+  #colnames(New) <- gsub("Comp", "", colnames(New), fixed = TRUE)
+  colnames(New)[1] <- sample.name
+
+  #Retrieve metadata
   name <- keyword(x, sample.name)
   if(is.null(experiment)){experiment <- keyword(x, experiment.name)
   experiment <- gsub("DTR_2023_", "", experiment) #Not Tidy
@@ -43,13 +54,14 @@ MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter,
   if(is.null(condition)) {condition <- keyword(x, condition.name)
   } else {condition = condition}
 
-
+  #Clean up data's colnames.
   df <- exprs(x[,column])
   dsf <- data.frame(df, check.names = FALSE)
   colnames(dsf) <- gsub("-A", "", colnames(dsf), fixed = TRUE)
   colnames(dsf) <- gsub("-", "", colnames(dsf), fixed = TRUE)
   colnames(dsf) <- gsub(" ", "", colnames(dsf), fixed = TRUE)
   colnames(dsf) <- gsub(".", "", colnames(dsf), fixed = TRUE)
+  #colnames(dsf) <- gsub("Comp", "", colnames(dsf), fixed = TRUE)
   starter <- gsub("-A", "", starter, fixed = TRUE)
   starter <- gsub("-", "", starter, fixed = TRUE)
   starter <- gsub(" ", "", starter, fixed = TRUE)
@@ -66,6 +78,7 @@ MultiReach <- function(x, column, subsample = NULL, ratio = NULL, starter,
 
   Columns <- colnames(My.Data)
   Columns <- Columns[ !Columns == starter]
+
 
   MyNewestData <- My.Data %>% mutate(Cluster = case_when(
     My.Data[[starter]] < New[New[[sample.name]] == name, starter] ~ paste(
