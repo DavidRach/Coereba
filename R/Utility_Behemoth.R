@@ -29,11 +29,11 @@
 #' @examples NULL
 #'
 Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
-                             fill_palette, switch){
+                             fill_palette, switch, scalefactor, scalefactorlabel, ...){
 
   theYlim <- max(data[[var]])
-  FactorLevels <- levels(data[[myfactor]])
-  FactorLevelsCount <- length(levels(data[[myfactor]]))
+  #FactorLevels <- levels(data[[myfactor]] %>% factor(.))
+  FactorLevelsCount <- length(unique(data[[myfactor]]))
 
   dago_wrapper <- function(x){
     A <- Coereba::dagoTest(x)

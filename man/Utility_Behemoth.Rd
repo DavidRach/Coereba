@@ -11,7 +11,10 @@ Utility_Behemoth(
   normality,
   shape_palette,
   fill_palette,
-  switch
+  switch,
+  scalefactor,
+  scalefactorlabel,
+  ...
 )
 }
 \arguments{

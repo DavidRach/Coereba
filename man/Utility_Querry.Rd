@@ -11,12 +11,13 @@ Utility_Querry(
   outfolder,
   panel,
   starter,
-  myFactor,
+  myfactor,
   normality,
   shape_palette,
   fill_palette,
   scalefactor,
-  scalefactorlabel
+  scalefactorlabel,
+  ...
 )
 }
 \arguments{
@@ -32,7 +33,7 @@ Utility_Querry(
 
 \item{starter}{Unclear}
 
-\item{myFactor}{Column containing factor designation that you want to
+\item{myfactor}{Column containing factor designation that you want to
 differentially compare}
 
 \item{normality}{Normality test to be used, ex. "dagostino" or "sharpwilks"}
