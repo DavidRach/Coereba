@@ -8,7 +8,7 @@ Utility_MarkerExpressions(
   BinaryFile,
   OriginalData,
   myfactor,
-  normality,
+  starter,
   shape_palette,
   fill_palette,
   panel,
@@ -18,7 +18,8 @@ Utility_MarkerExpressions(
   plot,
   savePlot,
   filename = NULL,
-  cex
+  cex,
+  XAxisLevels
 )
 }
 \arguments{
@@ -47,6 +48,8 @@ Utility_MarkerExpressions(
 \item{filename}{What file name to save it as (location not yet implemented)}
 
 \item{cex}{How cramped to make the beeswarm columns.}
+
+\item{XAxisLevels}{provide a list of final names to rearrange the x axis data.}
 }
 \value{
 returns the data.frame or a ggplot plot.

@@ -13,6 +13,7 @@
 #' @param savePlot Whether to also save the plot
 #' @param filename What file name to save it as (location not yet implemented)
 #' @param cex How cramped to make the beeswarm columns.
+#' @param XAxisLevels provide a list of final names to rearrange the x axis data.
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
@@ -33,20 +34,22 @@
 #'
 #' @examples Not at this time
 
-Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, normality, shape_palette, fill_palette,
-                                      panel, scalefactor, scalefactorlabel, label, plot, savePlot, filename = NULL, cex){
+Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starter, shape_palette, fill_palette,
+                                      panel, scalefactor, scalefactorlabel, label, plot, savePlot, filename = NULL, cex, XAxisLevels){
+
+  if (!is.data.frame(panel)) {MyPanel <- read.csv(panel, check.names = FALSE)} else {MyPanel <- panel}
 
   Metadata <- OriginalData %>% select(!starts_with(starter))
 
   AllMarkers <- BinaryFile %>% select(!starts_with("Identity")) %>% colnames()
 
   SwampPuppy <- map(.x=AllMarkers, .f=.Internal_Aggregate, panel=panel, BinaryFile=BinaryFile,
-                    OriginalData=OriginalData, Metadata=Metadata, myfactor=myfactor, normality=normality,
+                    OriginalData=OriginalData, MyPanel=MyPanel, Metadata=Metadata, myfactor=myfactor, normality=normality,
                     shape_palette=shape_palette, fill_palette=fill_palette, scalefactor=scalefactor,
                     scalefactorlabel=scalefactorlabel...) %>% bind_cols()
 
   SwampFluors <- SwampPuppy %>% colnames()
-  SwampFluors <- data.frame( SwampFluors) %>% rename(Fluorophore = SwampFluors)
+  SwampFluors <- data.frame(SwampFluors) %>% rename(Fluorophore = SwampFluors)
   RetainedFluors <- left_join(SwampFluors, MyPanel, by = "Fluorophore")
   NewNames <- RetainedFluors$Marker
   colnames(SwampPuppy) <- NewNames
@@ -59,6 +62,8 @@ Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, normal
     DataColumns <- length(SwampPuppy)
 
     df_melted <- gather(MarkerExpressions, key = "Marker", value = "Value", -all_of(MetaColumns))
+
+    df_melted$Marker <- factor(df_melted$Marker, levels = XAxisLevels)
 
     TheggPlot <- ggplot(df_melted, aes(x = Marker, y = Value)) + geom_boxplot(show.legend = FALSE) +
       stat_summary(fun = median, show.legend = FALSE, geom = "crossbar", width = 0.75) +
@@ -74,10 +79,8 @@ Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, normal
 }
 
 .Internal_Aggregate <- function(x, panel, BinaryFile, OriginalData, Metadata, myfactor, normality, shape_palette,
-                                fill_palette, scalefactor, scalefactorlabel, ...){
+                                fill_palette, MyPanel=MyPanel, scalefactor, scalefactorlabel, ...){
   Column <- x
-
-  if (!is.data.frame(panel)) {MyPanel <- read.csv(panel, check.names = FALSE)} else {MyPanel <- panel}
 
   #Positive Marker Expressions
   Fluorophore <- Column
