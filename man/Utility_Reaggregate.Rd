@@ -8,6 +8,7 @@ Utility_Reaggregate(
   BinaryFile,
   OriginalData,
   myfactor,
+  starter,
   normality,
   shape_palette,
   fill_palette,
@@ -23,6 +24,8 @@ Utility_Reaggregate(
 \item{OriginalData}{NA}
 
 \item{myfactor}{NA}
+
+\item{starter}{First parameter Coereba split by, used to identify columns that aren't metadata}
 
 \item{normality}{NA}
 

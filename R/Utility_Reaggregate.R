@@ -3,6 +3,7 @@
 #' @param BinaryFile  NA
 #' @param OriginalData NA
 #' @param myfactor NA
+#' @param starter First parameter Coereba split by, used to identify columns that aren't metadata
 #' @param normality  NA
 #' @param shape_palette NA
 #' @param fill_palette NA
@@ -15,7 +16,7 @@
 #' @export
 #'
 #' @examples NA
-Utility_Reaggregate <- function(BinaryFile, OriginalData, myfactor, normality, shape_palette, fill_palette, panel, scalefactor, scalefactorlabel, label){
+Utility_Reaggregate <- function(BinaryFile, OriginalData, myfactor, starter, normality, shape_palette, fill_palette, panel, scalefactor, scalefactorlabel, label){
 
   TheClusters <- BinaryFile %>% select(Identity)
   TheClusters$Identity <- gsub("_", "", fixed = TRUE, TheClusters$Identity)
