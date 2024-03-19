@@ -7,6 +7,8 @@
 #' @param shape_palette Palette corresponding to factor levels, designating each's shape
 #' @param fill_palette Palette corresponding to factor levels, designating each's fill
 #' @param switch Unclear
+#' @param cex The width of the ggbeeswarm bin
+#' @param Override parametric or non-parametric
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
@@ -29,7 +31,7 @@
 #' @examples NULL
 #'
 Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
-                             fill_palette, switch, scalefactor, scalefactorlabel, ...){
+                             fill_palette, switch, scalefactor, scalefactorlabel, cex, Override = NULL, ...){
 
   theYlim <- max(data[[var]])
   #FactorLevels <- levels(data[[myfactor]] %>% factor(.))
@@ -59,7 +61,7 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
     tt<- tidy(t.test(data[[var]] ~ data[[myfactor]],
                      alternative = "two.sided", var.equal = TRUE))
   } else if (Distribution == "parametric" & FactorLevelsCount > 2){
-    at<- tidy(aov(data[[var]] ~ data[[myfactor]], data = data))
+    at <- tidy(aov(data[[var]] ~ data[[myfactor]], data = data))
     at$method <- "One-way Anova"
     if(at$p.value[1] < 0.05) {
       subset_data <- subset(data, select = c(var, myfactor))
@@ -82,9 +84,34 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
     } else {kt}
   }
 
+
+  if(Override == "parametric"){
+    TheTest <- if (Distribution == "parametric" & FactorLevelsCount > 2){
+      at<- tidy(aov(data[[var]] ~ data[[myfactor]], data = data))
+      at$method <- "One-way Anova"
+      if(at$p.value[1] < 0.99) {
+        subset_data <- subset(data, select = c(var, myfactor))
+        ptt <- tidy(pairwise.t.test(subset_data[[var]], subset_data[[myfactor]],
+                                    p.adjust.method = "BH"))
+        ptt$method <- "Pairwise t-test"
+        ptt
+      }
+      }
+    } else if(Override == "nonparametric"){
+    if (Distribution == "nonparametric" & FactorLevelsCount > 2){
+      kt <- tidy(kruskal.test(data[[var]] ~ data[[myfactor]], data = data))
+      if (kt$p.value < 0.99) {
+        subset_data <- subset(data, select = c(var, myfactor))
+        pwt <- tidy(pairwise.wilcox.test(subset_data[[var]],
+                                         g=subset_data[[myfactor]], p.adjust.method = "BH"))
+        pwt$method <- "Pairwise Wilcox test"
+        pwt
+      }} else {TheTest <- TheTest}
+  }
+
   #My pvalue cleanup function
   pval_mold <- function(x){
-    if (x > 0.1){"n.s"} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
+    if (x > 0.20){"n.s"} else if (x > 0.1) {round(x, 1)} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
       round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {
         round(x, 5)} else if (x > 0.000001) {round(x, 6)}
   }
@@ -129,7 +156,7 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
               show.legend = FALSE, geom = "crossbar", width = 0.75) +
     geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]],
       fill = .data[[myfactor]]), method = "center", side = 0,
-      priority = "density", cex = 1.8, size = 4) +
+      priority = "density", cex = cex, size = 4) +
     scale_shape_manual(values = shape_palette) +
     scale_fill_manual(values = fill_palette) +
     labs(title = wrapped_title, x = NULL, y = NULL) + theme_bw() +

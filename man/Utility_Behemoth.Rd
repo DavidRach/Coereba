@@ -14,6 +14,10 @@ Utility_Behemoth(
   switch,
   scalefactor,
   scalefactorlabel,
+  cex,
+  size,
+  Override = NULL,
+  correction,
   ...
 )
 }
@@ -31,6 +35,14 @@ Utility_Behemoth(
 \item{fill_palette}{Palette corresponding to factor levels, designating each's fill}
 
 \item{switch}{Unclear}
+
+\item{cex}{The width of the ggbeeswarm bin}
+
+\item{size}{Size for the ggbeeswarm circles.}
+
+\item{Override}{parametric or non-parametric}
+
+\item{correction}{What parameter to apply for ANOVA/Kruskal}
 }
 \value{
 Some additional value to edit
