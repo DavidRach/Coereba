@@ -19,6 +19,8 @@ Utility_MarkerExpressions(
   savePlot,
   filename = NULL,
   cex,
+  size,
+  crossbar,
   XAxisLevels
 )
 }
@@ -48,6 +50,10 @@ Utility_MarkerExpressions(
 \item{filename}{What file name to save it as (location not yet implemented)}
 
 \item{cex}{How cramped to make the beeswarm columns.}
+
+\item{size}{What size to make the beeswarm points}
+
+\item{crossbar}{mean or median}
 
 \item{XAxisLevels}{provide a list of final names to rearrange the x axis data.}
 }

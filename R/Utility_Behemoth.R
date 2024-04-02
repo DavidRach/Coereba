@@ -8,7 +8,9 @@
 #' @param fill_palette Palette corresponding to factor levels, designating each's fill
 #' @param switch Unclear
 #' @param cex The width of the ggbeeswarm bin
+#' @param size Size for the ggbeeswarm circles.
 #' @param Override parametric or non-parametric
+#' @param correction What parameter to apply for ANOVA/Kruskal
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
@@ -31,7 +33,7 @@
 #' @examples NULL
 #'
 Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
-                             fill_palette, switch, scalefactor, scalefactorlabel, cex, Override = NULL, ...){
+                             fill_palette, switch, scalefactor, scalefactorlabel, cex, size, Override = NULL, correction, ...){
 
   theYlim <- max(data[[var]])
   #FactorLevels <- levels(data[[myfactor]] %>% factor(.))
@@ -66,7 +68,7 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
     if(at$p.value[1] < 0.05) {
       subset_data <- subset(data, select = c(var, myfactor))
       ptt <- tidy(pairwise.t.test(subset_data[[var]], subset_data[[myfactor]],
-                                  p.adjust.method = "BH"))
+                                  p.adjust.method = correction))
       ptt$method <- "Pairwise t-test"
       ptt
     } else(at)
@@ -78,12 +80,14 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
     if (kt$p.value < 0.05) {
       subset_data <- subset(data, select = c(var, myfactor))
       pwt <- tidy(pairwise.wilcox.test(subset_data[[var]],
-                    g=subset_data[[myfactor]], p.adjust.method = "BH"))
+                    g=subset_data[[myfactor]], p.adjust.method = correction))
       pwt$method <- "Pairwise Wilcox test"
       pwt
     } else {kt}
   }
 
+  if (Distribution == "parametric"){ MethodDictate <- "mean"
+    } else if (Distribution == "nonparametric") {MethodDictate <- "median"}
 
   if(Override == "parametric"){
     TheTest <- if (Distribution == "parametric" & FactorLevelsCount > 2){
@@ -92,7 +96,7 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
       if(at$p.value[1] < 0.99) {
         subset_data <- subset(data, select = c(var, myfactor))
         ptt <- tidy(pairwise.t.test(subset_data[[var]], subset_data[[myfactor]],
-                                    p.adjust.method = "BH"))
+                                    p.adjust.method = correction))
         ptt$method <- "Pairwise t-test"
         ptt
       }
@@ -103,7 +107,7 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
       if (kt$p.value < 0.99) {
         subset_data <- subset(data, select = c(var, myfactor))
         pwt <- tidy(pairwise.wilcox.test(subset_data[[var]],
-                                         g=subset_data[[myfactor]], p.adjust.method = "BH"))
+                                         g=subset_data[[myfactor]], p.adjust.method = correction))
         pwt$method <- "Pairwise Wilcox test"
         pwt
       }} else {TheTest <- TheTest}
@@ -111,7 +115,7 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
 
   #My pvalue cleanup function
   pval_mold <- function(x){
-    if (x > 0.20){"n.s"} else if (x > 0.1) {round(x, 1)} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
+    if (x > 0.20){"n.s"} else if (x > 0.1) {round (x, 2)} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
       round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {
         round(x, 5)} else if (x > 0.000001) {round(x, 6)}
   }
@@ -152,11 +156,11 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
 
 
   plot <- ggplot(data, aes(x =.data[[myfactor]], y = .data[[var]])) +
-    geom_boxplot(show.legend = FALSE) + stat_summary(fun = median,
+    geom_boxplot(show.legend = FALSE) + stat_summary(fun = MethodDictate,
               show.legend = FALSE, geom = "crossbar", width = 0.75) +
     geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]],
       fill = .data[[myfactor]]), method = "center", side = 0,
-      priority = "density", cex = cex, size = 4) +
+      priority = "density", cex = cex, size = size) +
     scale_shape_manual(values = shape_palette) +
     scale_fill_manual(values = fill_palette) +
     labs(title = wrapped_title, x = NULL, y = NULL) + theme_bw() +

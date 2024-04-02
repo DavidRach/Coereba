@@ -13,6 +13,8 @@
 #' @param savePlot Whether to also save the plot
 #' @param filename What file name to save it as (location not yet implemented)
 #' @param cex How cramped to make the beeswarm columns.
+#' @param size What size to make the beeswarm points
+#' @param crossbar mean or median
 #' @param XAxisLevels provide a list of final names to rearrange the x axis data.
 #'
 #' @importFrom dplyr select
@@ -35,7 +37,8 @@
 #' @examples Not at this time
 
 Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starter, shape_palette, fill_palette,
-                                      panel, scalefactor, scalefactorlabel, label, plot, savePlot, filename = NULL, cex, XAxisLevels){
+                                      panel, scalefactor, scalefactorlabel, label, plot, savePlot, filename = NULL, cex, size, crossbar,
+                                      XAxisLevels){
 
   if (!is.data.frame(panel)) {MyPanel <- read.csv(panel, check.names = FALSE)} else {MyPanel <- panel}
 
@@ -66,9 +69,9 @@ Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starte
     df_melted$Marker <- factor(df_melted$Marker, levels = XAxisLevels)
 
     TheggPlot <- ggplot(df_melted, aes(x = Marker, y = Value)) + geom_boxplot(show.legend = FALSE) +
-      stat_summary(fun = median, show.legend = FALSE, geom = "crossbar", width = 0.75) +
+      stat_summary(fun = crossbar, show.legend = FALSE, geom = "crossbar", width = 0.75) +
       geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]], fill = .data[[myfactor]]),
-                    method = "center", side = 0, priority = "density", cex = cex, size = 4) +
+                    method = "center", side = 0, priority = "density", cex = cex, size = size) +
       scale_shape_manual(values = shape_palette) + scale_fill_manual(values = fill_palette) +
       labs(title = label, x = NULL, y = NULL) + theme_bw() + theme(panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(), plot.title = element_text(hjust = 0.5, size = 8))
