@@ -8,6 +8,6 @@
 
 CoerebaApp <- function() {
     runApp(
-    system.file("shiny", package="Coereba"),
+    system.file("shinyApp", package="Coereba"),
     display.mode = "normal")
 }
