@@ -30,6 +30,7 @@ Imports:
     purrr,
     reshape2,
     scales,
+    shiny,
     stats,
     stringr,
     tidyr,
