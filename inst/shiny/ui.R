@@ -1,3 +1,5 @@
+
+# Home ---------
 ui <- fluidPage(
   titlePanel("Upload CSV File"),
   sidebarLayout(
