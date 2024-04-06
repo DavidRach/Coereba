@@ -12,10 +12,15 @@ server <- function(input, output, session) {
   })
 
   # Extract column names for dropdown menu
-  #observe({
-  #  col_names <- names(data())
-  #  updateSelectInput(session, "x_variable", choices = col_names)
-  #})
+  observe({
+    col_names <- names(data())
+    updateSelectInput(session, "x_variable", choices = col_names)
+  })
+
+  observe({
+    col_names <- names(data())
+    updateSelectInput(session, "y_variable", choices = col_names)
+  })
 
   # Access the GatingSet object from the active R environment
   gatingSet_data <- reactive({
@@ -36,8 +41,8 @@ server <- function(input, output, session) {
     # Call your function here with the provided inputs
     # Assuming your_function returns a list of ggplot objects
     plots_list <- Luciernaga::Utility_UnityPlot(
-      x = input$x,
-      y = input$y,
+      x = input$x_variable,
+      y = input$y_variable,
       GatingSet = gatingSet,
       sample.name = input$sampleName,
       bins = input$bins,

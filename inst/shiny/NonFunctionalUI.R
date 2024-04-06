@@ -1,7 +1,3 @@
-library(shiny)
-library(shinydashboard)
-
-# UI: Combine
 ui <- dashboardPage(
   dashboardHeader(title = "Coereba"),
 
@@ -43,8 +39,8 @@ ui <- dashboardPage(
           sidebarPanel(
             width = 3,
             textInput("gatingSetName", "Enter GatingSet Object Name", value = ""),
-            textInput("x", "Enter x-axis value", value = "Comp-APC-A"),
-            textInput("y", "Enter y-axis value", value = "Comp-Spark Blue 550-A"),
+            selectInput("x_variable", "Select x-axis variable", choices = NULL),
+            selectInput("y_variable", "Select y-axis variable", choices = NULL),
             textInput("sampleName", "Enter Sample Name Keyword", value = "GROUPNAME"),
             numericInput("bins", "Enter desired bins", value = 70),
             numericInput("clearance", "Enter clearance multiplier", value = 0.2),
