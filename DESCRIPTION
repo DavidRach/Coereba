@@ -39,10 +39,14 @@ Imports:
 Depends: R (>= 4.0.0)
 Suggests: 
     BiocStyle,
+    DT,
     ggcyto,
     knitr,
     openCyto,
     rmarkdown,
+    shinyBS,
+    shinydashboard,
+    shinyjs,
     testthat (>= 3.0.0),
     withr
 biocViews: Clustering, FlowCytometry, Preprocessing, Software
