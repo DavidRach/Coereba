@@ -118,8 +118,7 @@ server <- function(input, output, session) {
       # Clean annotation text
       cleaned_annotation <- gsub("<b> | </b>", "", input$plot_click$annotation)
 
-      cleaned_annotation1 <- cleaned_annotation
-      cleaned_annotation1 <- gsub(" [^ ]+$", "", cleaned_annotation1)
+      cleaned_annotation <- gsub(" [^ ]+$", "", cleaned_annotation)
 
       if(nrow(click_info$click_data) == 0) {
         click_info$click_data <- data.frame(Plot_Name = input$plot_click$plot_name,
