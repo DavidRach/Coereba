@@ -8,7 +8,8 @@ ui <- dashboardPage(
     sidebarMenu(
       id = "menu",
       menuItem("Upload CSV File", tabName = "data", icon = icon("table")),
-      menuItem("Upload a GatingSet", tabName = "gatingset", icon = icon("table"))
+      menuItem("Upload a GatingSet", tabName = "gatingset", icon = icon("table")),
+      menuItem("Click Data", tabName = "clickdata", icon = icon("table"))
     )
   ),
 
@@ -55,6 +56,11 @@ ui <- dashboardPage(
             uiOutput("plots")
           )
         )
+      ),
+      tabItem(
+        tabName = "clickdata",
+        titlePanel("Click Data"),
+       DTOutput("clickDataTable")
       )
     )
   )

@@ -1,3 +1,5 @@
+click_data <- reactiveValues(data = data.table(plot_name = character(), x_coord = numeric()))
+
 server <- function(input, output, session) {
 
   # Read the uploaded CSV file
@@ -60,17 +62,36 @@ server <- function(input, output, session) {
     output$plots <- renderUI({
       tagList(
         lapply(seq_along(plots_list), function(i) {
-          plotOutput(paste0("plot", i))
+          plotlyOutput(paste0("plot", i))
         })
       )
     })
 
     for (i in seq_along(plots_list)) {
-      output[[paste0("plot", i)]] <- renderPlot({
-        plots_list[[i]]
+      output[[paste0("plot", i)]] <- renderPlotly({
+        plots_list[[i]] %>%
+          event_register("plotly_click") # Register click event
       })
     }
   })
 
+  # Handle click events
+  observeEvent(event_data("plotly_click"), {
+    click_info <- event_data("plotly_click")
+
+    # Extract plot name and x-coordinate
+    plot_name <- click_info$source
+    x_coord <- click_info$x
+
+    # Add click information to reactive dataset
+    click_data$data <- rbind(click_data$data, data.table(plot_name = plot_name, x_coord = x_coord))
+  })
+
+  output$clickDataTable <- renderDataTable({
+    click_data$data
+  })
+
 }
+
+
 
