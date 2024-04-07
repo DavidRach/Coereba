@@ -1,5 +1,3 @@
-click_data <- reactiveValues(data = data.table(plot_name = character(), x_coord = numeric()))
-
 server <- function(input, output, session) {
 
   # Read the uploaded CSV file
@@ -60,9 +58,13 @@ server <- function(input, output, session) {
 
     # Output each plot
     output$plots <- renderUI({
-      tagList(
+      div(
+        style = "display: flex; flex-wrap: wrap;",
         lapply(seq_along(plots_list), function(i) {
-          plotlyOutput(paste0("plot_", i))
+          div(
+            style = "width: 33.33%;",
+            plotlyOutput(paste0("plot_", i), width = "100%")
+          )
         })
       )
     })

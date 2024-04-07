@@ -39,7 +39,7 @@ ui <- dashboardPage(
         sidebarLayout(
           sidebarPanel(
             width = 3,
-            textInput("gatingSetName", "Enter GatingSet Object Name", value = ""),
+            textInput("gatingSetName", "Enter GatingSet Object Name", value = "gs"),
             selectInput("x_variable", "Select x-axis variable", choices = NULL),
             selectInput("y_variable", "Select y-axis variable", choices = NULL),
             textInput("sampleName", "Enter Sample Name Keyword", value = "GROUPNAME"),
