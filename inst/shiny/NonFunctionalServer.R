@@ -62,33 +62,20 @@ server <- function(input, output, session) {
     output$plots <- renderUI({
       tagList(
         lapply(seq_along(plots_list), function(i) {
-          plotlyOutput(paste0("plot", i))
+          plotOutput(paste0("plot_", i))
         })
       )
     })
 
     for (i in seq_along(plots_list)) {
-      output[[paste0("plot", i)]] <- renderPlotly({
-        plots_list[[i]] %>%
-          event_register("plotly_click") # Register click event
+      local({
+        idx <- i  # Create a local copy of i
+        output[[paste0("plot_", idx)]] <- renderPlot({
+          plots_list[[idx]]
+        })
       })
     }
-  })
 
-  # Handle click events
-  observeEvent(event_data("plotly_click"), {
-    click_info <- event_data("plotly_click")
-
-    # Extract plot name and x-coordinate
-    plot_name <- click_info$source
-    x_coord <- click_info$x
-
-    # Add click information to reactive dataset
-    click_data$data <- rbind(click_data$data, data.table(plot_name = plot_name, x_coord = x_coord))
-  })
-
-  output$clickDataTable <- renderDataTable({
-    click_data$data
   })
 
 }
