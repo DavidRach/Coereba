@@ -1,5 +1,8 @@
 server <- function(input, output, session) {
-  #click_info <- reactiveValues(click_data = data.frame(Plot_Name = character(), X_Coordinate = numeric()))
+  click_info <- reactiveValues(click_data = data.frame(Plot_Name = character(),
+                                                       X_Label = character(),
+                                                       X_Coordinate = numeric(),
+                                                       Time = character()))
 
   # Read the uploaded CSV file
   data <- reactive({
@@ -86,7 +89,8 @@ server <- function(input, output, session) {
                 console.log(data);
                 Shiny.setInputValue('plot_click', {
                   plot_name: x.layout.title.text,
-                  x_coordinate: data.points[0].x
+                  x_coordinate: data.points[0].x,
+                  annotation: x.layout.annotations[0].text
                 });
               });
             }
@@ -101,21 +105,33 @@ server <- function(input, output, session) {
 
   })
 
-  # Observe the click event and store information
   observeEvent(input$plot_click, {
     print("Click event captured!")
 
     print(paste("Plot Name:", input$plot_click$plot_name))
+    print(paste("X Label:", input$plot_click$annotation))
     print(paste("X Coordinate:", input$plot_click$x_coordinate))
 
-    #if(nrow(click_info$click_data) == 0) {
-    #  click_info$click_data <- data.frame(Plot_Name = input$plot_click$plot_name,
-    #                                      X_Coordinate = input$plot_click$x_coordinate)
-    #} else {
-    #  click_info$click_data <- rbind(click_info$click_data,
-    #                                 data.frame(Plot_Name = input$plot_click$plot_name,
-    #                                            X_Coordinate = input$plot_click$x_coordinate))
-    #}
+    if (!is.null(input$plot_click$plot_name) && !is.null(input$plot_click$x_coordinate)) {
+      timestamp <- Sys.time()  # Get current system time
+
+      # Clean annotation text
+      cleaned_annotation <- gsub("<b> | </b>", "", input$plot_click$annotation)
+      cleaned_annotation <- sub(" .*", "", cleaned_annotation)  # Remove last space and everything after it
+
+      if(nrow(click_info$click_data) == 0) {
+        click_info$click_data <- data.frame(Plot_Name = input$plot_click$plot_name,
+                                            X_Label = cleaned_annotation,
+                                            X_Coordinate = input$plot_click$x_coordinate,
+                                            Time = timestamp)
+      } else {
+        click_info$click_data <- rbind(click_info$click_data,
+                                       data.frame(Plot_Name = input$plot_click$plot_name,
+                                                  X_Label = cleaned_annotation,
+                                                  X_Coordinate = input$plot_click$x_coordinate,
+                                                  Time = timestamp))
+      }
+    }
   })
 
   # Render the clickDataTable with the updated click data
