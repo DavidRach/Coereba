@@ -1,4 +1,5 @@
 server <- function(input, output, session) {
+  click_info <- reactiveValues(click_data = data.frame(Plot_Name = character(), X_Coordinate = numeric()))
 
   # Read the uploaded CSV file
   data <- reactive({
@@ -73,11 +74,53 @@ server <- function(input, output, session) {
       local({
         idx <- i  # Create a local copy of i
         output[[paste0("plot_", idx)]] <- renderPlotly({
-          ggplotly(plots_list[[idx]])
+          p <- ggplotly(plots_list[[idx]])
+
+          # Capture plotly click event
+          p <- htmlwidgets::onRender(
+            p,
+            "
+            function(el, x) {
+              el.on('plotly_click', function(data) {
+                Shiny.setInputValue('plot_click', {
+                  plot_name: data.points[0].data.name,
+                  x_coordinate: data.points[0].x
+                });
+              });
+            }
+            "
+          )
+
+          p
+
         })
       })
     }
 
+  })
+
+  # Observe the click event and store information
+  observeEvent(input$plot_click, {
+    print("Click event captured!")
+    if(nrow(click_info$click_data) == 0) {
+      click_info$click_data <- data.frame(Plot_Name = input$plot_click$plot_name,
+                                          X_Coordinate = input$plot_click$x_coordinate)
+    } else {
+      click_info$click_data <- rbind(click_info$click_data,
+                                     data.frame(Plot_Name = input$plot_click$plot_name,
+                                                X_Coordinate = input$plot_click$x_coordinate))
+    }
+  })
+
+  # Render the clickDataTable with the updated click data
+  output$clickDataTable <- renderDT({
+    print("Rendering clickDataTable...")
+    datatable(
+      click_info$click_data,
+      options = list(
+        dom = 'tip'
+      )
+    )
   })
 
 }
