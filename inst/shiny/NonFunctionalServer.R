@@ -62,7 +62,7 @@ server <- function(input, output, session) {
     output$plots <- renderUI({
       tagList(
         lapply(seq_along(plots_list), function(i) {
-          plotOutput(paste0("plot_", i))
+          plotlyOutput(paste0("plot_", i))
         })
       )
     })
@@ -70,7 +70,7 @@ server <- function(input, output, session) {
     for (i in seq_along(plots_list)) {
       local({
         idx <- i  # Create a local copy of i
-        output[[paste0("plot_", idx)]] <- renderPlot({
+        output[[paste0("plot_", idx)]] <- renderPlotly({
           plots_list[[idx]]
         })
       })
