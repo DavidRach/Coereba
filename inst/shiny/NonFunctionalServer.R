@@ -73,9 +73,7 @@ server <- function(input, output, session) {
       local({
         idx <- i  # Create a local copy of i
         output[[paste0("plot_", idx)]] <- renderPlotly({
-          ggplotly(plots_list[[idx]]) %>%
-            config(displayModeBar = FALSE) %>%
-            style(hoverinfo = "x+y+text")
+          ggplotly(plots_list[[idx]])
         })
       })
     }
