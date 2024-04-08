@@ -60,7 +60,18 @@ ui <- dashboardPage(
       tabItem(
         tabName = "clickdata",
         titlePanel("Click Data"),
-       DTOutput("clickDataTable")
+        fluidRow(
+          column(
+            width = 6,
+            textInput("export_filename", "Export Filename", value = "click_data")
+          ),
+          column(
+            width = 6,
+            textInput("export_directory", "Export Directory Path", placeholder = "/path/to/directory")
+          )
+        ),
+        actionButton("export_button", "Export Click Data", icon = icon("download")),
+        DTOutput("clickDataTable")
       )
     )
   )

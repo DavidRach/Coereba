@@ -146,6 +146,35 @@ server <- function(input, output, session) {
     )
   })
 
+  observeEvent(input$export_button, {
+    export_filename <- paste(input$export_filename, ".csv", sep = "")
+    export_path <- normalizePath(input$export_directory)
+
+    # Check if the directory exists
+    if (!dir.exists(export_path)) {
+      showModal(modalDialog(
+        title = "Error",
+        "The specified directory does not exist.",
+        footer = tagList(
+          actionButton("close_modal", "Close")
+        )
+      ))
+    } else {
+      write.csv(click_info$click_data, file = file.path(export_path, export_filename), row.names = FALSE)
+      showModal(modalDialog(
+        title = "Export Complete",
+        "Click data has been exported successfully.",
+        footer = tagList(
+          actionButton("close_modal", "Close")
+        )
+      ))
+    }
+  })
+
+  observeEvent(input$close_modal, {
+    removeModal()
+  })
+
 }
 
 
