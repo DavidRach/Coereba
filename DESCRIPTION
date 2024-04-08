@@ -37,7 +37,8 @@ Imports:
     stringr,
     tidyr,
     tidyselect,
-    viridis
+    viridis,
+    lubridate
 Depends: R (>= 4.0.0)
 Suggests: 
     BiocStyle,
