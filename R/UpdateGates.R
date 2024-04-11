@@ -25,7 +25,7 @@ UpdateGates <- function(Clicks, Old, fileName, outpath){
   TheOld <- read.csv(Old, check.names = FALSE)
 
   TheClicks <- TheClicks %>% rename(specimen = Plot_Name)
-  TheClicks$Time <- ymd_hms(TheClicks$Time)
+  TheClicks$Time <- hms(TheClicks$Time)
   Retained <- TheClicks %>% group_by(specimen, X_Label) %>%
     arrange(desc(Time)) %>% slice(1) %>% ungroup()
   Retained <- Retained %>% select(-Time)

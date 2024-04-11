@@ -29,7 +29,8 @@ Internal_Querry <- function(x, panel, BinaryFile, OriginalData, Metadata, myfact
       data = InternalFinal, var = .x, myfactor = myfactor,
       normality = normality, shape_palette = shape_palette,
       fill_palette = fill_palette,
-      scalefactor = scalefactor, scalefactorlabel = scalefactorlabel, ...))
+      scalefactor = scalefactor, scalefactorlabel = scalefactorlabel,
+      Override = Override, cex = cex, size = size, correction = correction, ...))
 
     FinalPosBehemoth <- Behemoth[[1]] + ggtitle(ThePlotName)
 
@@ -64,7 +65,8 @@ Internal_Querry <- function(x, panel, BinaryFile, OriginalData, Metadata, myfact
       data = InternalFinal, var = .x, myfactor = myfactor,
       normality = normality, shape_palette = shape_palette,
       fill_palette = fill_palette,
-      scalefactor = scalefactor, scalefactorlabel = scalefactorlabel, ...))
+      scalefactor = scalefactor, scalefactorlabel = scalefactorlabel,
+      Override = Override, cex = cex, size = size, correction = correction))
     FinalNegBehemoth <- Behemoth[[1]] + ggtitle(ThePlotName)
 
     Heatmap <- Internal_Heatmap(filteredCells = Negative, panel = MyPanel, ...)

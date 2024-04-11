@@ -15,31 +15,32 @@ Utility_Reaggregate(
   panel,
   scalefactor,
   scalefactorlabel,
-  label
+  label,
+  ...
 )
 }
 \arguments{
-\item{BinaryFile}{NA}
+\item{BinaryFile}{The Heatmap file}
 
-\item{OriginalData}{NA}
+\item{OriginalData}{The Ready file}
 
-\item{myfactor}{NA}
+\item{myfactor}{The metadata factor in Original data you wish to compare}
 
 \item{starter}{First parameter Coereba split by, used to identify columns that aren't metadata}
 
-\item{normality}{NA}
+\item{normality}{Choice of normality test, "dagostino" or "shapiro"}
 
-\item{shape_palette}{NA}
+\item{shape_palette}{Desired shape for the points by factor}
 
-\item{fill_palette}{NA}
+\item{fill_palette}{Desired fill for the points by factor}
 
-\item{panel}{NA}
+\item{panel}{A .csv or dataframe containing the Fluorophores and their Marker names}
 
-\item{scalefactor}{NA}
+\item{scalefactor}{Desired adjust to the axis}
 
-\item{scalefactorlabel}{NA}
+\item{scalefactorlabel}{Desired name for the axis}
 
-\item{label}{NA}
+\item{label}{Replaces the title with the following string}
 }
 \value{
 NA

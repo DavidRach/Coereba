@@ -17,21 +17,25 @@ Utility_Querry(
   fill_palette,
   scalefactor,
   scalefactorlabel,
+  Override,
+  cex,
+  size,
+  correction,
   ...
 )
 }
 \arguments{
-\item{BinaryFile}{Unclear}
+\item{BinaryFile}{The Heatmap file}
 
-\item{OriginalData}{Unclear}
+\item{OriginalData}{UThe Ready file}
 
 \item{filename}{Name to give the results}
 
 \item{outfolder}{Folder to which to output the results}
 
-\item{panel}{Unclear}
+\item{panel}{A .csv or dataframe containing the Fluorophores and their Marker names}
 
-\item{starter}{Unclear}
+\item{starter}{First parameter Coereba split by, used to identify columns that aren't metadata}
 
 \item{myfactor}{Column containing factor designation that you want to
 differentially compare}

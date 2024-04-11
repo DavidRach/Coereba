@@ -1,11 +1,11 @@
 #' Detect changes a heatmap level below your target
 #'
-#' @param BinaryFile Unclear
-#' @param OriginalData Unclear
+#' @param BinaryFile The Heatmap file
+#' @param OriginalData UThe Ready file
 #' @param filename Name to give the results
 #' @param outfolder Folder to which to output the results
-#' @param panel Unclear
-#' @param starter Unclear
+#' @param panel A .csv or dataframe containing the Fluorophores and their Marker names
+#' @param starter First parameter Coereba split by, used to identify columns that aren't metadata
 #' @param myfactor Column containing factor designation that you want to
 #'  differentially compare
 #' @param normality Normality test to be used, ex. "dagostino" or "sharpwilks"
@@ -35,7 +35,7 @@
 #' @examples NULL
 Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder,
         panel, starter, myfactor, normality, shape_palette, fill_palette,
-        scalefactor, scalefactorlabel, ...){
+        scalefactor, scalefactorlabel, Override, cex, size, correction, ...){
 
   Metadata <- OriginalData %>% select(!starts_with(starter))
 
@@ -44,7 +44,8 @@ Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder,
   theplots <- map(AllMarkers, .f=Internal_Querry, panel = panel, BinaryFile = BinaryFile,
                   OriginalData = OriginalData, Metadata = Metadata, myfactor = myfactor, normality = normality,
                   shape_palette = shape_palette, fill_palette = fill_palette,
-                  scalefactor = scalefactor, scalefactorlabel = scalefactorlabel...)
+                  scalefactor = scalefactor, scalefactorlabel = scalefactorlabel, Override = Override,
+                  cex = cex, size = size, correction = correction, ...)
 
   #theplots
   theflattenedplots <- flatten(theplots)
