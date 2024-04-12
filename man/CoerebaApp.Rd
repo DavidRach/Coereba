@@ -2,10 +2,10 @@
 % Please edit documentation in R/CoerebaApp.R
 \name{CoerebaApp}
 \alias{CoerebaApp}
-\title{Deploy a Shiny app to modify Gate Cutoffs}
+\title{Deploy a Shiny app to modify the estimated gate cutoffs.}
 \usage{
 CoerebaApp()
 }
 \description{
-Deploy a Shiny app to modify Gate Cutoffs
+Deploy a Shiny app to modify the estimated gate cutoffs.
 }

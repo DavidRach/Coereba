@@ -1,10 +1,9 @@
-#' Deploy a Shiny app to modify Gate Cutoffs
+#' Deploy a Shiny app to modify the estimated gate cutoffs.
 #'
 #' @importFrom shiny runApp
 #'
 #' @export
-#'
-#'
+
 
 CoerebaApp <- function() {
     runApp(
