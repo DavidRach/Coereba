@@ -25,7 +25,7 @@
 #' @return The generated ggplots.
 #' @export
 #'
-#' @examples Not at this time
+#' @examples NULL
 
 Utility_Aggregate <- function(BinaryFile, OriginalData, markers, myfactor, starter, shape_palette,
                               fill_palette, panel, scalefactor, scalefactorlabel, label, cex, size, ...) {
@@ -42,7 +42,7 @@ Utility_Aggregate <- function(BinaryFile, OriginalData, markers, myfactor, start
                     OriginalData=OriginalData, MyPanel=MyPanel, Metadata=Metadata,
                     myfactor=myfactor, normality=normality,shape_palette=shape_palette,
                     fill_palette=fill_palette, scalefactor=scalefactor,
-                    scalefactorlabel=scalefactorlabel...) %>% bind_cols()
+                    scalefactorlabel=scalefactorlabel, ...) %>% bind_cols()
 
   SwampSums <- colSums(SwampPuppy)
   ZeroPuppy <- colnames(SwampPuppy[, SwampSums == 0])

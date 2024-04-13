@@ -50,6 +50,16 @@ differentially compare}
 interpretable (ex. 1000)}
 
 \item{scalefactorlabel}{The cells of interest, ex. "Vd2 T cells"}
+
+\item{Override}{parametric or non-parametric}
+
+\item{cex}{The width of the ggbeeswarm bin}
+
+\item{size}{Size for the ggbeeswarm circles.}
+
+\item{correction}{What parameter to apply for ANOVA/Kruskal}
+
+\item{...}{Additional arguments}
 }
 \value{
 Some additional value to edit

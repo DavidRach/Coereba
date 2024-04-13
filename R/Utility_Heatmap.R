@@ -3,6 +3,7 @@
 #' @param cells Unclear, Coereba output including Cluster column
 #' @param filename Name to save .png file as
 #' @param return Whether to save the file as a png, TRUE/FALSE
+#' @param panel A csv file containing a panel
 #'
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
@@ -31,7 +32,7 @@ Utility_Heatmap <- function(cells, filename, return, panel){
   theCells <- filteredCells %>% mutate(Cluster = row_number()) %>%
     relocate(Cluster, .after = Identity)
   retained <- colnames(theCells[,1:2])
-  MeltedCells <- reshape2::melt(theCells, id = retained)
+  MeltedCells <- melt(theCells, id = retained)
   MeltedCells$Cluster <- factor(MeltedCells$Cluster)
   MeltedCells$variable <- factor(MeltedCells$variable)
 
@@ -63,7 +64,7 @@ Utility_Heatmap <- function(cells, filename, return, panel){
   theCells <- filteredCells %>% mutate(Cluster = row_number()) %>%
     relocate(Cluster, .after = Identity)
   retained <- colnames(theCells[,1:2])
-  MeltedCells <- reshape2::melt(theCells, id = retained)
+  MeltedCells <- melt(theCells, id = retained)
   MeltedCells$Cluster <- factor(MeltedCells$Cluster)
   MeltedCells$variable <- factor(MeltedCells$variable)
 

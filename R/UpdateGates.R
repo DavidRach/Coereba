@@ -14,11 +14,12 @@
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr select
 #' @importFrom dplyr pull
+#' @importFrom utils write.csv
 #'
 #' @return An updated .csv file to the new location, and a data.frame
 #' @export
 #'
-#' @examples Not at this time
+#' @examples NULL
 
 UpdateGates <- function(Clicks, Old, fileName, outpath){
   TheClicks <- read.csv(Clicks, check.names = FALSE)

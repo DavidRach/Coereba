@@ -42,5 +42,5 @@ A data.frame
 Run Coereba and return as a data.frame
 }
 \examples{
-Not at this time
+NULL
 }

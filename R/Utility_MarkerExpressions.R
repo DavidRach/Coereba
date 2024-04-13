@@ -16,6 +16,7 @@
 #' @param size What size to make the beeswarm points
 #' @param crossbar mean or median
 #' @param XAxisLevels provide a list of final names to rearrange the x axis data.
+#' @param starter first column name that Coereba splits were based on, used for column detection
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
@@ -34,7 +35,7 @@
 #' @return returns the data.frame or a ggplot plot.
 #' @export
 #'
-#' @examples Not at this time
+#' @examples NULL
 
 Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starter, shape_palette, fill_palette,
                                       panel, scalefactor, scalefactorlabel, label, plot, savePlot, filename = NULL, cex, size, crossbar,
@@ -49,7 +50,7 @@ Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starte
   SwampPuppy <- map(.x=AllMarkers, .f=.Internal_Aggregate, panel=panel, BinaryFile=BinaryFile,
                     OriginalData=OriginalData, MyPanel=MyPanel, Metadata=Metadata, myfactor=myfactor, normality=normality,
                     shape_palette=shape_palette, fill_palette=fill_palette, scalefactor=scalefactor,
-                    scalefactorlabel=scalefactorlabel...) %>% bind_cols()
+                    scalefactorlabel=scalefactorlabel, ...) %>% bind_cols()
 
   SwampFluors <- SwampPuppy %>% colnames()
   SwampFluors <- data.frame(SwampFluors) %>% rename(Fluorophore = SwampFluors)

@@ -24,7 +24,7 @@
 #' @return A data.frame
 #' @export
 #'
-#' @examples Not at this time
+#' @examples NULL
 
 Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns, notcolumns, reference, starter,
                             ReturnType = "data"){
@@ -45,7 +45,8 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns, 
   ff <- gs_pop_get_data(x, subsets)
   inversed_ff <- gs_pop_get_data(x, subsets, inverse.transform = TRUE)
   #newff <- realize_view(ff)
-  startingcells <- BiocGenerics::nrow(ff)[[1]] # For Ratio
+  startingcells <- RowWorkAround(x)
+
 
   df <- exprs(ff[[1]])
   DF <- as.data.frame(df, check.names = FALSE)
@@ -139,4 +140,14 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns, 
   }
 
   return(Reintegrated1)
+}
+
+
+
+#' @noRd
+#' @importFrom BiocGenerics nrow
+
+RowWorkAround <- function(x){
+  TheNumberRows <- nrow(x)[[1]] # For Ratio
+  return(TheNumberRows)
 }

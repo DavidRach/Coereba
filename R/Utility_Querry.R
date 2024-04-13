@@ -14,6 +14,11 @@
 #' @param scalefactor Number you are multiplying the ratio by to make more
 #' interpretable (ex. 1000)
 #' @param scalefactorlabel The cells of interest, ex. "Vd2 T cells"
+#' @param Override parametric or non-parametric
+#' @param cex The width of the ggbeeswarm bin
+#' @param size Size for the ggbeeswarm circles.
+#' @param correction What parameter to apply for ANOVA/Kruskal
+#' @param ... Additional arguments
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyr starts_with
@@ -33,6 +38,7 @@
 #' @export
 #'
 #' @examples NULL
+
 Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder,
         panel, starter, myfactor, normality, shape_palette, fill_palette,
         scalefactor, scalefactorlabel, Override, cex, size, correction, ...){

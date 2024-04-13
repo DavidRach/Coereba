@@ -31,6 +31,8 @@ Utility_MarkerExpressions(
 
 \item{myfactor}{The factor you want the points to resemble}
 
+\item{starter}{first column name that Coereba splits were based on, used for column detection}
+
 \item{shape_palette}{Shape of your points by factor}
 
 \item{fill_palette}{Fill of your points by factor}
@@ -64,5 +66,5 @@ returns the data.frame or a ggplot plot.
 Generate overall marker expressions across Coereba clusters,
 }
 \examples{
-Not at this time
+NULL
 }

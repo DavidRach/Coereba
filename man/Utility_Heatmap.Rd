@@ -12,6 +12,8 @@ Utility_Heatmap(cells, filename, return, panel)
 \item{filename}{Name to save .png file as}
 
 \item{return}{Whether to save the file as a png, TRUE/FALSE}
+
+\item{panel}{A csv file containing a panel}
 }
 \value{
 Some additional value to edit

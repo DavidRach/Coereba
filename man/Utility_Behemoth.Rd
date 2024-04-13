@@ -36,6 +36,10 @@ Utility_Behemoth(
 
 \item{switch}{Unclear}
 
+\item{scalefactor}{Scaling factor to multiply y axis}
+
+\item{scalefactorlabel}{Alternative y axis name}
+
 \item{cex}{The width of the ggbeeswarm bin}
 
 \item{size}{Size for the ggbeeswarm circles.}
@@ -43,6 +47,8 @@ Utility_Behemoth(
 \item{Override}{parametric or non-parametric}
 
 \item{correction}{What parameter to apply for ANOVA/Kruskal}
+
+\item{...}{Additional arguments}
 }
 \value{
 Some additional value to edit

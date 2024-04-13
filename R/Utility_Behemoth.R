@@ -11,6 +11,9 @@
 #' @param size Size for the ggbeeswarm circles.
 #' @param Override parametric or non-parametric
 #' @param correction What parameter to apply for ANOVA/Kruskal
+#' @param scalefactor Scaling factor to multiply y axis
+#' @param scalefactorlabel Alternative y axis name
+#' @param ... Additional arguments
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize

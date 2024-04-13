@@ -57,5 +57,5 @@ The generated ggplots.
 Returns aggregate plots comparing factor of interest for given markers
 }
 \examples{
-Not at this time
+NULL
 }

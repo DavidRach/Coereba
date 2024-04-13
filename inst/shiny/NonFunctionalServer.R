@@ -1,3 +1,6 @@
+#' @noRd
+#' @importFrom utils write.csv
+
 server <- function(input, output, session) {
   click_info <- reactiveValues(click_data = data.frame(Plot_Name = character(),
                                                        X_Label = character(),

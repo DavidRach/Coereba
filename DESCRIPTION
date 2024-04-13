@@ -21,11 +21,8 @@ Imports:
     fBasics,
     flowCore,
     flowWorkspace,
-    ggcyto,
-    openCyto,
     ggbeeswarm,
     ggplot2,
-    ggpubr,
     grDevices,
     magrittr,
     patchwork,
@@ -38,12 +35,18 @@ Imports:
     tidyr,
     tidyselect,
     viridis,
-    lubridate
+    lubridate,
+    utils,
+    zoo,
+    BiocGenerics
 Depends: R (>= 4.0.0)
 Suggests: 
     BiocStyle,
+    data.table,
     DT,
+    ggcyto,
     knitr,
+    openCyto,
     rmarkdown,
     shinyBS,
     shinydashboard,
