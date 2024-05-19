@@ -15,6 +15,7 @@
 #'
 #' @examples NULL
 #'
+
 Utility_Patchwork <- function(x, filename, outfolder, thecolumns, therows){
   theList <- x
   theList <- Filter(Negate(is.null), theList)

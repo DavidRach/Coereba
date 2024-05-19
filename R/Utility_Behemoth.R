@@ -118,7 +118,7 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
 
   #My pvalue cleanup function
   pval_mold <- function(x){
-    if (x > 0.20){"n.s"} else if (x > 0.1) {round (x, 2)} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
+    if (x > 0.10){"n.s"} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
       round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {
         round(x, 5)} else if (x > 0.000001) {round(x, 6)}
   }
@@ -159,8 +159,7 @@ Utility_Behemoth <- function(data, var, myfactor, normality, shape_palette,
 
 
   plot <- ggplot(data, aes(x =.data[[myfactor]], y = .data[[var]])) +
-    geom_boxplot(show.legend = FALSE) + stat_summary(fun = MethodDictate,
-              show.legend = FALSE, geom = "crossbar", width = 0.75) +
+    geom_boxplot(show.legend = FALSE) +
     geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]],
       fill = .data[[myfactor]]), method = "center", side = 0,
       priority = "density", cex = cex, size = size) +

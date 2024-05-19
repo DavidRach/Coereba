@@ -27,7 +27,7 @@
 #'
 #' @examples NULL
 Utility_Stats <- function(data, var, myfactor, normality, shape_palette,
-                          fill_palette, switch){
+                          fill_palette, switch, correction="none"){
 
   theYlim <- max(data[[var]])
   FactorLevels <- levels(data[[myfactor]])
@@ -44,14 +44,20 @@ Utility_Stats <- function(data, var, myfactor, normality, shape_palette,
     .data[[myfactor]]) %>%
     summarize(dagostino_result = dago_wrapper(.data[[var]])) %>%
     unnest(dagostino_result)
+
+    Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"
+      } else{"nonparametric"}
+
   } else if (normality == "shapiro") {Stashed <- data %>% group_by(
     .data[[myfactor]]) %>%
     summarize(shapiro_result = list(tidy(shapiro.test(.data[[var]])))) %>%
     unnest(shapiro_result)
-  } else ("Forgot to input Normality test choice. Use 'dagostino' or 'shapiro'")
 
-  Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"} else{
-    "nonparametric"}
+    Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"
+    } else{"nonparametric"}
+
+  } else {message("No Normality Test specified")
+    Distribution <- "nonparametric"}
 
   TheTest <- if (Distribution == "parametric" & FactorLevelsCount == 2) {
     tt<- tidy(t.test(data[[var]] ~ data[[myfactor]], alternative = "two.sided",
@@ -62,7 +68,7 @@ Utility_Stats <- function(data, var, myfactor, normality, shape_palette,
     if(at$p.value[1] < 0.05) {
       subset_data <- subset(data, select = c(var, myfactor))
       ptt <- tidy(pairwise.t.test(subset_data[[var]], subset_data[[myfactor]],
-                                  p.adjust.method = "BH"))
+                                  p.adjust.method = correction))
       ptt$method <- "Pairwise t-test"
       ptt
     } else(at)
@@ -74,7 +80,7 @@ Utility_Stats <- function(data, var, myfactor, normality, shape_palette,
     if (kt$p.value < 0.05) {
       subset_data <- subset(data, select = c(var, myfactor))
       pwt <- tidy(pairwise.wilcox.test(subset_data[[var]],
-                    g=subset_data[[myfactor]], p.adjust.method = "BH"))
+                    g=subset_data[[myfactor]], p.adjust.method = correction))
       pwt$method <- "Pairwise Wilcox test"
       pwt
     } else {kt}

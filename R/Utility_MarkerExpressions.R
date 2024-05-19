@@ -50,7 +50,7 @@ Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starte
   SwampPuppy <- map(.x=AllMarkers, .f=.Internal_Aggregate, panel=panel, BinaryFile=BinaryFile,
                     OriginalData=OriginalData, MyPanel=MyPanel, Metadata=Metadata, myfactor=myfactor, normality=normality,
                     shape_palette=shape_palette, fill_palette=fill_palette, scalefactor=scalefactor,
-                    scalefactorlabel=scalefactorlabel, ...) %>% bind_cols()
+                    scalefactorlabel=scalefactorlabel) %>% bind_cols()
 
   SwampFluors <- SwampPuppy %>% colnames()
   SwampFluors <- data.frame(SwampFluors) %>% rename(Fluorophore = SwampFluors)
@@ -83,7 +83,7 @@ Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starte
 }
 
 .Internal_Aggregate <- function(x, panel, BinaryFile, OriginalData, Metadata, myfactor, normality, shape_palette,
-                                fill_palette, MyPanel=MyPanel, scalefactor, scalefactorlabel, ...){
+                                fill_palette, MyPanel=MyPanel, scalefactor, scalefactorlabel){
   Column <- x
 
   #Positive Marker Expressions
