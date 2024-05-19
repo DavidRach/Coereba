@@ -86,6 +86,9 @@ Utility_Stats <- function(data, var, myfactor, normality, shape_palette,
     } else {kt}
   }
 
-  Returns <- cbind(var, min(TheTest$p.value))
+  Values <- TheTest$p.value %>% unlist()
+  Values <- Values[!is.na(Values)]
+
+  Returns <- cbind(var, min(Values))
   Returns <- data.frame(Returns)
 }
