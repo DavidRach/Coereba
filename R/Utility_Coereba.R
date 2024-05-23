@@ -42,7 +42,7 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns, 
   name <- keyword(x, sample.name)
 
   #Retrieve the cells of interest
-  ff <- gs_pop_get_data(x, subsets)
+  ff <- gs_pop_get_data(x, subsets, inverse.transform = FALSE)
   inversed_ff <- gs_pop_get_data(x, subsets, inverse.transform = TRUE)
   #newff <- realize_view(ff)
   startingcells <- RowWorkAround(x)
