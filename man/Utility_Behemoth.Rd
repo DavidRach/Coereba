@@ -8,16 +8,14 @@ Utility_Behemoth(
   data,
   var,
   myfactor,
-  normality,
+  normality = NULL,
+  specified = NULL,
+  correction = "none",
+  Override = 0.05,
   shape_palette,
   fill_palette,
-  switch,
-  scalefactor,
-  scalefactorlabel,
   cex,
   size,
-  Override = NULL,
-  correction,
   ...
 )
 }
@@ -28,25 +26,21 @@ Utility_Behemoth(
 
 \item{myfactor}{A column containing the factor you want to compare}
 
-\item{normality}{Choice of normality test, "dagostino" or "shapiro"}
+\item{normality}{Choice of normality test, use NULL or "dagostino" or "shapiro"}
+
+\item{specified}{In absence of normality test, dictates "parametric" or "nonparametric"}
+
+\item{correction}{Choice of multiple choice correction, default is set at "none"}
+
+\item{Override}{Not for general use, increase to 0.99 to force pairwise comparison past anova/kw.}
 
 \item{shape_palette}{Palette corresponding to factor levels, designating each's shape}
 
 \item{fill_palette}{Palette corresponding to factor levels, designating each's fill}
 
-\item{switch}{Unclear}
-
-\item{scalefactor}{Scaling factor to multiply y axis}
-
-\item{scalefactorlabel}{Alternative y axis name}
-
 \item{cex}{The width of the ggbeeswarm bin}
 
 \item{size}{Size for the ggbeeswarm circles.}
-
-\item{Override}{parametric or non-parametric}
-
-\item{correction}{What parameter to apply for ANOVA/Kruskal}
 
 \item{...}{Additional arguments}
 }
