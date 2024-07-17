@@ -11,6 +11,7 @@
 #' @param size Size for the ggbeeswarm circles.
 #' @param Override Not for general use, increase to 0.99 to force pairwise comparison past anova/kw.
 #' @param correction Choice of multiple choice correction, default is set at "none"
+#' @param TheValue width of corral bin argument for beeswarm.
 #' @param ... Additional arguments
 #'
 #' @importFrom dplyr group_by
@@ -34,7 +35,7 @@
 #' @examples NULL
 #'
 Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specified = NULL, correction = "none", Override=0.05, shape_palette,
-                             fill_palette, cex, size, ...){
+                             fill_palette, cex, size, TheValue, ...){
 
   theYlim <- max(data[[var]])
   FactorLevelsCount <- length(unique(data[[myfactor]]))
@@ -188,7 +189,8 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specified = NU
     geom_boxplot(show.legend = FALSE) +
     geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]],
       fill = .data[[myfactor]]), method = "center", side = 0,
-      priority = "density", cex = cex, size = size) +
+      priority = "density", cex = cex, size = size, corral = "wrap",
+      corral.width = TheValue) +
     scale_shape_manual(values = shape_palette) +
     scale_fill_manual(values = fill_palette) +
     labs(title = wrapped_title, x = NULL, y = NULL) + theme_bw() +

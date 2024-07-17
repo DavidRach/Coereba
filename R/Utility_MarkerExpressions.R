@@ -39,7 +39,7 @@
 
 Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starter, shape_palette, fill_palette,
                                       panel, scalefactor, scalefactorlabel, label, plot, savePlot, filename = NULL, cex, size, crossbar,
-                                      XAxisLevels){
+                                      XAxisLevels, TheValue){
 
   if (!is.data.frame(panel)) {MyPanel <- read.csv(panel, check.names = FALSE)} else {MyPanel <- panel}
 
@@ -72,9 +72,9 @@ Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starte
     TheggPlot <- ggplot(df_melted, aes(x = Marker, y = Value)) + geom_boxplot(show.legend = FALSE) +
       stat_summary(fun = crossbar, show.legend = FALSE, geom = "crossbar", width = 0.75) +
       geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]], fill = .data[[myfactor]]),
-                    method = "center", side = 0, priority = "density", cex = cex, size = size) +
-      scale_shape_manual(values = shape_palette) + scale_fill_manual(values = fill_palette) +
-      labs(title = label, x = NULL, y = NULL) + theme_bw() + theme(panel.grid.major = element_blank(),
+                    method = "center", side = 0, priority = "density", cex = cex, size = size, corral = "wrap",
+                    corral.width = TheValue) + scale_shape_manual(values = shape_palette) + scale_fill_manual(values = fill_palette) +
+      labs(title = NULL, x = NULL, y = NULL) + theme_bw() + theme(panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(), plot.title = element_text(hjust = 0.5, size = 8))
 
     if (savePlot == TRUE){ggsave(filename, TheggPlot,dpi = 600, units = "in", width = 6, height = 4)
@@ -123,3 +123,4 @@ Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starte
 
   return(InternalFinal)
 }
+

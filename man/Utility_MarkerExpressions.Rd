@@ -21,7 +21,8 @@ Utility_MarkerExpressions(
   cex,
   size,
   crossbar,
-  XAxisLevels
+  XAxisLevels,
+  TheValue
 )
 }
 \arguments{

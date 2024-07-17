@@ -16,6 +16,7 @@ Utility_Behemoth(
   fill_palette,
   cex,
   size,
+  TheValue,
   ...
 )
 }
@@ -41,6 +42,8 @@ Utility_Behemoth(
 \item{cex}{The width of the ggbeeswarm bin}
 
 \item{size}{Size for the ggbeeswarm circles.}
+
+\item{TheValue}{width of corral bin argument for beeswarm.}
 
 \item{...}{Additional arguments}
 }
