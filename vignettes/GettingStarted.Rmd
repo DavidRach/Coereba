@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The Coereba package promises to do these following things...
+Historically, manual (supervised) gating has been widely used in cytometry, utilizing commercial softwares with graphical user interfaces, with hierarchial gates
 
 # Installing Coereba
 
