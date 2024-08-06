@@ -24,7 +24,13 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-Historically, manual (supervised) gating has been widely used in cytometry, utilizing commercial softwares with graphical user interfaces, with hierarchial gates
+Historically, manual (supervised) gating has been widely used in cytometry, especially conventional flow cytometry (CFC) utilizing commercial software with graphical user interfaces, with hierarchical gates drawn around cell populations of interest, sequentially filtering smaller subsets of cells. Given the increase in resolvable markers (initially by mass cytometry (MC), more recently by spectral flow ctyometry (SFC)) this approach encountered limitations and unsupervised methods utilizing algorithms to cluster cells based on median fluorescent intensity for individual markers have taken over. The question of what number of clusters are biologically present has plagued these methods, similar concerns raised about the choice of cutoffs in making the decisions by fully-algorithmic driven clusterings. Alternative approaches implementing boolean gating templates checked by algorithms are in development but struggle from individual variation due to biological heterogeneity, instrumental and experimental artifact. 
+
+Our R package Coereba is a collection of functions taking a different direction. Rather than manually gate every combination for a single individual, and then repeat for the next individual, what if we were able to gate visualizing across a particular combination of markers for all specimens in a single view. And then repeat for the other markers in the panel. From the resulting gates, perform the analysis using algorithmic tools.  This extends the ability of manual gating to enable handling a greater number of markers, and allow for factoring in batch effects and variation that algorithms dependent on normalized MFI would struggle to correctly classify. 
+
+This is particularly the case with SFC data, given the capability to collect large number of cellular events compared to MC, and with comparable marker coverage. It however has resolution impacts when improper unmixing controls are used, or when fluorophores degrade, additional autofluorescences are present. The combination of these result in unique challenges that we have noted elsewhere. 
+
+From this hybrid approach, we implement functions that showcase some novel uses in answering questions that neither fully supervised or unsupervised methods, both open-source or commercial, have been able to address. This package is not claiming to be the solution for all cytometry analysis, but we hope it can be a stepping stone to realizing the underlying problems that the current paradigms have, so that the next generation of developers can benefit from the knowledge base. 
 
 # Installing Coereba
 
