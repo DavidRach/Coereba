@@ -148,6 +148,37 @@ UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 ```
 
+### Estimating Gate Cutoffs
+
+```{r}
+
+```
+
+### Visualizing Gate Cutoffs
+
+```{r}
+
+```
+
+### Adjusting the Gate Cutoffs with Coereba Shiny App
+
+```{r}
+
+```
+
+### Updating GateCutoff CSV and Final Checks
+
+```{r}
+
+```
+
+### Running Coereba on a GatingSet.
+
+```{r}
+
+```
+
+
 ```{r sessionInfo, echo = FALSE}
 sessionInfo()
 ```
