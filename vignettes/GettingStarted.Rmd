@@ -24,7 +24,13 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The Coereba package promises to do these following things...
+Historically, manual (supervised) gating has been widely used in cytometry, especially conventional flow cytometry (CFC) utilizing commercial software with graphical user interfaces, with hierarchical gates drawn around cell populations of interest, sequentially filtering smaller subsets of cells. Given the increase in resolvable markers (initially by mass cytometry (MC), more recently by spectral flow ctyometry (SFC)) this approach encountered limitations and unsupervised methods utilizing algorithms to cluster cells based on median fluorescent intensity for individual markers have taken over. The question of what number of clusters are biologically present has plagued these methods, similar concerns raised about the choice of cutoffs in making the decisions by fully-algorithmic driven clusterings. Alternative approaches implementing boolean gating templates checked by algorithms are in development but struggle from individual variation due to biological heterogeneity, instrumental and experimental artifact. 
+
+Our R package Coereba is a collection of functions taking a different direction. Rather than manually gate every combination for a single individual, and then repeat for the next individual, what if we were able to gate visualizing across a particular combination of markers for all specimens in a single view. And then repeat for the other markers in the panel. From the resulting gates, perform the analysis using algorithmic tools.  This extends the ability of manual gating to enable handling a greater number of markers, and allow for factoring in batch effects and variation that algorithms dependent on normalized MFI would struggle to correctly classify. 
+
+This is particularly the case with SFC data, given the capability to collect large number of cellular events compared to MC, and with comparable marker coverage. It however has resolution impacts when improper unmixing controls are used, or when fluorophores degrade, additional autofluorescences are present. The combination of these result in unique challenges that we have noted elsewhere. 
+
+From this hybrid approach, we implement functions that showcase some novel uses in answering questions that neither fully supervised or unsupervised methods, both open-source or commercial, have been able to address. This package is not claiming to be the solution for all cytometry analysis, but we hope it can be a stepping stone to realizing the underlying problems that the current paradigms have, so that the next generation of developers can benefit from the knowledge base. 
 
 # Installing Coereba
 
@@ -38,10 +44,25 @@ The Coereba package promises to do these following things...
 library(Coereba)
 ```
 
-# How To Begin
+#How to Begin
 
-First off, make sure that you have all the required R packages installed, then
-load the libraries. 
+## Setup
+
+### Installing Coereba
+
+Coereba will be submitted to Bioconductor later this year, for the moment, it is available to install via GitHub. 
+
+```{r Install Coereba, eval = FALSE, echo=FALSE}
+# if(!require("remotes")) {install.packages("remotes")}
+# remotes::install_github("https://github.com/DavidRach/Coereba")
+
+# install.packages("BiocManager")
+# BiocManager::install("Coereba")
+```
+
+### Loading Libraries
+
+Coereba works using infrastructure provided by other Bioconductor cytometry packages. It also utilizes a few of the tidyverse packages available via CRAN. It is important to make sure that these are installed on your computer and then that the libraries are loaded. 
 
 ```{r, echo=FALSE, results = "hide", warning=FALSE}
 suppressPackageStartupMessages({
@@ -49,31 +70,82 @@ library(Coereba)
 library(flowCore)
 library(flowWorkspace)
 library(openCyto)
+library(ggcyto)  
 library(data.table)
 library(dplyr)
-library(ggcyto)
-library(purrr)  
+library(purrr) 
+library(stringr)
+library(ggplot2)
+library(gt)
+library(plotly)
+library(htmltools)
 })
 ```
 
-```{r Libraries}
+```{r Load Libraries}
 library(Coereba)
 library(flowCore)
 library(flowWorkspace)
 library(openCyto)
+library(ggcyto)  
 library(data.table)
 library(dplyr)
-library(ggcyto)
-library(purrr)
+library(purrr) 
+library(stringr)
+library(ggplot2)
+library(gt)
+library(plotly)
+library(htmltools)
 ```
 
-To begin, lets access the example .fcs files found with the Coereba package. 
+### Locating .fcs files
+To get started, you will first need to provide the location on your computer where the .fcs files of interest are being stored. An example of how the author does this is provided below and can be modified for your own user and desired computer folder. 
+
+```{r Additional Example, eval = FALSE}
+File_Location <- file.path("C:", "Users", "JohnDoe", "Desktop", "TodaysExperiment")
+FCS_Pattern <- ".fcs$"
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
+```
+
+For this vignette, we will using several small .fcs files that can be found in Coereba's extdata folder for our example. 
 
 ```{r Access Package Data}
+File_Location <- system.file("extdata", package = "Coereba")
+FCS_Pattern <- ".fcs$"
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
+FCS_Files
+```
+
+The folder contains three unmixed full-stained samples from a 29-color SFC panel. 
+
+### Creating a GatingSet for Unmixed .fcs files
+The next couple functions are designed primarily for use with unmixed full-stained samples. We will return to the earlier example and select the corresponding example .fcs files found within Luciernaga's extdata folder and bring them into a GatingSet object.
+
+```{r}
+UnmixedFCSFiles <- FCS_Files[c(1:3)]
+UnmixedFCSFiles
+```
+
+```{r}
+UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
+UnmixedGatingSet
+```
+
+Now that they are in a GatingSet object, we will identify markers/fluorophores present for the .fcs file, and remove from the list markers that don't need to be transformed (example FSC, SSC, etc). We will then bi-exponentially transform the data using `r Biocpkg("flowWorkspace")` `flowWorkspace::flowjo_biexp_trans()` before applying a gating template. 
+
+```{r}
+Markers <- colnames(UnmixedCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+
+MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000, pos = 4.5, neg = 0, widthBasis = -1000)
+TransformList <- transformerList(KeptMarkers, MyBiexponentialTransform)
+UnmixedGatingSet <- transform(UnmixedGatingSet, TransformList)
+
 FileLocation <- system.file("extdata", package = "Coereba")
-fcsFilePattern <- ".fcs$"
-myFCSfiles <- list.files(path = FileLocation, pattern = fcsFilePattern, full.names = TRUE, recursive = TRUE)
-myFCSfiles
+UnmixedGates <- fread(file.path(path = FileLocation, pattern = 'GatesUnmixed.csv'))
+UnmixedGating <- gatingTemplate(UnmixedGates)
+gt_gating(UnmixedGating, UnmixedGatingSet)
 ```
 
 ```{r sessionInfo, echo = FALSE}
