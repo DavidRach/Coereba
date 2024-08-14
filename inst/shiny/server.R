@@ -7,29 +7,18 @@ server <- function(input, output, session) {
                                                        X_Coordinate = numeric(),
                                                        Time = character()))
 
-  # Read the uploaded CSV file
+  # Finding the CSV file
   data <- reactive({
     req(input$file)
     read.csv(input$file$datapath, check.names = FALSE)
   })
 
-  # Render the contents of the uploaded CSV file
+  # Seeing the CSV file
   output$contents <- renderTable({
     data()
   })
 
-  # Extract column names for dropdown menu
-  observe({
-    col_names <- names(data())
-    updateSelectInput(session, "x_variable", choices = col_names)
-  })
-
-  observe({
-    col_names <- names(data())
-    updateSelectInput(session, "y_variable", choices = col_names)
-  })
-
-  # Access the GatingSet object from the active R environment
+  # Selecting the GatingSet
   gatingSet_data <- reactive({
     gatingSetName <- input$gatingSetName
     if (is.null(gatingSetName) || gatingSetName == "") {
@@ -40,13 +29,27 @@ server <- function(input, output, session) {
     }
   })
 
+  # Selecting the X and Y parameters
+  observe({
+    col_names <- names(data())
+    updateSelectInput(session, "x_variable", choices = col_names)
+    updateSelectInput(session, "y_variable", choices = col_names)
+  })
+
+  # When we click Generate Plots
+
   observeEvent(input$generatePlots, {
     req(data())
     gatingSet <- gatingSet_data()
     req(gatingSet)
 
-    # Call your function here with the provided inputs
-    # Assuming your_function returns a list of ggplot objects
+    # Refreshing (attempt to fix slow bug)
+    output$plots <- renderUI({NULL})
+
+    # Additional Attempt to Speed Along
+    isolate({
+
+    # Sending variables to Luciernaga
     plots_list <- Luciernaga::Utility_UnityPlot(
       x = input$x_variable,
       y = input$y_variable,
@@ -59,11 +62,11 @@ server <- function(input, output, session) {
       gatesubset = input$gateSubset,
       gatelines = input$gateLines,
       reference = data(),
-      pdf = FALSE,
+      returntype = "plots",
       outpath = NULL
     )
 
-    # Output each plot
+    # Getting the Plots
     output$plots <- renderUI({
       div(
         style = "display: flex; flex-wrap: wrap;",
@@ -78,11 +81,11 @@ server <- function(input, output, session) {
 
     for (i in seq_along(plots_list)) {
       local({
-        idx <- i  # Create a local copy of i
+        idx <- i  # Makes a local copy - DTR
         output[[paste0("plot_", idx)]] <- renderPlotly({
           p <- ggplotly(plots_list[[idx]])
 
-          # Capture plotly click event
+          # Detects the click event  - DTR
           p <- htmlwidgets::onRender(
             p,
             "
@@ -106,6 +109,9 @@ server <- function(input, output, session) {
       })
     }
 
+    gc() # May not be Bioconductor Legal
+
+    })
   })
 
   observeEvent(input$plot_click, {
@@ -116,9 +122,8 @@ server <- function(input, output, session) {
     print(paste("X Coordinate:", input$plot_click$x_coordinate))
 
     if (!is.null(input$plot_click$plot_name) && !is.null(input$plot_click$x_coordinate)) {
-      timestamp <- Sys.time()  # Get current system time
+      timestamp <- Sys.time()
 
-      # Clean annotation text
       cleaned_annotation <- gsub("<b> | </b>", "", input$plot_click$annotation)
 
       cleaned_annotation <- gsub(" [^ ]+$", "", cleaned_annotation)
@@ -138,13 +143,10 @@ server <- function(input, output, session) {
     }
   })
 
-  # Render the clickDataTable with the updated click data
   output$clickDataTable <- renderDT({
     print("Rendering clickDataTable...")
     datatable(
-      click_info$click_data,
-      options = list(
-        dom = 'tip'
+      click_info$click_data, options = list(dom = 'tip'
       )
     )
   })
@@ -153,13 +155,11 @@ server <- function(input, output, session) {
     export_filename <- paste(input$export_filename, ".csv", sep = "")
     export_path <- normalizePath(input$export_directory)
 
-    # Check if the directory exists
     if (!dir.exists(export_path)) {
       showModal(modalDialog(
         title = "Error",
         "The specified directory does not exist.",
-        footer = tagList(
-          actionButton("close_modal", "Close")
+        footer = tagList(actionButton("close_modal", "Close")
         )
       ))
     } else {
@@ -167,16 +167,13 @@ server <- function(input, output, session) {
       showModal(modalDialog(
         title = "Export Complete",
         "Click data has been exported successfully.",
-        footer = tagList(
-          actionButton("close_modal", "Close")
+        footer = tagList(actionButton("close_modal", "Close")
         )
       ))
     }
   })
 
-  observeEvent(input$close_modal, {
-    removeModal()
-  })
+  observeEvent(input$close_modal, {removeModal()})
 
 }
 
