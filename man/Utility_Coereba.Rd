@@ -2,18 +2,18 @@
 % Please edit documentation in R/Utility_Coereba.R
 \name{Utility_Coereba}
 \alias{Utility_Coereba}
-\title{Run Coereba and return as a data.frame}
+\title{Runs Coereba for Dichotomized Gating Annotation}
 \usage{
 Utility_Coereba(
   x,
   subsets,
   sample.name,
   subsample = NULL,
-  columns,
-  notcolumns,
+  columns = NULL,
+  notcolumns = NULL,
   reference,
   starter,
-  ReturnType = "data"
+  inverse.transform = TRUE
 )
 }
 \arguments{
@@ -23,23 +23,25 @@ Utility_Coereba(
 
 \item{sample.name}{Keyword for sample name}
 
-\item{subsample}{If desired, downsample to a certain number}
+\item{subsample}{An optional downsample, doesn't work with inverse.transform=TRUE}
 
-\item{columns}{Columns to Keep.}
+\item{columns}{An optional way to select columns to keep.}
 
-\item{notcolumns}{Columns to Remove}
+\item{notcolumns}{An optional way to remove select columns.}
 
-\item{reference}{The external data.frame with the specified gate cutoffs}
+\item{reference}{The external data.frame or path to the .csv with the
+specified gate split points by specimen and marker.}
 
 \item{starter}{The column name to start the splits with}
 
-\item{ReturnType}{Whether to return transformed (default) or inverse.transformed data ("inversed")}
+\item{inverse.transform}{Whether to reverse the data transform after Coereba cluster
+is calculated, Default is set to TRUE to allow for .fcs export.}
 }
 \value{
 A data.frame
 }
 \description{
-Run Coereba and return as a data.frame
+Runs Coereba for Dichotomized Gating Annotation
 }
 \examples{
 NULL
