@@ -39,7 +39,10 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=N
     } else {ReferenceLines <- reference}
 
   internalstrings <- c("Comp-", "-A", "-", " ", ".")
-  New <- NameCleanUp(colnames(ReferenceLines), removestrings = internalstrings)
+  colnames(ReferenceLines) <- NameCleanUp(colnames(ReferenceLines),
+                                          removestrings = internalstrings)
+  colnames(ReferenceLines)[1] <- sample.name
+  New <- ReferenceLines
 
   name <- keyword(x, sample.name)
   # Needs to match the reference file naming convention for matching
