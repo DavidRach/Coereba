@@ -5,13 +5,17 @@
 #' @param return Whether to save the file as a png, TRUE/FALSE
 #' @param panel A csv file containing a panel
 #'
+#' @importFrom utils read.csv
+#' @importFrom dplyr select
+#' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
 #' @importFrom dplyr row_number
-#' @importFrom magrittr %>%
+#' @importFrom dplyr relocate
 #' @importFrom reshape2 melt
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot
 #' @importFrom viridis scale_fill_viridis
+#' @importFrom ggplot ggsave
+#' @importFrom magrittr %>%
 #'
 #' @return Some additional value to edit
 #' @export
@@ -40,8 +44,8 @@ Utility_Heatmap <- function(cells, filename, return, panel){
     geom_tile() +
     scale_fill_viridis(option = "cividis", discrete=FALSE) +
     theme_classic() +
-    theme(legend.position = "none", axis.text.x = element_text(size = 5,
-                                                               angle = 300)) + labs(y = NULL)
+    theme(legend.position = "none", axis.text.x = element_text(
+      size = 5, angle = 300)) + labs(y = NULL)
   MyHeatmap
 
   if (return == TRUE){ggsave(filename, MyHeatmap,
@@ -50,6 +54,24 @@ Utility_Heatmap <- function(cells, filename, return, panel){
   return(MyHeatmap)
 }
 
+
+
+#' Internal for Utility_Heatmap
+#'
+#' @param filteredCells Something
+#' @param panel Something
+#' @param ... Something
+#'
+#' @importFrom dplyr select
+#' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom dplyr row_number
+#' @importFrom reshape2 melt
+#' @importFrom ggplot2 ggplot
+#' @importFrom viridis scale_fill_viridis
+#'
+#' @keywords internal
 .Internal_Heatmap <- function(filteredCells, panel, ...){
   #MyPanel <- read.csv(panel, check.names = FALSE)
   MyPanel <- panel
@@ -72,8 +94,8 @@ Utility_Heatmap <- function(cells, filename, return, panel){
     geom_tile() +
     scale_fill_viridis(option = "cividis", discrete=FALSE) +
     theme_classic() +
-    theme(legend.position = "none", axis.text.x = element_text(size = 5,
-                                                               angle = 300)) + labs(y = NULL)
+    theme(legend.position = "none", axis.text.x = element_text(
+      size = 5, angle = 300)) + labs(y = NULL)
   MyHeatmap
 }
 
