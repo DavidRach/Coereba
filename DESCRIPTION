@@ -5,10 +5,7 @@ Version: 0.1.0
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
-Description: Acknowledging the limitations of unsupervized analysis and 
-  downsampling, through a semi-supervised gating implements dichotomized 
-  boolean gates to cluster every cell from an experiment and querry the
-  resulting subclusters.
+Description: This package allows for the implementation of a semi-supervised analysis of cytometry data. You can validate location dichotomized gates for every marker, generate terminal clusters and enumerate number of cells present in these clusters. These can then be used in several useful ways as detailed in the vignette. Because of this, it improves on manual gating by enabling further investigation, and more robust to batch effects than a full unsupervised analysis. 
 License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: FALSE
@@ -23,9 +20,8 @@ Imports:
     flowWorkspace,
     ggbeeswarm,
     ggplot2,
-    grDevices,
+    Luciernaga,
     magrittr,
-    patchwork,
     purrr,
     reshape2,
     scales,
@@ -39,7 +35,7 @@ Imports:
     utils,
     zoo,
     BiocGenerics
-Depends: R (>= 4.0.0)
+Depends: R (>= 4.3.0)
 Suggests: 
     BiocStyle,
     data.table,
