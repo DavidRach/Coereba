@@ -1,4 +1,3 @@
-
 #' Improved Gate Estimates
 #'
 #' @param x A GatingSet object
@@ -6,24 +5,14 @@
 #' @param sample.name The keyword where names are stored
 #' @param remove.strings Values to be removed from the name
 #'
-#' @importFrom flowCore exprs
-#' @importFrom flowWorkspace keyword
+#' @importFrom flowCore keyword
+#' @importFrom Luciernaga NameCleanUp
 #' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom tidyr pivot_wider
-#' @importFrom dplyr mutate_if
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr rename
-#' @importFrom dplyr relocate
-#' @importFrom dplyr select
-#' @importFrom dplyr mutate
-#' @importFrom dplyr pull
-#' @importFrom dplyr filter
-#' @importFrom dplyr lag
+#' @importFrom flowCore exprs
 #' @importFrom purrr map
-#' @importFrom stats loess
-#' @importFrom zoo zoo
-#' @importFrom zoo rollapply
-#' @import ggplot2
+#' @importFrom dplyr bind_rows
+#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr rename
 #'
 #' @return A data.frame with estimated gate cutoffs for every marker for every specimen
 #' @export
@@ -31,7 +20,6 @@
 #' @examples NULL
 #'
 ModernGateCutoffs <- function(x, subset, sample.name, remove.strings) {
-  #x <- gs[33]
 
   name <- keyword(x, sample.name)
   alternate.name <- NameCleanUp(name = name, remove.strings)
@@ -42,10 +30,8 @@ ModernGateCutoffs <- function(x, subset, sample.name, remove.strings) {
   DFNames <- colnames(TheDFlocal[,-grep("Time|FS|SC|SS|Original|W$|H$",
                                         names(TheDFlocal))])
 
-  #x <- DFNames[6]
-  #DFNames <- DFNames[DFNames != "Comp-R780-A"] #Temporary Test
-
-  AssembledData <- map(.x = DFNames, ColumnExprs, TheDF = TheDFlocal, w = 2, span = 0.1) %>% bind_rows()
+  AssembledData <- map(.x = DFNames, ColumnExprs, TheDF = TheDFlocal, w = 2, span = 0.1) %>%
+    bind_rows()
   Pivoted <- pivot_wider(AssembledData, names_from = Fluorophore, values_from = CutoffMinima)
   Data <- cbind(alternate.name, Pivoted)
   Data <- Data %>% rename(specimen = alternate.name)
@@ -53,6 +39,26 @@ ModernGateCutoffs <- function(x, subset, sample.name, remove.strings) {
   return(Data)
 }
 
+
+
+#' Internal for Modern Gate Cutoff
+#'
+#' @param x Something
+#' @param TheDF Something
+#' @param w Something
+#' @param span Something
+#' @param ... Something
+#'
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr rename
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom dplyr lag
+#'
+#' @keywords internal
 ColumnExprs <- function(x, TheDF, w, span, ...) {
   Fluorophore <- x
   TheData <- TheDF %>% select(all_of(x)) %>% round(., 0)
@@ -100,8 +106,7 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
 
   }
 
-  if(any(Minima2 > (TheYMax*0.1))) {print(paste0(
-    "Override is in play ", Fluorophore ))}
+  if(any(Minima2 > (TheYMax*0.1))) {message("Override is in play ", Fluorophore )}
 
   if (all(Minima1 < TheMax)){shape <- "greater"} else if (
     all(Minima1 > TheMax)) {shape <- "lesser"} else {
@@ -113,15 +118,16 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
     } else if (all(Minima1 > TheMax)) {
       shape1 <- "lesser"} else {shape1 <- "sandwhich"}
 
-    if (shape1 != shape) {print(paste0("Shape switch Occured ",
-                                       Fluorophore))
+    if (shape1 != shape) {message("Shape switch Occured ", Fluorophore)
       shape <- shape1}
   } else if (shape == "sandwhich" & length(Minima1) <= 2){
     shape <- "sandwhich"}
 
   #shape
 
-  if (all(TheMax < Middle)){orientation <- "left"} else if (all(TheMax > Middle)) {orientation <- "right"} else {orientation <- "left"} #Need to fix for center
+  if (all(TheMax < Middle)){orientation <- "left"
+  } else if (all(TheMax > Middle)) {orientation <- "right"
+  } else {orientation <- "left"} #Need to fix for center
   #orientation
 
   if (shape == "greater" & orientation == "left"){ code <- paste(shape, orientation, Fluorophore, sep = " ")
@@ -161,10 +167,10 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
   Minima1 <- Minima1[Minima1 < TheMax]
   CutoffMinima <- Minima1[length(Minima1)]
 
-  } else {print("Not Applicable")}
+  } else {message("Not Applicable")}
 
 
-  if (abs(CutoffMinima - TheMax)/TheRange > 0.3){print(paste0("Range Exceeded ", Fluorophore))
+  if (abs(CutoffMinima - TheMax)/TheRange > 0.3){message("Range Exceeded ", Fluorophore)
 
     if (orientation == "left"){
       TheYmaxLimit <- TheYMax*0.2
@@ -190,7 +196,7 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
 
   }
 
-  print(paste0(code, CutoffMinima))
+  message(code, CutoffMinima)
 
   CutoffMinima <- freq_table1 %>% filter(xVal == CutoffMinima) %>% pull(OriginalX)
 
@@ -200,6 +206,26 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
   return(NewData)
 }
 
+
+
+
+#' Internal for Gate Cutoffs
+#'
+#' @param theX Something
+#' @param theY Something
+#' @param w Something
+#' @param therepeats Something
+#' @param alternatename Something
+#' @param ... Something
+#'
+#' @importFrom stats loess
+#' @importFrom zoo rollapply
+#' @importFrom zoo zoo
+#' @importFrom dplyr filter
+#' @importFrom ggplot2 ggplot
+#' @importFrom dplyr select
+#'
+#' @keywords internal
 LocalMinima <- function(theX, theY, w, therepeats, alternatename, ...){
 
   repeats <- therepeats*2
@@ -230,9 +256,14 @@ LocalMinima <- function(theX, theY, w, therepeats, alternatename, ...){
 
   PointData <- MainData %>% dplyr::filter(x %in% peak_points)
 
-  Views <- ggplot(MainData, aes(x = x, y = y)) + geom_point(size = 2, color = "Gray") + geom_line(aes(y = yhat), linewidth = 1)  + geom_point(data = PointData, aes(x, yhat), color = "Red", shape = 19, size = 2) + geom_segment(data = PointData, aes(x = x, xend = x, y = 0, yend = yhat), color = "Red", linewidth = 1, linetype = "dashed") + labs(title = alternatename) + theme_bw() +  theme(plot.title = element_text(hjust = 0.5), axis.title.x = element_blank(), axis.title.y = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  Views <- ggplot(MainData, aes(x = x, y = y)) + geom_point(size = 2, color = "Gray") + geom_line(aes(y = yhat), linewidth = 1)  +
+    geom_point(data = PointData, aes(x, yhat), color = "Red", shape = 19, size = 2) +
+    geom_segment(data = PointData, aes(x = x, xend = x, y = 0, yend = yhat), color = "Red", linewidth = 1, linetype = "dashed") +
+    labs(title = alternatename) + theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.title.x = element_blank(), axis.title.y = element_blank(),
+          panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-  print(Views)
+  message(Views)
 
   PointData <- PointData %>% select(-y)
 
