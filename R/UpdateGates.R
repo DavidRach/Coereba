@@ -7,9 +7,10 @@
 #'
 #' @importFrom utils read.csv
 #' @importFrom dplyr rename
-#' @importFrom lubridate ymd_hms
+#' @importFrom lubridate hms
 #' @importFrom dplyr group_by
 #' @importFrom dplyr arrange
+#' @importFrom dplyr desc
 #' @importFrom dplyr slice
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr select

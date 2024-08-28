@@ -12,8 +12,8 @@
 #' @param inverse.transform Whether to reverse the data transform after Coereba cluster
 #'  is calculated, Default is set to TRUE to allow for .fcs export.
 #'
-#' @importFrom Luciernaga NameCleanUp
 #' @importFrom utils read.csv
+#' @importFrom Luciernaga NameCleanUp
 #' @importFrom flowCore keyword
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore exprs

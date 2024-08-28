@@ -40,14 +40,6 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specified = NU
   theYlim <- max(data[[var]])
   FactorLevelsCount <- length(unique(data[[myfactor]]))
 
-  dago_wrapper <- function(x){
-    A <- Coereba::dagoTest(x)
-    method <- A@test$method
-    p.value <- A@test$p.value[[1]]
-    C <- data.frame(cbind(p.value, method))
-  }
-
-  # Normality Test: NULL, "dagostino", or "shapiro". Dagostino/Shapiro return "Distribution"
   if (!is.null(normality)){
     if (normality == "dagostino") {
       Stashed <- data %>% group_by(.data[[myfactor]]) %>%
@@ -134,21 +126,9 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specified = NU
     }
   }
 
-
-
   # This is the source of the double bars.
   if (Distribution == "parametric"){ MethodDictate <- "mean"
   } else if (Distribution == "nonparametric") {MethodDictate <- "median"}
-
-
-  #TheTest
-
-  #My pvalue cleanup function
-  pval_mold <- function(x){
-    if (x > 0.10){"n.s"} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
-      round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {
-        round(x, 5)} else if (x > 0.000001) {round(x, 6)}
-  }
 
   Method <- unique(TheTest$method)
   MyPval <- if(Method %in% c("Two Sample t-test",
@@ -248,4 +228,18 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specified = NU
   } else {message("Test type not recognized")}
 
  return(plot)
+}
+
+
+dago_wrapper <- function(x){
+  A <- Coereba::dagoTest(x)
+  method <- A@test$method
+  p.value <- A@test$p.value[[1]]
+  C <- data.frame(cbind(p.value, method))
+}
+
+pval_mold <- function(x){
+  if (x > 0.10){"n.s"} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
+    round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {
+      round(x, 5)} else if (x > 0.000001) {round(x, 6)}
 }

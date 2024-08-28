@@ -18,19 +18,16 @@
 #' @param XAxisLevels provide a list of final names to rearrange the x axis data.
 #' @param starter first column name that Coereba splits were based on, used for column detection
 #'
+#' @importFrom utils read.csv
 #' @importFrom dplyr select
-#' @importFrom dplyr filter
 #' @importFrom tidyselect starts_with
 #' @importFrom purrr map
+#' @importFrom dplyr rename
 #' @importFrom dplyr left_join
 #' @importFrom tidyr gather
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggbeeswarm geom_beeswarm
 #' @importFrom ggplot2 ggsave
-#' @importFrom tidyr as_tibble
-#' @importFrom dplyr c_across
-#' @importFrom dplyr mutate
-#' @importFrom dplyr rowwise
 #'
 #' @return returns the data.frame or a ggplot plot.
 #' @export
@@ -82,6 +79,34 @@ Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starte
   } else {return(MarkerExpressions)}
 }
 
+
+
+
+#' Internal for Marker Expressions
+#'
+#' @param x Something
+#' @param panel Something
+#' @param BinaryFile Something
+#' @param OriginalData Something
+#' @param Metadata Something
+#' @param myfactor Something
+#' @param normality Something
+#' @param shape_palette Something
+#' @param fill_palette Something
+#' @param MyPanel Something
+#' @param scalefactor Something
+#' @param scalefactorlabel Something
+#'
+#' @importFrom dplyr left_join
+#' @importFrom dplyr filter
+#' @importFrom tidyr as_tibble
+#' @importFrom dplyr rowwise
+#' @importFrom dplyr mutate
+#' @importFrom dplyr c_across
+#' @importFrom tidyselect everything
+#' @importFrom dplyr mutate_all
+#'
+#' @keywords Internal
 .Internal_Aggregate <- function(x, panel, BinaryFile, OriginalData, Metadata, myfactor, normality, shape_palette,
                                 fill_palette, MyPanel=MyPanel, scalefactor, scalefactorlabel){
   Column <- x
@@ -91,7 +116,6 @@ Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starte
   Fluorophore <- data.frame(Fluorophore)
   Attempt1 <- left_join(Fluorophore, MyPanel, by = "Fluorophore")
   ThePlotName <- Attempt1$Marker
-  #ThePlotName <- paste0(ThePlotName, "+", sep = "")
 
   Positive <- BinaryFile %>% dplyr::filter(.data[[Column]] == 1)
 
