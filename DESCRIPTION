@@ -20,6 +20,7 @@ Imports:
     flowWorkspace,
     ggbeeswarm,
     ggplot2,
+    ggridges,
     Luciernaga,
     magrittr,
     purrr,
