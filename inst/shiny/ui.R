@@ -1,43 +1,43 @@
-ui <- dashboardPage(
-  dashboardHeader(title = "Coereba"),
+ui <- shinydashboard::dashboardPage(
+  shinydashboard::dashboardHeader(title = "Coereba"),
 
   ## Sidebar
-  dashboardSidebar(
+  shinydashboard::dashboardSidebar(
     tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")),
     tags$script(src = "tips.js"),
-    sidebarMenu(
+    shinydashboard::sidebarMenu(
       id = "menu",
-      menuItem("Upload CSV File", tabName = "data", icon = icon("table")),
-      menuItem("Upload a GatingSet", tabName = "gatingset", icon = icon("table")),
-      menuItem("Click Data", tabName = "clickdata", icon = icon("table"))
+      shinydashboard::menuItem("Upload CSV File", tabName = "data", icon = icon("table")),
+      shinydashboard::menuItem("Upload a GatingSet", tabName = "gatingset", icon = icon("table")),
+      shinydashboard::menuItem("Click Data", tabName = "clickdata", icon = icon("table"))
     )
   ),
 
   ## Body
-  dashboardBody(
+  shinydashboard::dashboardBody(
     shinyjs::useShinyjs(),
-    tabItems(
-      tabItem(
+    shinydashboard::tabItems(
+      shinydashboard::tabItem(
         tabName = "data",
         titlePanel("Upload CSV File"),
-        sidebarLayout(
-          sidebarPanel(
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
             width = 3,
             fileInput("file", "Choose CSV File")
           ),
-          mainPanel(
-            div(
+          shiny::mainPanel(
+            htmltools::div(
               style = "max-height: 400px; overflow-y: auto;",
               tableOutput("contents")
             )
           )
         )
       ),
-      tabItem(
+      shinydashboard::tabItem(
         tabName = "gatingset",
         titlePanel("GatingSet Explorer"),
-        sidebarLayout(
-          sidebarPanel(
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
             width = 3,
             textInput("gatingSetName", "Enter GatingSet Object Name", value = "gs"),
             selectInput("x_variable", "Select x-axis variable", choices = NULL),
@@ -51,16 +51,16 @@ ui <- dashboardPage(
             checkboxInput("gateLines", "Display Estimated Gate Cutoffs", value = TRUE),
             actionButton("generatePlots", "Generate Plots")
           ),
-          mainPanel(
+          shiny::mainPanel(
             width = 9,
             uiOutput("plots")
           )
         )
       ),
-      tabItem(
+      shinydashboard::tabItem(
         tabName = "clickdata",
         titlePanel("Click Data"),
-        fluidRow(
+        shiny::fluidRow(
           column(
             width = 6,
             textInput("export_filename", "Export Filename", value = "click_data")
@@ -70,8 +70,8 @@ ui <- dashboardPage(
             textInput("export_directory", "Export Directory Path", placeholder = "/path/to/directory")
           )
         ),
-        actionButton("export_button", "Export Click Data", icon = icon("download")),
-        DTOutput("clickDataTable")
+        shiny::actionButton("export_button", "Export Click Data", icon = icon("download")),
+        DT::DTOutput("clickDataTable")
       )
     )
   )

@@ -42,6 +42,8 @@ Suggests:
     data.table,
     DT,
     ggcyto,
+    htmltools,
+    htmlwidgets
     knitr,
     openCyto,
     rmarkdown,

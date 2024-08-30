@@ -23,8 +23,6 @@
 #' @importFrom shiny updateSelectInput
 #' @importFrom utils read.csv
 #' @importFrom utils write.csv
-#'
-#' @keywords internal
 server <- function(input, output, session) {
 
   # What information from a recorded click
@@ -169,9 +167,9 @@ server <- function(input, output, session) {
     }
   })
 
-  output$clickDataTable <- renderDT({
+  output$clickDataTable <- DT::renderDT({
     print("Rendering clickDataTable...")
-    datatable(
+    DT::datatable(
       click_info$click_data, options = list(dom = 'tip'
       )
     )
