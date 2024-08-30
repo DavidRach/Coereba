@@ -14,7 +14,7 @@
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot
 #' @importFrom viridis scale_fill_viridis
-#' @importFrom ggplot ggsave
+#' @importFrom ggplot2 ggsave
 #' @importFrom magrittr %>%
 #'
 #' @return Some additional value to edit

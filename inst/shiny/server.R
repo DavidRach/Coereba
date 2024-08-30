@@ -1,11 +1,39 @@
-#' @noRd
+#' Behind the Scenes server for CoerebaApp
+#'
+#' @param input Shiny input
+#' @param output Shiny output
+#' @param session Shiny session
+#'
+#' @importFrom DT datable
+#' @importFrom DT renderDT
+#' @importFrom htmltools div
+#' @importFrom htmlwidgets onRender
+#' @importFrom Luciernaga Utility_UnityPlot
+#' @importFrom plotly plotlyOutput
+#' @importFrom plotly renderPlotly
+#' @importFrom plotly ggplotly
+#' @importFrom shiny observe
+#' @importFrom shiny observeEvent
+#' @importFrom shiny reactive
+#' @importFrom shiny reactiveValues
+#' @importFrom shiny renderTable
+#' @importFrom shiny renderUI
+#' @importFrom shiny req
+#' @importFrom shiny showModal
+#' @importFrom shiny updateSelectInput
+#' @importFrom utils read.csv
 #' @importFrom utils write.csv
-
+#'
+#' @keywords internal
 server <- function(input, output, session) {
-  click_info <- reactiveValues(click_data = data.frame(Plot_Name = character(),
-                                                       X_Label = character(),
-                                                       X_Coordinate = numeric(),
-                                                       Time = character()))
+
+  # What information from a recorded click
+  # That becomes exported .csv data
+  click_info <- reactiveValues(
+    click_data = data.frame(Plot_Name = character(),
+                            X_Label = character(),
+                            X_Coordinate = numeric(),
+                            Time = character()))
 
   # Finding the CSV file
   data <- reactive({
@@ -13,10 +41,8 @@ server <- function(input, output, session) {
     read.csv(input$file$datapath, check.names = FALSE)
   })
 
-  # Seeing the CSV file
-  output$contents <- renderTable({
-    data()
-  })
+  # Reading the CSV file
+  output$contents <- renderTable({data()})
 
   # Selecting the GatingSet
   gatingSet_data <- reactive({
@@ -109,7 +135,7 @@ server <- function(input, output, session) {
       })
     }
 
-    gc() # May not be Bioconductor Legal
+    #gc() # May not be Bioconductor Legal
 
     })
   })
