@@ -67,7 +67,7 @@ server <- function(input, output, session) {
     gatingSet <- gatingSet_data()
     req(gatingSet)
 
-    # Refreshing (attempt to fix slow bug)
+    # Clear Out Previous?
     output$plots <- renderUI({NULL})
 
     # Additional Attempt to Speed Along
