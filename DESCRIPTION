@@ -43,7 +43,7 @@ Suggests:
     DT,
     ggcyto,
     htmltools,
-    htmlwidgets
+    htmlwidgets,
     knitr,
     openCyto,
     rmarkdown,

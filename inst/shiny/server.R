@@ -97,7 +97,7 @@ server <- function(input, output, session) {
         lapply(seq_along(plots_list), function(i) {
           div(
             style = "width: 33.33%;",
-            plotlyOutput(paste0("plot_", i), width = "100%")
+            plotly::plotlyOutput(paste0("plot_", i), width = "100%")
           )
         })
       )
