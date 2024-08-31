@@ -123,31 +123,9 @@ server <- function(input, output, session) {
                   annotation: x.layout.annotations[0].text
                 });
               });
-            var originalColors = [];
-
-            el.on('plotly_hover', function(data) {
-              var traceIndex = data.points[0].curveNumber;
-              // var pointIndex = data.points[0].pointIndex;
-
-                  if (originalColors[traceIndex] === undefined) {
-                    originalColors[traceIndex] = x.data[traceIndex].line.color;
-                  }
-
-            Plotly.restyle(el, {
-              'line.color': 'red'
-            }, [traceIndex]);
-          });
-
-            el.on('plotly_unhover', function(data) {
-              var traceIndex = data.points[0].curveNumber;
-
-              Plotly.restyle(el, {
-                'line.color': originalColors[traceIndex]
-              }, [traceIndex]);
-            });
-          }
-          "
-        )
+            }
+            "
+          )
 
           p
 
