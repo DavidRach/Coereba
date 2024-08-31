@@ -42,7 +42,7 @@ server <- function(input, output, session) {
   # Reading the CSV file
   output$contents <- renderTable({data()})
 
-  # Selecting the GatingSet
+  # Selecting GatingSet And Locating It
   gatingSet_data <- reactive({
     gatingSetName <- input$gatingSetName
     if (is.null(gatingSetName) || gatingSetName == "") {
@@ -133,17 +133,15 @@ server <- function(input, output, session) {
       })
     }
 
-    #gc() # May not be Bioconductor Legal
-
     })
   })
 
   observeEvent(input$plot_click, {
-    print("Click event captured!")
 
-    print(paste("Plot Name:", input$plot_click$plot_name))
-    print(paste("X Label:", input$plot_click$annotation))
-    print(paste("X Coordinate:", input$plot_click$x_coordinate))
+    message("Click event captured!")
+    message("Plot Name:", input$plot_click$plot_name)
+    message("X Label:", input$plot_click$annotation)
+    message("X Coordinate:", input$plot_click$x_coordinate)
 
     if (!is.null(input$plot_click$plot_name) && !is.null(input$plot_click$x_coordinate)) {
       timestamp <- Sys.time()
@@ -168,7 +166,7 @@ server <- function(input, output, session) {
   })
 
   output$clickDataTable <- DT::renderDT({
-    print("Rendering clickDataTable...")
+    #print("Rendering clickDataTable...")
     DT::datatable(
       click_info$click_data, options = list(dom = 'tip'
       )
