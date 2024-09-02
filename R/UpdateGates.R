@@ -1,19 +1,14 @@
 #' Update a gate cutoff csv with the CoerebaApp edits
 #'
-#' @param Clicks File path to CSV output from CoerebaApp containing new gate cutoff locations
+#' @param Clicks A path to a .csv file or a folder containing only the Click .csv files.
 #' @param Old  File path to the CSV containing the original Estimated Gate Cutoffs
 #' @param fileName Desired name for the updated .csv file
 #' @param outpath File path to save new .csv file at.
 #'
 #' @importFrom utils read.csv
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
 #' @importFrom dplyr rename
-#' @importFrom lubridate hms
-#' @importFrom dplyr group_by
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom dplyr slice
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr select
 #' @importFrom dplyr pull
 #' @importFrom utils write.csv
 #'
@@ -23,14 +18,10 @@
 #' @examples NULL
 
 UpdateGates <- function(Clicks, Old, fileName, outpath){
-  TheClicks <- read.csv(Clicks, check.names = FALSE)
+  TheFiles <- list.files(Clicks, pattern=".csv", full.names = TRUE)
   TheOld <- read.csv(Old, check.names = FALSE)
 
-  TheClicks <- TheClicks %>% rename(specimen = Plot_Name)
-  TheClicks$Time <- hms(TheClicks$Time)
-  Retained <- TheClicks %>% group_by(specimen, X_Label) %>%
-    arrange(desc(Time)) %>% slice(1) %>% ungroup()
-  Retained <- Retained %>% select(-Time)
+  Retained <- map(.x=TheFiles, .f=InternalGateUpdate) %>% bind_rows()
 
   TheModified <- TheOld
 
@@ -49,4 +40,31 @@ UpdateGates <- function(Clicks, Old, fileName, outpath){
   write.csv(TheModified, file=paste0(StorageLocation, ".csv"), row.names = FALSE)
 
   return(TheModified)
+}
+
+
+
+#' Internal for UpdateGates
+#'
+#' @param x A path to a .csv file
+#'
+#' @importFrom utils read.csv
+#' @importFrom dplyr rename
+#' @importFrom lubridate ymd_hms
+#' @importFrom dplyr group_by
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom dplyr slice
+#' @importFrom dplyr ungroup
+#' @importFrom dplyr select
+#'
+#' @keywords internal
+InternalGateUpdate <- function(x){
+  TheClicks <- read.csv(x, check.names = FALSE)
+  TheClicks <- TheClicks %>% rename(specimen = Plot_Name)
+  TheClicks$Time <- ymd_hms(TheClicks$Time)
+  Retained <- TheClicks %>% group_by(specimen, X_Label) %>%
+    arrange(desc(Time)) %>% slice(1) %>% ungroup()
+  Retained <- Retained %>% select(-Time)
+  return(Retained)
 }

@@ -7,7 +7,7 @@
 UpdateGates(Clicks, Old, fileName, outpath)
 }
 \arguments{
-\item{Clicks}{File path to CSV output from CoerebaApp containing new gate cutoff locations}
+\item{Clicks}{A path to a .csv file or a folder containing only the Click .csv files.}
 
 \item{Old}{File path to the CSV containing the original Estimated Gate Cutoffs}
 
