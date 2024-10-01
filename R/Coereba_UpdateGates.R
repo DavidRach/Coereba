@@ -1,4 +1,4 @@
-#' Update a gate cutoff csv with the CoerebaApp edits
+#' Update a gate cutoff csv with the Coereba_App edits
 #'
 #' @param Clicks A path to a .csv file or a folder containing only the Click .csv files.
 #' @param Old  File path to the CSV containing the original Estimated Gate Cutoffs
@@ -17,7 +17,7 @@
 #'
 #' @examples NULL
 
-UpdateGates <- function(Clicks, Old, fileName, outpath){
+Coereba_UpdateGates <- function(Clicks, Old, fileName, outpath){
   TheFiles <- list.files(Clicks, pattern=".csv", full.names = TRUE)
   TheOld <- read.csv(Old, check.names = FALSE)
 

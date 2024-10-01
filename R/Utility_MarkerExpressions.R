@@ -106,7 +106,7 @@ Utility_MarkerExpressions <- function(BinaryFile, OriginalData, myfactor, starte
 #' @importFrom tidyselect everything
 #' @importFrom dplyr mutate_all
 #'
-#' @keywords Internal
+#' @noRd
 .Internal_Aggregate <- function(x, panel, BinaryFile, OriginalData, Metadata, myfactor, normality, shape_palette,
                                 fill_palette, MyPanel=MyPanel, scalefactor, scalefactorlabel){
   Column <- x

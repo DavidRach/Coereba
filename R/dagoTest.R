@@ -1,4 +1,4 @@
-#' Dagostino Omnibus K2 wrapper adapted from fBasics
+#' Dagostino Omnibus K2 wrapper from fBasics, only change is the n parameter.
 #'
 #' @param x Some Text
 #' @param title Some Text
@@ -9,10 +9,7 @@
 #' @importFrom stats pnorm
 #'
 #' @return Some Text
-#' @export
-#'
-#' @examples NULL
-#'
+#' @noRd
 
 dagoTest <- function(x, title = NULL, description = NULL)
 {

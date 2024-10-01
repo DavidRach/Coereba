@@ -4,7 +4,7 @@
 \name{Coereba-package}
 \alias{Coereba}
 \alias{Coereba-package}
-\title{Coereba: Dichotomized Boolean Clustering and Heatmaps for Spectral Flow Cytometry}
+\title{Coereba: Dichotomized Clustering for Spectral Flow Cytometry (SFC)}
 \description{
 To learn more about how to use Coereba, please start by browsing the vignettes:
 }

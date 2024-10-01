@@ -19,18 +19,20 @@
 #'
 #' @examples NULL
 #'
-ModernGateCutoffs <- function(x, subset, sample.name, remove.strings) {
+Coereba_GateCutoffs <- function(x, subset, sample.name, remove.strings) {
 
   name <- keyword(x, sample.name)
   alternate.name <- NameCleanUp(name = name, remove.strings)
 
   cs <- gs_pop_get_data(x, subset, inverse.transform = FALSE)
+  #fr <- cs[[1, returnType = "flowFrame"]]
   df <- exprs(cs[[1]])
   TheDFlocal <- data.frame(df, check.names = FALSE)
-  DFNames <- colnames(TheDFlocal[,-grep("Time|FS|SC|SS|Original|W$|H$",
-                                        names(TheDFlocal))])
+  TheColumnNames <- colnames(TheDFlocal)
+  DFNames <- TheColumnNames[!grepl("^(Time|FS|SC|SS|Original|W$|H$)", TheColumnNames)]
 
-  AssembledData <- map(.x = DFNames, ColumnExprs, TheDF = TheDFlocal, w = 2, span = 0.1) %>%
+  #x <- DFNames[1]
+  AssembledData <- map(.x = DFNames, .f=ColumnExprs, TheDF = TheDFlocal, w = 2, span = 0.1) %>%
     bind_rows()
   Pivoted <- pivot_wider(AssembledData, names_from = Fluorophore, values_from = CutoffMinima)
   Data <- cbind(alternate.name, Pivoted)
@@ -106,7 +108,7 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
 
   }
 
-  if(any(Minima2 > (TheYMax*0.1))) {message("Override is in play ", Fluorophore )}
+  #if(any(Minima2 > (TheYMax*0.1))) {message("Override is in play ", Fluorophore )}
 
   if (all(Minima1 < TheMax)){shape <- "greater"} else if (
     all(Minima1 > TheMax)) {shape <- "lesser"} else {
@@ -118,7 +120,7 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
     } else if (all(Minima1 > TheMax)) {
       shape1 <- "lesser"} else {shape1 <- "sandwhich"}
 
-    if (shape1 != shape) {message("Shape switch Occured ", Fluorophore)
+    if (shape1 != shape) {#message("Shape switch Occured ", Fluorophore)
       shape <- shape1}
   } else if (shape == "sandwhich" & length(Minima1) <= 2){
     shape <- "sandwhich"}
@@ -167,10 +169,11 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
   Minima1 <- Minima1[Minima1 < TheMax]
   CutoffMinima <- Minima1[length(Minima1)]
 
-  } else {message("Not Applicable")}
+  } else {#message("Not Applicable")
+    }
 
 
-  if (abs(CutoffMinima - TheMax)/TheRange > 0.3){message("Range Exceeded ", Fluorophore)
+  if (abs(CutoffMinima - TheMax)/TheRange > 0.3){#message("Range Exceeded ", Fluorophore)
 
     if (orientation == "left"){
       TheYmaxLimit <- TheYMax*0.2
@@ -196,7 +199,7 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
 
   }
 
-  message(code, CutoffMinima)
+  #message(code, CutoffMinima)
 
   CutoffMinima <- freq_table1 %>% filter(xVal == CutoffMinima) %>% pull(OriginalX)
 
@@ -263,7 +266,7 @@ LocalMinima <- function(theX, theY, w, therepeats, alternatename, ...){
     theme(plot.title = element_text(hjust = 0.5), axis.title.x = element_blank(), axis.title.y = element_blank(),
           panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-  message(Views)
+  #message(Views)
 
   PointData <- PointData %>% select(-y)
 

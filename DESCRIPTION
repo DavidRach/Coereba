@@ -1,6 +1,6 @@
 Package: Coereba
 Type: Package
-Title: Dichotomized Boolean Clustering and Heatmaps for Spectral Flow Cytometry
+Title: Dichotomized Clustering for Spectral Flow Cytometry (SFC)
 Version: 0.1.0
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),

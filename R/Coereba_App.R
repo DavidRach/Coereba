@@ -5,7 +5,7 @@
 #' @export
 
 
-CoerebaApp <- function() {
+Coereba_App <- function() {
     runApp(
     system.file("shiny", package="Coereba"),
     display.mode = "normal")

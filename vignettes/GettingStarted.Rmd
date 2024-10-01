@@ -1,16 +1,19 @@
 ---
-title: "Getting Started"
+title: "Getting Started with `Coereba`"
+date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
-  affiliation: University of Maryland, Baltimore
   email: drach@som.umaryland.edu
-package: Coereba
+  affiliation: University of Maryland, Baltimore
+package: "`r BiocStyle::pkg_ver('Luciernaga')`"
 output:
   BiocStyle::html_document
 abstract: |
-  How to set up Coereba
+  When dealing with cytometry data, how many clusters are present is often a question users ask. The answer is always it depends, but having ways to visualize this decision making process would be helpful. Coereba is an R package that attempts to provide some tools to qualitatively and quantitatively assess the variation present, and allow for flexibility to deal with datasets that may have batch effects that limit their use for unsupervised analytical approaches highly dependent on consistent MFI acrosss individual experiments and files.
+bibliography: "`r file.path(system.file('extdata', package='Coereba'), 'refs.bib')`"
 vignette: |
   %\VignetteIndexEntry{Getting Started}
+  %\VignettePackage{Coereba}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

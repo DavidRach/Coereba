@@ -1,9 +1,4 @@
-Coereba
-================
-David Rach
-<h4>  
-README updated: <i>Jan-28-2024</i>  
-</h4>
+# Welcome to `Coereba` <img src="inst/hex/hex.png" width="200" align="right"/>
 
 <!-- To modify Package/Title/Description/Authors fields, edit the DESCRIPTION file -->
 <!-- badges: start -->
@@ -18,33 +13,40 @@ status](https://github.com/DavidRach/Coereba/workflows/rworkflows/badge.svg)](ht
 [![codecov](https://codecov.io/gh/DavidRach/Coereba/graph/badge.svg?token=1SRXI13GOE)](https://codecov.io/gh/DavidRach/Coereba)
 <br> <!-- badges: end -->
 
-<img src="inst/hex/hex.png" width="50%" style="display: block; margin: auto;" />
-
 ## `Coereba`: Dichotomized Boolean Clustering and Heatmaps for Spectral Flow Cytometry
 
-### Acknowledging the limitations of unsupervized analysis and
+Traditionally, supervised (manual) analysis involves drawing gates, drilling down with subsequent gates filtering for a desired cell
+population of interest. Combined with expert knowledge and few markers, it allows handling of batch effects. Unsupervised approaches 
+have become more frequent employed with increased markers employed by both Spectral Flow Cytometry (SFC) and mass cytometry. Their limitation
+has been in addressing what is a cluster and how many of them should be present for a given panel. 
 
-downsampling, through a semi-supervised gating implements dichotomized
-boolean gates to cluster every cell from an experiment and querry the
-resulting subclusters.
+Coereba is a collection of tools that attempt to allow the researcher to better understand their panels and datasets,
+employing a semi-supervised approach between the two approaches. 
 
-If you use `Coereba`, please cite:
+### Installation
 
-<!-- Modify this by editing the file: inst/CITATION  -->
-
-## Installation
+We are in the process of getting Coereba ready to submit to Bioconductor. Until then, please download the package from github. 
 
 ``` r
 if(!require("remotes")) install.packages("remotes")
 
 remotes::install_github("https://github.com/DavidRach/Coereba")
+
 library(Coereba)
+
+# install.packages("BiocManager")
+# BiocManager::install("Coereba")
 ```
 
-## Documentation
+### Get Started
 
-### [Website](https://davidrach.github.io/Coereba)
+Please check out our how-to [vignettes](https://davidrach.github.io/Coereba/articles/Coereba)
+to get started
 
-### [Get started](https://davidrach.github.io/Coereba/articles/Coereba)
 
-<br>
+### Found a bug? Report it!
+
+While we have caught a lot of bugs, there's still unknown ones that we haven't encountered. If you find a suspected bug, please report it here [here](https://github.com/DavidRach/Coereba/issues)
+
+
+
