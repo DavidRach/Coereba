@@ -9,7 +9,7 @@ package: "`r BiocStyle::pkg_ver('Luciernaga')`"
 output:
   BiocStyle::html_document
 abstract: |
-  When dealing with cytometry data, how many clusters are present is often a question users ask. The answer is always it depends, but having ways to visualize this decision making process would be helpful. Coereba is an R package that attempts to provide some tools to qualitatively and quantitatively assess the variation present, and allow for flexibility to deal with datasets that may have batch effects that limit their use for unsupervised analytical approaches highly dependent on consistent MFI acrosss individual experiments and files.
+  When working with high-dimensional cytometry data, whether from Spectral Flow Cytometry (SFC) or Mass Cytometry (MC), how many clusters of cells are present given certain markers is often a question that arises. "It depends" is the frequent non-commital answer. Coereba is an R package that attempts to provide tools to qualitatively and quantitatively assess the variation present for individual panels. It additionally leverages a semi-supervised analytical approach to enable working with datasets where batch effects limit current  unsupervised approaches that rely heavily on consistent MFI across individual experiments and files.
 bibliography: "`r file.path(system.file('extdata', package='Coereba'), 'refs.bib')`"
 vignette: |
   %\VignetteIndexEntry{Getting Started}
@@ -27,45 +27,31 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-Historically, manual (supervised) gating has been widely used in cytometry, especially conventional flow cytometry (CFC) utilizing commercial software with graphical user interfaces, with hierarchical gates drawn around cell populations of interest, sequentially filtering smaller subsets of cells. Given the increase in resolvable markers (initially by mass cytometry (MC), more recently by spectral flow ctyometry (SFC)) this approach encountered limitations and unsupervised methods utilizing algorithms to cluster cells based on median fluorescent intensity for individual markers have taken over. The question of what number of clusters are biologically present has plagued these methods, similar concerns raised about the choice of cutoffs in making the decisions by fully-algorithmic driven clusterings. Alternative approaches implementing boolean gating templates checked by algorithms are in development but struggle from individual variation due to biological heterogeneity, instrumental and experimental artifact. 
+Historically, manual (supervised) gating has been widely used in cytometry, especially conventional flow cytometry (CFC) utilizing commercial software with graphical user interfaces, with hierarchical boolean gates drawn around cell populations of interest, sequentially filtering down to smaller subsets of cells that are of interest to the researcher. This approach has encountered limitations given the increase in resolvable markers (initially by mass cytometry (MC), more recently by spectral flow ctyometry (SFC)), and unsupervised methods utilizing algorithms to cluster cells based on median fluorescent intensity for individual markers have become increasingly widespread. By contrast, determining number of biological cell clusters present remains a concern for these methods, with individual methods outcomes dependent on the decisions driven by fully-algorithmic clusterings. Since these are dependent on the MFI values being consistent across individuals and experiments, they are susceptible to batch effects. 
 
-Our R package Coereba is a collection of functions taking a different direction. Rather than manually gate every combination for a single individual, and then repeat for the next individual, what if we were able to gate visualizing across a particular combination of markers for all specimens in a single view. And then repeat for the other markers in the panel. From the resulting gates, perform the analysis using algorithmic tools.  This extends the ability of manual gating to enable handling a greater number of markers, and allow for factoring in batch effects and variation that algorithms dependent on normalized MFI would struggle to correctly classify. 
+This is particularly the case with SFC data, which although comparable marker coverage as MC datasets, can collect far large number of cellular events. It is susceptible to loss resolution when improper unmixing controls are used, or when fluorophores degrade, additional autofluorescences are present. The combination of these result in unique challenges that we have noted elsewher. Alternative approaches implementing boolean gating templates checked by algorithms are in active development but struggle from individual variation due to biological heterogeneity, instrumental and experimental artifact. 
 
-This is particularly the case with SFC data, given the capability to collect large number of cellular events compared to MC, and with comparable marker coverage. It however has resolution impacts when improper unmixing controls are used, or when fluorophores degrade, additional autofluorescences are present. The combination of these result in unique challenges that we have noted elsewhere. 
+Coereba is a collection of tools that takes a hybrid approach. Compared with traditional manual approaches that focus gating marker combinations at the single-individual before proceeding to the next, Coereba implements visualization across all specimens within a single view, and implements semi-supervised gating. It then allows for validation/correction at the individual level. The iteration is then over additional markers in the panel. From the sum of the gates across all markers on the basis of individual specimens, individual cells identities given markers of interest can be derrived and quantified using algorithmic tools. T
 
-From this hybrid approach, we implement functions that showcase some novel uses in answering questions that neither fully supervised or unsupervised methods, both open-source or commercial, have been able to address. This package is not claiming to be the solution for all cytometry analysis, but we hope it can be a stepping stone to realizing the underlying problems that the current paradigms have, so that the next generation of developers can benefit from the knowledge base. 
+This extends the ability of manual gating to enable handling a greater number of markers, while allowing flexibility to handle batch effects and variation that algorithms dependent on normalized MFI would struggle to correctly classify. From this hybrid approach, we implement functions that showcase some novel uses in answering questions that neither fully supervised or unsupervised methods, both open-source or commercial, have been able to address. This package does not claim to be solution for all cytometry analysis, but we hope it can be a stepping stone to realizing the underlying problems that the current paradigms have, so that the next generation of developers can benefit from the knowledge base. 
 
-# Installing Coereba
+# Getting Started
 
-```{r setup}
-# install.packages("devtools")
-# devtools::install_github("https://github.com/DavidRach/Coereba")
+## Installing Coereba
 
-#install.packages("BiocManager")
-#BiocManager::install("Coereba")
+We are in the process of preparing Coereba for submission to Bioconductor later this year, for the moment however, it is available to install via GitHub. 
 
-library(Coereba)
-```
-
-#How to Begin
-
-## Setup
-
-### Installing Coereba
-
-Coereba will be submitted to Bioconductor later this year, for the moment, it is available to install via GitHub. 
-
-```{r Install Coereba, eval = FALSE, echo=FALSE}
-# if(!require("remotes")) {install.packages("remotes")}
-# remotes::install_github("https://github.com/DavidRach/Coereba")
+```{r Install Coereba, eval = FALSE}
+if(!require("remotes")) {install.packages("remotes")}
+remotes::install_github("https://github.com/DavidRach/Coereba")
 
 # install.packages("BiocManager")
 # BiocManager::install("Coereba")
 ```
 
-### Loading Libraries
+## Loading Libraries
 
-Coereba works using infrastructure provided by other Bioconductor cytometry packages. It also utilizes a few of the tidyverse packages available via CRAN. It is important to make sure that these are installed on your computer and then that the libraries are loaded. 
+Coereba relies on underlying infrastructure provided `r Biopkg("flowWorkspace")` and other Bioconductor cytometry packages. It leverages functional programming principles implemented in `r CRANpkg("tidyverse")` packages available via CRAN. It is important to make sure that all the required packages are installed on your computer, and that library is called for each.
 
 ```{r, echo=FALSE, results = "hide", warning=FALSE}
 suppressPackageStartupMessages({
@@ -116,26 +102,23 @@ For this vignette, we will using several small .fcs files that can be found in C
 File_Location <- system.file("extdata", package = "Coereba")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
-FCS_Files
+head(FCS_Files, 3)
 ```
 
-The folder contains three unmixed full-stained samples from a 29-color SFC panel. 
+The folder contains three unmixed full-stained samples from a 29-color SFC panel, characterizing Innate-like T cells (ILT) in cord blood mononuclear cells (CBMCs). As rare circulating cells, the original .fcs files contained many cellular events, which makes them useful to show off Coereba's capabilities at characterizing cells that were not the original focus. 
 
 ### Creating a GatingSet for Unmixed .fcs files
-The next couple functions are designed primarily for use with unmixed full-stained samples. We will return to the earlier example and select the corresponding example .fcs files found within Luciernaga's extdata folder and bring them into a GatingSet object.
+
+Working with the unmixed full-stained samples mentioned above, we will proceed by bringing the .fcs files found within Coereba's extdata folder into a GatingSet object where we can interact with them.
 
 ```{r}
 UnmixedFCSFiles <- FCS_Files[c(1:3)]
-UnmixedFCSFiles
-```
-
-```{r}
-UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles, truncate_max_range = FALSE, transformation = FALSE)
 UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
 UnmixedGatingSet
 ```
 
-Now that they are in a GatingSet object, we will identify markers/fluorophores present for the .fcs file, and remove from the list markers that don't need to be transformed (example FSC, SSC, etc). We will then bi-exponentially transform the data using `r Biocpkg("flowWorkspace")` `flowWorkspace::flowjo_biexp_trans()` before applying a gating template. 
+Now that we have created a GatingSet object, we will identify the markers/fluorophores present within the .fcs files, and exclude markers from the list don't require transformation (as is the case with FSC, SSC). We will then bi-exponentially transform the data using `r Biocpkg("flowWorkspace")` `flowWorkspace::flowjo_biexp_trans()` before applying a `r Biocpkg("openCyto")`gating template that was customized for this particular panel, which can be found in the extdata folder. 
 
 ```{r}
 Markers <- colnames(UnmixedCytoSet)
@@ -151,36 +134,146 @@ UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 ```
 
-### Estimating Gate Cutoffs
+```{r}
+plot(UnmixedGatingSet)
+```
+
+We can additionally verify that the gating of the cell populations of interest was correct, by visualizing the gates using `r Biocpkg("ggcyto")` or the Luciernaga package. 
+
+```{r}
+library(Luciernaga)
+
+MyPlot <- Utility_GatingPlots(x=UnmixedGatingSet[1], sample.name=c("GROUPNAME", "TUBENAME"), removestrings=".fcs", subset="live", gtFile=UnmixedGates, DesiredGates=NULL, outpath = getwd(), export=FALSE, therows=3, thecolumns=2)
+
+MyPlot
+```
+
+# Coereba_GateCutoffs
+
+Having set up a GatingSet with transformations and gates applied, we can proceed to test the `Coereba` workflow. The first step is to create a .csv file, containing the individual specimens, and the individual markers of interest. Each cell within the .csv file will correspond to the MFI for a given marker for a given individual where positive expression of a marker transitions to becoming a negative (referred here to as a splitpoint). 
+
+These could be written out individually, or based on automated calculations. To simplify the process, in Coereba, we have implemented two approaches to estimating these splitpoints. One function is the in-house `Coereba_GateCutoffs()`, which does an "okay-ish but work-in progress". The flip approach is leveraging the `r BiocPkg("openCyto")` pipeline (in development) and retrieving the values. 
+
+Both approaches can be computationally heavy, but still faster than eye-balling everything and typing in the values one-by-one. Save the eyestrain for subsequent validation steps.
 
 ```{r}
 
 ```
 
-### Visualizing Gate Cutoffs
+# Visualizing Gate Cutoffs
+
+Once we have generated a GateCutoffs.csv file, we can visualize how well the splitpoints were by plotting them as red-lines using the `Luciernaga` packages `Utility_NbyNPlots()` to visualize the markers for a given individual and `Utility_UnityPlots()` to visualize the markers across individuals. This a good way of understanding how well the competing gating-algorithms did in the context of your individual panel, and how much effort will be required for the next step in correcting the gates individually. 
 
 ```{r}
 
 ```
 
-### Adjusting the Gate Cutoffs with Coereba Shiny App
+# Coereba_App
+
+Previously, all adjustments to the above splitpoints had to eye-balled in the pdf, and then adjusted in the .csv file, and repeated ad nauseum. This obviously did not scale well. We have subsequently created a ShinyApp that will bring in the GatingSet object, and plot an interactive version of `Utility_UnityPlot()` from the `Luciernaga` package, visualizing the splitpoint for a given marker across all individuals as red vertical lines. 
+
+To get started, you first will need to call the ShinyApp by running the following:
+
+```{r, eval = FALSE}
+Coereba_App()
+```
+
+The first tab view will let you upload the GateCutoff.csv file generated by the previous function, by letting you navigate to the storage folder and clicking on it. 
+
+Once this is done, navigate to the Upload a GatingSet tab. Enter the information about your GatingSet ("UnmixedGatingSet" for this example), select your x and y parameters, enter the SampleName keyword. Desired bins allows adjustments to the visualization given the number of cells present, clearance multiplier adjust the margins wiggle-room, removestrings arguments. You specify margin and gate subsets like you would for `Utility_UnityPlots()` and click Display Estimated Gate Cutoffs. Finally, you click on Generate Plots and go retrieve your coffee/tea/beverage-of-choice.  
+
+Upon loading of the plots, scroll until you encounter a splitpoint line that was placed incorrectly, you can simply click on the correct location of the axis, which will save the coordinate as a splitpoint for that given marker and individual to a data.frame. This will later be ported to update the corresponding splitpoint value for a given marker and individual in the exisiting GateCutoff .csv. By just clicking, you can therefore quickly correct cases where the algorithm failed to gate properly due to batch effects, bad staining, or algorithmic incompetence (sorry, the coders are still learning as well).
+
+Once you have corrected some/all the markers, navigate to the Click Data tab. You can then export the click-data information by specifying a filename and providing an outpath to the folder you want to save at. Unfortunately, due to security issues in ShinyApps, you will need to type out the designated outpath manually.
+
+And repeat until the markers you are interested have been validated and you have a folder of clickpoint .csvs awaiting conversion into the existing GateCutoff folder. 
+
+Since the code is within a ShinyApp running in R, it has both the advantages and disadvantages of a R Shiny App. It scales reasonably well, but can take a while to load the next iterated marker. During testing, loading a new marker to inspect took anywhere from 3-10 additional minutes. This area is a active work in progress to speed up, but the author/maintainer hasn't had the time to finish reading Mastering Shiny by Hadley Wickham yet or implement it in Rust, if you have, feel free to assist!
+
+# Coereba_UpdateGates
+
+Once you have completed validating the GateCutoffs with `Coereba_App()`, it is time to convert your validated click-data and update the GateCutoff.csv. To fascilitate this, provide the location of the folder containing just the clickpoint .csv's to  `Coereba_UpdateGates()` and fill out the required arguments. It will proceed to update the GateCutoffs. 
+
+This can then be validated, by re-running `Luciernaga` `Utility_UnityPlots()` using the updated GateCutoff.csv and seeing if the previous issues have been corrected. 
+
+# Note on Cell Populations and Splitpoint
+
+During development, we have noticed that for SFC data, the splitpoint location can vary substantially for individual cell populations (B cells, NK cells, T cells, etc), even in the abscencce of biology. We believe this is due to uncertainty in the unmixing, as we have observed a correlation of negative splitpoint MFI in relation to the individual cells kappa value (matrix complexity essentially). Try your best to have the gate reflect what you are interested in, reduce the amount of error as much as you can, and in numbers veritas. Keep track of the exceptions (more later) and write up a Cyto paper. 
+
+# How Coereba works
+
+Having a GateCutoff.csv containing the splitpoint information for each marker validated for each individual is immensely useful, allowing you to do many things you wouldn't be capable of otherwise. Namely, we can for an individual anotate each cell within their .fcs file. 
+
+What do I mean? Let's first think about all the cells circulating in an individuals bloostream. We don't have any prior information in this example, but we want to profile these cells into clusters of similar cells. On one end of the spectra, there is a single cluster that contains every single cell from the sample, regardless of their marker expression. At the opposite end of the spectrum, every single cell clusters in an it's own cluster with just itself. In between these two extremes, depending on our question, lies a meaningful cluster number that will match the underlying biology to reduce the amount of variance that lies in clumping/splitting populations needlessly. 
+
+`Coereba` takes the approacch by individually annotating an individuals cells one by one, on the basis of where their MFI value lands related to the validated splitpoint. So if the splitpoint for FITC is at 50, and the individual cell MFI  for FITC is 80, it returns as FITC_pos. If the splitpoint for APC is at 70, and the individual cell MFI is 30, it returns as APC_Neg. 
+
+When you iterate over the splitpoints for each marker, each cell derrives an identity. FITC_pos-APC_Neg-BV421_Pos.... etc. We can then group cells with matching identies and derrive information from these terminal nodes. 
+
+Individually, this may not mean much. After all, dichotomous splitting of a 30-marker panel is around half-a billion potential terminal nodes or clusters. Similarly, cytometers have instrumental, batch, experimental noise, etc. 
+
+But when we scale to all the events collected within a typical sample, we get far fewer terminal nodes, in the hundred to lower thousand range for a 30-color panel. The reason is cells (and the panels by which we investigate them) are not uniformely distributed by markers across high-dimensional space, cells fall within specific phenotypes (cell types) that undergo division of similar clones. 
+
+Consequently, we can iteratively leverage the number of markers included to target questions of interest, broad or narrow scope, in context of our individual panels, and rely on methods described below to gain insight into biological systems. 
+
+# Utility_Coereba
+
+`Utility_Coereba()` is the function that implements the above approach, labelling for each individual specimen the individual cells on the basis of their splitpoint identity, and then returning the enumeration of the resulting clusters. It iterates over the different specimens in the GatingSet, returning information for every individual that can be used in subsequent steps. `MultiReach()` is the older version of the proccess.
+
+Both functions are currently waiting on the ILT paper to be sent to collaborators so that David can implement his 5-subject binder worth of notes to implement a S4 OOP class to make manipulating the final outputs easier than the current .qmd files full of tidyverse data tidying. 
 
 ```{r}
 
 ```
 
-### Updating GateCutoff CSV and Final Checks
+# Filtering Coereba Clusters 
+
+Some things are literally poisson noise. Others are cell clusters with varying abundance across heteregenous human patients. Others are individually unique terminal nodes that can be the result of individual biology.... or unmixing errors ... or your lab tech messing up the staining panel. You can leverage the filter functions to identify all of these quickly. 
 
 ```{r}
 
 ```
 
-### Running Coereba on a GatingSet.
+# Utility_MarkerExpressions
+
+From the same Coereba identities, we can backcalculate the proportion of cells for a given cell node of interest that express any given marker (see ILT paper). The Utility_MarkerExpressions() function was the original implementation of this idea. See 5-subject notebook remodel post submission. 
 
 ```{r}
 
 ```
 
+# Utility_Heatmap
+
+The original visualization for the Coereba clusters, in a Bananaquit color-scheme. Next time someone insist there are just 5 clusters in their FlowSOM, point them here. 
+```{r}
+
+```
+
+# Utility_Aggregate/Utility_Querry
+
+If I recall correctly, fusing some of the t-testing with the above heatmap approach, with a touch of iteration to visualize a couple steps above and below. Not likely to be retained in it's current format. 
+
+```{r}
+
+```
+
+# Utility_Behemoth
+
+The `Utility_Behemoth()` function that makes your friendly-local statistican cry. Basically what happens when you say "Screw GraphPad Prism, let's do all the normal immunologist cut-paste in R". When iterated over the Coereba outputs (or any data.frame with columns for a given parameter), runs Omnibus K2 normality test, decides normal/non-normal, decides number of factors (2, or 3+), runs t-test/anova/non-parametric equivalents, and then appends those p-value results onto a ggbeeswarm ggplot that can be ccombined with `Luciernaga` `Utility_Patchwork()` to generate .pdfs. 
+
+Is it quick and useful way of rapidly profiling a lot of information. Yes. Does it encarnate everything potentially wrong with Null-hypothesis statistical testing in a single vial? Also yes. Does scrolling through the plots and seeing the number of return hits driven by a single outlier specimen cause hesitation? Yes. But then remember everyone is doing this a lot slower with GraphPad Prism and join us in wailing about our current state of science (and read Statistical Rethinking again in protest for the day we can get away from this).
+
+# Utility_Stats
+
+A separate implementation of the stats decision tree within `Utility_Behemoth`, likely to be converted into an internal function upon the subsequent 5-subject notebook remodel. 
+
+# Utility_Leviathan
+
+An initial attempt to deal with the single outlier dot issue from Utility_Behemoth by dropping a top value from all the groups. Not likely being kept current state given what we have learned since. 
+
+# Diffcyt port
+
+Wrote the function to send the outputs to diffcyt for the edgeR/limma/GLMM modeling of the results (vs the above t-test approach). It works, but does it mean it's less p-hacky? TBD. Also, given diffcyt's current maintenance status (looking at you Luke), may not be best approach vs a new implementation. 
 
 ```{r sessionInfo, echo = FALSE}
 sessionInfo()
