@@ -198,7 +198,7 @@ This can then be validated, by re-running `Luciernaga` `Utility_UnityPlots()` us
 
 # Note on Cell Populations and Splitpoint
 
-During development, we have noticed that for SFC data, the splitpoint location can vary substantially for individual cell populations (B cells, NK cells, T cells, etc), even in the abscencce of biology. We believe this is due to uncertainty in the unmixing, as we have observed a correlation of negative splitpoint MFI in relation to the individual cells kappa value (matrix complexity essentially). Try your best to have the gate reflect what you are interested in, reduce the amount of error as much as you can, and in numbers veritas. Keep track of the exceptions (more later) and write up a Cyto paper. 
+During development, we have noticed that for SFC data, the splitpoint location can vary substantially for individual cell populations (B cells, NK cells, T cells, etc), even in the abscence of biology. We believe this is due to uncertainty in the unmixing, as we have observed a correlation of negative splitpoint MFI in relation to the individual cells kappa value (matrix complexity essentially). Try your best to have the gate reflect what you are interested in, reduce the amount of error as much as you can, and in numbers veritas. Keep track of the exceptions (more later) and write up a Cyto paper. 
 
 # How Coereba works
 
@@ -225,6 +225,7 @@ Both functions are currently waiting on the ILT paper to be sent to collaborator
 ```{r}
 
 ```
+
 
 # Filtering Coereba Clusters 
 
@@ -266,10 +267,6 @@ Is it quick and useful way of rapidly profiling a lot of information. Yes. Does 
 # Utility_Stats
 
 A separate implementation of the stats decision tree within `Utility_Behemoth`, likely to be converted into an internal function upon the subsequent 5-subject notebook remodel. 
-
-# Utility_Leviathan
-
-An initial attempt to deal with the single outlier dot issue from Utility_Behemoth by dropping a top value from all the groups. Not likely being kept current state given what we have learned since. 
 
 # Diffcyt port
 
