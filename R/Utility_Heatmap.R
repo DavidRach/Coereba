@@ -1,9 +1,10 @@
-#' Returns a Coereba Heatmap
+#' Produces a Coereba Heatmap showing Coereba Clusters by Markers
 #'
 #' @param binary A data.frame of markers by cluster
 #' @param panel A csv or data.frame containing Fluorophore and Marker
-#' @param return Whether to save the file as a png, TRUE/FALSE
-#' @param filename Name to save .png file as
+#' @param export Whether to export as a .png, default is FALSE
+#' @param outpath File.path to the desired storage location
+#' @param filename File name for exported image
 #'
 #' @importFrom utils read.csv
 #' @importFrom dplyr select
@@ -11,13 +12,20 @@
 #' @importFrom dplyr mutate
 #' @importFrom dplyr row_number
 #' @importFrom dplyr relocate
-#' @importFrom reshape2 melt
+#' @importFrom tidyr pivot_longer
+#' @importFrom tidyselect all_of
 #' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 geom_tile
 #' @importFrom viridis scale_fill_viridis
+#' @importFrom ggplot2 theme_bw
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 element_text
 #' @importFrom ggplot2 ggsave
 #' @importFrom magrittr %>%
 #'
-#' @return Some additional value to edit
+#' @return A ggplot locally or to export location
 #' @export
 #'
 #' @examples
@@ -28,8 +36,11 @@
 #' binaryPath <- file.path(File_Location, "HeatmapExample.csv")
 #' binaryData <- read.csv(binaryPath, check.names=FALSE)
 #' 
+#' ThePlot <- Utility_Heatmap(binary=binaryData, panel=panelPath,
+#'  export=FALSE, outpath=NULL, filename=NULL)
 #' 
-Utility_Heatmap <- function(binary, panel, return, filename){
+Utility_Heatmap <- function(binary, panel, export=FALSE,
+  outpath=NULL, filename=NULL){
 
   # Swapping out Fluorophores for Markers
   if(is.data.frame(panel)){MyPanel <- panel
@@ -46,7 +57,9 @@ Utility_Heatmap <- function(binary, panel, return, filename){
   theCells <- binary %>% mutate(Cluster = row_number()) %>%
     relocate(Cluster, .after = Identity)
   retained <- colnames(theCells[,1:2])
-  MeltedCells <- melt(theCells, id = retained)
+  MeltedCells <- theCells %>%
+    pivot_longer(cols = -all_of(retained),
+    names_to = "variable", values_to = "value")
   MeltedCells$Cluster <- factor(MeltedCells$Cluster)
   MeltedCells$variable <- factor(MeltedCells$variable)
 
@@ -54,17 +67,31 @@ Utility_Heatmap <- function(binary, panel, return, filename){
   MyHeatmap <- ggplot(MeltedCells, aes(Cluster, variable, fill = value)) +
     geom_tile() +
     scale_fill_viridis(option = "cividis", discrete=FALSE) +
-    theme_classic() +
+    theme_bw() +
     theme(legend.position = "none", axis.text.x = element_text(
       size = 5, angle = 300)) + labs(y = NULL)
   
   # Export options
 
-  if (return == TRUE){ggsave(filename, MyHeatmap,
-                             dpi = 600, units = "in", width = 6, height = 4)}
+  if (export == TRUE){
 
-  return(MyHeatmap)
-}
+    if (!is.null(filename)){
+
+  if (is.null(outpath)){StorageLocation <- getwd()
+    } else {StorageLocation <- outpath}
+
+  TheName <- paste0(filename, ".png")
+  SaveFileHere <- file.path(StorageLocation, TheName)
+
+  ggsave(SaveFileHere, MyHeatmap, dpi = 600, units = "in", width = 6, height = 4)
+  } else {stop("Please input a filename")}
+  
+  }
+
+  if (export == FALSE){
+    return(MyHeatmap)
+  }
+  }
 
 
 

@@ -4,10 +4,10 @@
 \alias{.Internal_Heatmap}
 \title{Internal for Utility_Heatmap}
 \usage{
-.Internal_Heatmap(filteredCells, panel, ...)
+.Internal_Heatmap(binary, panel, ...)
 }
 \arguments{
-\item{filteredCells}{Something}
+\item{binary}{Something}
 
 \item{panel}{Something}
 

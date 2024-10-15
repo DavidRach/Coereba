@@ -405,10 +405,12 @@ TheAssembledPlot[1]
 The original visualization for the Coereba clusters, in a Bananaquit color-scheme. Next time someone insist there are just 5 clusters in their FlowSOM, point them here. 
 
 ```{r}
-?Utility_Heatmap()
+ThePlot <- Utility_Heatmap(binary=binaryData, panel=panelPath,
+  export=FALSE, outpath=NULL, filename=NULL)
+```
 
-Utility_Heatmap(data=binaryData, filename="Hello", return=FALSE, panel=panelData)
-
+```{r}
+ThePlot
 ```
 
 # Utility_Aggregate/Utility_Querry

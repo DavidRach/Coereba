@@ -2,25 +2,36 @@
 % Please edit documentation in R/Utility_Heatmap.R
 \name{Utility_Heatmap}
 \alias{Utility_Heatmap}
-\title{Returns a Coereba Heatmap}
+\title{Produces a Coereba Heatmap showing Coereba Clusters by Markers}
 \usage{
-Utility_Heatmap(cells, filename, return, panel)
+Utility_Heatmap(binary, panel, export = FALSE, outpath = NULL, filename = NULL)
 }
 \arguments{
-\item{cells}{Unclear, Coereba output including Cluster column}
+\item{binary}{A data.frame of markers by cluster}
 
-\item{filename}{Name to save .png file as}
+\item{panel}{A csv or data.frame containing Fluorophore and Marker}
 
-\item{return}{Whether to save the file as a png, TRUE/FALSE}
+\item{export}{Whether to export as a .png, default is FALSE}
 
-\item{panel}{A csv file containing a panel}
+\item{outpath}{File.path to the desired storage location}
+
+\item{filename}{File name for exported image}
 }
 \value{
-Some additional value to edit
+A ggplot locally or to export location
 }
 \description{
-Returns a Coereba Heatmap
+Produces a Coereba Heatmap showing Coereba Clusters by Markers
 }
 \examples{
-NULL
+
+File_Location <- system.file("extdata", package = "Coereba")
+panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
+panelData <- read.csv(panelPath, check.names=FALSE)
+binaryPath <- file.path(File_Location, "HeatmapExample.csv")
+binaryData <- read.csv(binaryPath, check.names=FALSE)
+
+ThePlot <- Utility_Heatmap(binary=binaryData, panel=panelPath,
+ export=FALSE, outpath=NULL, filename=NULL)
+
 }
