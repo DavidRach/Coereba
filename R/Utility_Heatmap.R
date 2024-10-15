@@ -1,9 +1,9 @@
 #' Returns a Coereba Heatmap
 #'
-#' @param cells Unclear, Coereba output including Cluster column
-#' @param filename Name to save .png file as
+#' @param binary A data.frame of markers by cluster
+#' @param panel A csv or data.frame containing Fluorophore and Marker
 #' @param return Whether to save the file as a png, TRUE/FALSE
-#' @param panel A csv file containing a panel
+#' @param filename Name to save .png file as
 #'
 #' @importFrom utils read.csv
 #' @importFrom dplyr select
@@ -20,33 +20,45 @@
 #' @return Some additional value to edit
 #' @export
 #'
-#' @examples NULL
-Utility_Heatmap <- function(cells, filename, return, panel){
+#' @examples
+#' 
+#' File_Location <- system.file("extdata", package = "Coereba")
+#' panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
+#' panelData <- read.csv(panelPath, check.names=FALSE)
+#' binaryPath <- file.path(File_Location, "HeatmapExample.csv")
+#' binaryData <- read.csv(binaryPath, check.names=FALSE)
+#' 
+#' 
+Utility_Heatmap <- function(binary, panel, return, filename){
 
-  MyPanel <- read.csv(panel)
-  filteredCells <- cells
-  Fluorophore <- filteredCells %>% select(2:length(filteredCells)) %>%
+  # Swapping out Fluorophores for Markers
+  if(is.data.frame(panel)){MyPanel <- panel
+    } else {MyPanel <- read.csv(panel)}
+
+  Fluorophore <- binary %>% select(2:length(binary)) %>%
     colnames()
   Fluorophore <- data.frame(Fluorophore)
   Attempt2 <- left_join(Fluorophore, MyPanel, by = "Fluorophore")
   Names <- Attempt2$Marker
-  colnames(filteredCells)[2:length(filteredCells)] <- Names
-  #filteredCells
+  colnames(binary)[2:length(binary)] <- Names
 
-  theCells <- filteredCells %>% mutate(Cluster = row_number()) %>%
+  # Pivoting Longer
+  theCells <- binary %>% mutate(Cluster = row_number()) %>%
     relocate(Cluster, .after = Identity)
   retained <- colnames(theCells[,1:2])
   MeltedCells <- melt(theCells, id = retained)
   MeltedCells$Cluster <- factor(MeltedCells$Cluster)
   MeltedCells$variable <- factor(MeltedCells$variable)
 
+  # Generating the Plot
   MyHeatmap <- ggplot(MeltedCells, aes(Cluster, variable, fill = value)) +
     geom_tile() +
     scale_fill_viridis(option = "cividis", discrete=FALSE) +
     theme_classic() +
     theme(legend.position = "none", axis.text.x = element_text(
       size = 5, angle = 300)) + labs(y = NULL)
-  MyHeatmap
+  
+  # Export options
 
   if (return == TRUE){ggsave(filename, MyHeatmap,
                              dpi = 600, units = "in", width = 6, height = 4)}
@@ -58,7 +70,7 @@ Utility_Heatmap <- function(cells, filename, return, panel){
 
 #' Internal for Utility_Heatmap
 #'
-#' @param filteredCells Something
+#' @param binary Something
 #' @param panel Something
 #' @param ... Something
 #'
@@ -72,18 +84,18 @@ Utility_Heatmap <- function(cells, filename, return, panel){
 #' @importFrom viridis scale_fill_viridis
 #'
 #' @keywords internal
-.Internal_Heatmap <- function(filteredCells, panel, ...){
+.Internal_Heatmap <- function(binary, panel, ...){
   #MyPanel <- read.csv(panel, check.names = FALSE)
   MyPanel <- panel
-  Fluorophore <- filteredCells %>% select(2:length(filteredCells)) %>%
+  Fluorophore <- binary %>% select(2:length(binary)) %>%
     colnames()
   Fluorophore <- data.frame(Fluorophore)
   Attempt2 <- left_join(Fluorophore, MyPanel, by = "Fluorophore")
   Names <- Attempt2$Marker
-  colnames(filteredCells)[2:length(filteredCells)] <- Names
+  colnames(binary)[2:length(binary)] <- Names
   #filteredCells
 
-  theCells <- filteredCells %>% mutate(Cluster = row_number()) %>%
+  theCells <- binary %>% mutate(Cluster = row_number()) %>%
     relocate(Cluster, .after = Identity)
   retained <- colnames(theCells[,1:2])
   MeltedCells <- melt(theCells, id = retained)
