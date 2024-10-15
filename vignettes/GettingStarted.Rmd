@@ -239,7 +239,7 @@ Some things are literally poisson noise. Others are cell clusters with varying a
 
 Having generated a Marker by Cluster data.frame (binaryData) and a Cluster by Specimen data.frame (dataData), we can leverage the combination of the two data.frames to aggregate the clusters on the basis of marker presence, returning the proportion of of cells that are positive for a given marker. 
 
-For this demonstration, we will focus on MAITs, using stored .csv files for their binary and data outputs stored within the Coereba extdata folder.
+For this demonstration, we will focus on NKTs, using stored .csv files for their binary and data outputs stored within the Coereba extdata folder.
 
 ```{r}
 File_Location <- system.file("extdata", package = "Coereba")
@@ -313,35 +313,97 @@ And to ggsave directly to a desired folder:
 
 # Utility_Stats
 
+The `Utility_Stats()` and the `Utility_Behemoth()` functions are either: "Great!!!", or guaranteed to make your friendly-local statistician cry (Opinions vary). 
+
+Basically, `Utility_Stats()` is a coding-attempt to replicate the typical immunologist workflow, cutting out the need to copy-paste data from a .csv file into GraphPad Prism (trademark), run a normality test, determine number of groups, and follow up with the corresponding t-test/anova/non-parametric equivalents. `Utility_Behemoth()` then takes these outputs, and adds the p-value results to a ggbeeswarm/ggplot2 boxplot of the underlying data. In combination with `r CRANpkg("purrr")` and `Luciernaga` `Utility_Patchwork()`, these can be quickly formatted into a .pdf. 
+
+Does this workflow rapidly profile all the columns in your data.frame. Yes it does. Is it emblematic of potential issues arising from basing science entirely on null-hypothesis statistical testing? Also yes, seeing how many plots return "significant" due to a couple outliers. In the end, it mimics the current workflow of many researchers, just speeding it up. Google Statistical Rethinking on YouTube for food-for-thought.
+
+To begin, we will use the `Coereba_MarkerExpressions` data we generated above to test out `Utility_Stats()`. 
+
 ```{r}
-Utility_Stats(data=AllMarkers, var="CD62L", myfactor="ptype", normality="dagostino", correction="none")
+Result <- Utility_Stats(data=AllMarkers, var="CD62L",
+  myfactor="ptype", normality="dagostino", correction="none")
+
+Result
 ```
 
-# Utility_Behemoth
-
-```{r}
-Utility_Behemoth(data=AllMarkers, var="CD62L", myfactor="ptype", normality="dagostino", correction="none",
-shape_palette=shape_ptype, fill_palette=fill_ptype, XAxisLevels = c("HU", "HEU-lo", "HEU-hi"))
-```
-
-
+In combination with `r CRANpkg("purrr")` we can rapidly iterate over all the markers, but will need to skip over the metadata columns that are present at the begining of the dataframe. 
 
 ```{r}
 library(purrr)
 library(dplyr)
+# colnames(AllMarkers)
+TheLength <- ncol(AllMarkers)
 
-colnames(AllMarkers)
+TheData <- map(names(AllMarkers)[c(9:TheLength)], ~ Utility_Stats(
+  data = AllMarkers, var = .x, myfactor = "ptype", 
+  normality = "dagostino")) %>% bind_rows()
+```
+
+The results can be filtered using regular `r CRANpkg("dplyr")` functions.
+
+```{r}
+MaybeSignificant <- TheData %>% filter(pvalue < 0.05)
+
+MaybeSignificant
+```
+
+# Utility_Behemoth
+
+`Utility_Behemoth()` continues from where `Utility_Stats()` left-off, appending the resulting p-value information onto a ggplot2 plot. The plot is a combination of `r CRANpkg("ggplot2")` geom_boxplot() and `r CRANpkg("ggbeeswarm")` geom_beeswarm plots, and accepts arguments to customize these and rearrange the group order. As with most `Coereba` plots, we need to provide the shape and fill for our respective factors levels.
+
+To do so for your own individual spots, you will need to specify a metadata column by which to factor by, and provide a list of shape and fill values corresponding to each factor level. 
+
+```{r}
+shape_ptype <- c("HU" = 22, "HEU-lo" = 21, "HEU-hi" = 21)
+fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
+```
+
+```{r}
+SinglePlot <- Utility_Behemoth(data=AllMarkers, var="CD62L",
+  myfactor="ptype", normality="dagostino", correction="none",
+  shape_palette=shape_ptype, fill_palette=fill_ptype,
+  XAxisLevels = c("HU", "HEU-lo", "HEU-hi"))
+```
+
+```{r}
+SinglePlot
+```
+
+In combination with `r CRANpkg("purrr")` we can rapidly iterate over all the markers (skipping the initial metadata colums) and generate all the plots. These can then be passed to `Luciernaga` `Utility_Patchwork()` to rearrange into patchwork objects with our desired layout, and passed to a .pdf file. 
+
+```{r}
+# colnames(AllMarkers)
 TheLength <- length(AllMarkers)
 
-TheData <- map(names(AllMarkers)[c(9:TheLength)], ~ Utility_Stats(data = AllMarkers, var = .x, myfactor = "ptype", normality = "dagostino")) %>% bind_rows()
+AllPlots <- map(names(AllMarkers)[c(9:TheLength)], ~ Utility_Behemoth(data=AllMarkers, var=.x,
+  myfactor="ptype", normality="dagostino", correction="none",
+  shape_palette=shape_ptype, fill_palette=fill_ptype, corral.width=0.7,
+  XAxisLevels = c("HU", "HEU-lo", "HEU-hi")))
+```
 
-TheData %>% filter(pvalue < 0.1)
+These in turn can be passed to `Luciernaga` `Utility_Patchwork() function to arrange desired layout and output to a .pdf file for late reference. 
+
+```{r}
+library(Luciernaga)
+
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+TheAssembledPlot <- Utility_Patchwork(x=AllPlots, filename="NKT_Markers",
+ outfolder=NULL, thecolumns=2, therows=3, width=7, height=9,
+ returntype="patchwork")
+```
+
+```{r}
+TheAssembledPlot[1]
 ```
 
 
 # Utility_Heatmap
 
 The original visualization for the Coereba clusters, in a Bananaquit color-scheme. Next time someone insist there are just 5 clusters in their FlowSOM, point them here. 
+
 ```{r}
 
 ```
@@ -354,15 +416,6 @@ If I recall correctly, fusing some of the t-testing with the above heatmap appro
 
 ```
 
-# Utility_Behemoth
-
-The `Utility_Behemoth()` function that makes your friendly-local statistican cry. Basically what happens when you say "Screw GraphPad Prism, let's do all the normal immunologist cut-paste in R". When iterated over the Coereba outputs (or any data.frame with columns for a given parameter), runs Omnibus K2 normality test, decides normal/non-normal, decides number of factors (2, or 3+), runs t-test/anova/non-parametric equivalents, and then appends those p-value results onto a ggbeeswarm ggplot that can be ccombined with `Luciernaga` `Utility_Patchwork()` to generate .pdfs. 
-
-Is it quick and useful way of rapidly profiling a lot of information. Yes. Does it encarnate everything potentially wrong with Null-hypothesis statistical testing in a single vial? Also yes. Does scrolling through the plots and seeing the number of return hits driven by a single outlier specimen cause hesitation? Yes. But then remember everyone is doing this a lot slower with GraphPad Prism and join us in wailing about our current state of science (and read Statistical Rethinking again in protest for the day we can get away from this).
-
-# Utility_Stats
-
-A separate implementation of the stats decision tree within `Utility_Behemoth`, likely to be converted into an internal function upon the subsequent 5-subject notebook remodel. 
 
 # Diffcyt port
 
