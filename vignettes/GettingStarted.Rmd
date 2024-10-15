@@ -413,18 +413,6 @@ ThePlot <- Utility_Heatmap(binary=binaryData, panel=panelPath,
 ThePlot
 ```
 
-# Utility_Aggregate/Utility_Querry
-
-If I recall correctly, fusing some of the t-testing with the above heatmap approach, with a touch of iteration to visualize a couple steps above and below. Not likely to be retained in it's current format. 
-
-```{r}
-Utility_Aggregate(binary=binaryData, data=dataData, markers=NULL,
-                  panel=panelData, starter="SparkBlue550",
-                  myfactor="ptype", shape_palette = shape_ptype,
-                  fill_palette = fill_ptype)
-```
-
-
 # Diffcyt port
 
 Wrote the function to send the outputs to diffcyt for the edgeR/limma/GLMM modeling of the results (vs the above t-test approach). It works, but does it mean it's less p-hacky? TBD. Also, given diffcyt's current maintenance status (looking at you Luke), may not be best approach vs a new implementation. 
