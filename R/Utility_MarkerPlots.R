@@ -42,6 +42,9 @@
 #' 
 #' @examples
 #' 
+#' shape_ptype <- c("HU" = 22, "HEU-lo" = 21, "HEU-hi" = 21)
+#' fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
+#' 
 #' File_Location <- system.file("extdata", package = "Coereba")
 #' panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
 #' binaryPath <- file.path(File_Location, "HeatmapExample.csv")

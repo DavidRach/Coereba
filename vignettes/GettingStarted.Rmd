@@ -256,6 +256,8 @@ dataData <- read.csv(dataPath, check.names=FALSE)
 
 We will first just return the marker expressions for all markers: 
 ```{r}
+library(Coereba)
+
 AllMarkers <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
   panel=panelData, starter="SparkBlue550")
   
@@ -312,10 +314,28 @@ And to ggsave directly to a desired folder:
 # Utility_Stats
 
 ```{r}
-colnames(AllMarkers)
+Utility_Stats(data=AllMarkers, var="CD62L", myfactor="ptype", normality="dagostino", correction="none")
+```
 
-Utility_Stats(data=AllMarkers, var="CD26", myfactor="ptype", normality=NULL, specifiedNormality=NULL, 
-  correction="none", override=0.05)
+# Utility_Behemoth
+
+```{r}
+Utility_Behemoth(data=AllMarkers, var="CD62L", myfactor="ptype", normality="dagostino", correction="none",
+shape_palette=shape_ptype, fill_palette=fill_ptype, XAxisLevels = c("HU", "HEU-lo", "HEU-hi"))
+```
+
+
+
+```{r}
+library(purrr)
+library(dplyr)
+
+colnames(AllMarkers)
+TheLength <- length(AllMarkers)
+
+TheData <- map(names(AllMarkers)[c(9:TheLength)], ~ Utility_Stats(data = AllMarkers, var = .x, myfactor = "ptype", normality = "dagostino")) %>% bind_rows()
+
+TheData %>% filter(pvalue < 0.1)
 ```
 
 

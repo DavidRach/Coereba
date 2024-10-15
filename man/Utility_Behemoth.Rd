@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utility_Behemoth.R
 \name{Utility_Behemoth}
 \alias{Utility_Behemoth}
-\title{Coereba's main function. Runs normality, runs stats, plots the results.}
+\title{From a data.frame, runs stats on column of interest, and returns the ggplot for it.}
 \usage{
 Utility_Behemoth(
   data,
@@ -14,10 +14,10 @@ Utility_Behemoth(
   override = 0.05,
   shape_palette,
   fill_palette,
-  cex,
-  size,
-  TheValue,
-  ...
+  cex = 2,
+  size = 3,
+  corral.width = 1,
+  XAxisLevels = NULL
 )
 }
 \arguments{
@@ -44,17 +44,34 @@ Utility_Behemoth(
 
 \item{size}{Size for the ggbeeswarm circles.}
 
-\item{TheValue}{width of corral bin argument for beeswarm.}
+\item{corral.width}{width of corral bin argument for beeswarm.}
 
-\item{...}{Additional arguments}
+\item{XAxisLevels}{Provide list marker names correct order for x-axis reordering, default NULL}
 }
 \value{
-Some additional value to edit
+A ggplot2 object for the corresponding data of interest.
 }
 \description{
-Coereba's main function. Runs normality, runs stats, plots the results.
+From a data.frame, runs stats on column of interest, and returns the ggplot for it.
 }
 \examples{
-NULL
+
+shape_ptype <- c("HU" = 22, "HEU-lo" = 21, "HEU-hi" = 21)
+fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
+
+File_Location <- system.file("extdata", package = "Coereba")
+panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
+binaryPath <- file.path(File_Location, "HeatmapExample.csv")
+dataPath <- file.path(File_Location, "ReadyFileExample.csv")
+panelData <- read.csv(panelPath, check.names=FALSE)
+binaryData <- read.csv(binaryPath, check.names=FALSE)
+dataData <- read.csv(dataPath, check.names=FALSE)
+
+All <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
+ panel=panelData, starter="SparkBlue550")
+
+Plot <- Utility_Behemoth(data=All, var="CD62L", myfactor="ptype",
+ normality="dagostino", correction="none", shape_palette=shape_ptype,
+ fill_palette=fill_ptype, XAxisLevels = c("HU", "HEU-lo", "HEU-hi"))
 
 }

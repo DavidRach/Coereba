@@ -26,7 +26,6 @@
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
 #' @importFrom reshape2 melt
-#' @import ggplot2
 #' @importFrom tidyr as_tibble
 #' @importFrom dplyr rowwise
 #' @importFrom dplyr c_across
