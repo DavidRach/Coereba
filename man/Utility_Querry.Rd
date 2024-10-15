@@ -5,8 +5,8 @@
 \title{Detect changes a heatmap level below your target}
 \usage{
 Utility_Querry(
-  BinaryFile,
-  OriginalData,
+  binary,
+  data,
   filename,
   outfolder,
   panel,
@@ -25,9 +25,9 @@ Utility_Querry(
 )
 }
 \arguments{
-\item{BinaryFile}{The Heatmap file}
+\item{binary}{A data.frame of markers by clusters}
 
-\item{OriginalData}{UThe Ready file}
+\item{data}{A data.frame of clusters by specimens}
 
 \item{filename}{Name to give the results}
 
@@ -68,5 +68,13 @@ Some additional value to edit
 Detect changes a heatmap level below your target
 }
 \examples{
-NULL
+
+File_Location <- system.file("extdata", package = "Coereba")
+panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
+panelData <- read.csv(panelPath, check.names=FALSE)
+binaryPath <- file.path(File_Location, "HeatmapExample.csv")
+binaryData <- read.csv(binaryPath, check.names=FALSE)
+dataPath <- file.path(File_Location, "ReadyFileExample.csv")
+dataData <- read.csv(dataPath, check.names=FALSE)
+
 }

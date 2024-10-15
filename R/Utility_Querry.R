@@ -1,11 +1,12 @@
 #' Detect changes a heatmap level below your target
 #'
-#' @param BinaryFile The Heatmap file
-#' @param OriginalData UThe Ready file
-#' @param filename Name to give the results
-#' @param outfolder Folder to which to output the results
+#' @param binary A data.frame of markers by clusters
+#' @param data A data.frame of clusters by specimens
 #' @param panel A .csv or dataframe containing the Fluorophores and their Marker names
 #' @param starter First parameter Coereba split by, used to identify columns that aren't metadata
+#'
+#' @param filename Name to give the results
+#' @param outfolder Folder to which to output the results
 #' @param myfactor Column containing factor designation that you want to
 #'  differentially compare
 #' @param normality Normality test to be used, ex. "dagostino" or "sharpwilks"
@@ -36,18 +37,26 @@
 #' @return Some additional value to edit
 #' @export
 #'
-#' @examples NULL
-
-Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder,
+#' @examples
+#'
+#' File_Location <- system.file("extdata", package = "Coereba")
+#' panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
+#' panelData <- read.csv(panelPath, check.names=FALSE)
+#' binaryPath <- file.path(File_Location, "HeatmapExample.csv")
+#' binaryData <- read.csv(binaryPath, check.names=FALSE)
+#' dataPath <- file.path(File_Location, "ReadyFileExample.csv")
+#' dataData <- read.csv(dataPath, check.names=FALSE)
+#'
+Utility_Querry <- function(binary, data, filename, outfolder,
         panel, starter, myfactor, normality, shape_palette, fill_palette,
         scalefactor, scalefactorlabel, Override, cex, size, correction, ...){
 
-  Metadata <- OriginalData %>% select(!starts_with(starter))
+  Metadata <- data %>% select(!starts_with(starter))
 
-  AllMarkers <- BinaryFile %>% select(!starts_with("Identity")) %>% colnames()
+  AllMarkers <- binary %>% select(!starts_with("Identity")) %>% colnames()
 
-  theplots <- map(AllMarkers, .f=Internal_Querry, panel = panel, BinaryFile = BinaryFile,
-                  OriginalData = OriginalData, Metadata = Metadata, myfactor = myfactor, normality = normality,
+  theplots <- map(AllMarkers, .f=Internal_Querry, panel = panel, binary = binary,
+                  data = data, Metadata = Metadata, myfactor = myfactor, normality = normality,
                   shape_palette = shape_palette, fill_palette = fill_palette,
                   scalefactor = scalefactor, scalefactorlabel = scalefactorlabel, Override = Override,
                   cex = cex, size = size, correction = correction, ...)
@@ -61,7 +70,9 @@ Utility_Querry <- function(BinaryFile, OriginalData, filename, outfolder,
                     outfolder = outfolder, thecolumns = 2, therows = 2)
 }
 
-Internal_Querry <- function(x, panel, BinaryFile, OriginalData, Metadata, myfactor, normality, shape_palette, fill_palette,
+
+
+Internal_Querry <- function(x, panel, binary, data, Metadata, myfactor, normality, shape_palette, fill_palette,
                             scalefactor, scalefactorlabel, ...){
   Column <- x
 
@@ -74,13 +85,13 @@ Internal_Querry <- function(x, panel, BinaryFile, OriginalData, Metadata, myfact
   ThePlotName <- Attempt1$Marker
   ThePlotName <- paste0(ThePlotName, "+", sep = "")
 
-  Positive <- BinaryFile %>% filter(.data[[Column]] == 1)
+  Positive <- binary %>% filter(.data[[Column]] == 1)
   if(nrow(Positive) >0){
     TheInternalBypass <- Positive$Identity
     TheInternalBypass <- gsub("_", "", TheInternalBypass)
     TheInternalBypass <- gsub("-", "", TheInternalBypass)
-    InternalData <- OriginalData[, names(OriginalData) %in%
-                                   TheInternalBypass] #Input from HeatMap filtered.
+    InternalData <- data[, names(data) %in%
+                                   TheInternalBypass]
     InternalData <- as_tibble(InternalData)
     Subsetted <- InternalData %>% rowwise() %>% mutate(
       aggregate = sum(c_across(everything()), na.rm = TRUE))
@@ -97,7 +108,7 @@ Internal_Querry <- function(x, panel, BinaryFile, OriginalData, Metadata, myfact
 
     FinalPosBehemoth <- Behemoth[[1]] + ggtitle(ThePlotName)
 
-    Heatmap <- Internal_Heatmap(filteredCells = Positive, panel = MyPanel, ...)
+    Heatmap <- Utility_Heatmap(binary=Positive, panel=MyPanel, export=FALSE)
     FinalPosHeatmap <- Heatmap #+ ggtitle(ThePlotName)
 
     thePosplots <- list(FinalPosBehemoth, FinalPosHeatmap)
@@ -115,8 +126,8 @@ Internal_Querry <- function(x, panel, BinaryFile, OriginalData, Metadata, myfact
     TheInternalBypass <- Negative$Identity
     TheInternalBypass <- gsub("_", "", TheInternalBypass)
     TheInternalBypass <- gsub("-", "", TheInternalBypass)
-    InternalData <- OriginalData[, names(OriginalData) %in%
-                                   TheInternalBypass] #Input from HeatMap filtered.
+    InternalData <- data[, names(data) %in%
+                                   TheInternalBypass]
     InternalData <- as_tibble(InternalData)
     Subsetted <- InternalData %>% rowwise() %>% mutate(
       aggregate = sum(c_across(everything()), na.rm = TRUE))
@@ -132,7 +143,7 @@ Internal_Querry <- function(x, panel, BinaryFile, OriginalData, Metadata, myfact
       Override = Override, cex = cex, size = size, correction = correction))
     FinalNegBehemoth <- Behemoth[[1]] + ggtitle(ThePlotName)
 
-    Heatmap <- Internal_Heatmap(filteredCells = Negative, panel = MyPanel, ...)
+    Heatmap <- Utility_Heatmap(binary=filteredCells, panel=MyPanel, export=FALSE)
     FinalNegHeatmap <- Heatmap #+ ggtitle(ThePlotName)
 
     theNegplots <- list(FinalNegBehemoth, FinalNegHeatmap)

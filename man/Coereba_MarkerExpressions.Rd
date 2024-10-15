@@ -36,10 +36,10 @@ Generate overall marker expressions across Coereba clusters,
 
 File_Location <- system.file("extdata", package = "Coereba")
 panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
-binaryPath <- file.path(File_Location, "HeatmapExample.csv")
-dataPath <- file.path(File_Location, "ReadyFileExample.csv")
 panelData <- read.csv(panelPath, check.names=FALSE)
+binaryPath <- file.path(File_Location, "HeatmapExample.csv")
 binaryData <- read.csv(binaryPath, check.names=FALSE)
+dataPath <- file.path(File_Location, "ReadyFileExample.csv")
 dataData <- read.csv(dataPath, check.names=FALSE)
 
 All <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,

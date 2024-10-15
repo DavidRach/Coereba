@@ -1,10 +1,10 @@
 #' Generate overall marker expressions across Coereba clusters,
-#' 
+#'
 #' @param data The data.frame of clusters vs individual specimens, with the ratio values
 #' @param binary The data.frame of markers vs clusters, with 0 and 1 values
 #' @param panel A .csv or data.frame containing Fluorophore and Marker columns of your panel markers.
 #' @param starter A string containing the starting characters for all Coereba cluster names
-#' @param returnType Either "All" or "Combinatorial". Default is ALL. 
+#' @param returnType Either "All" or "Combinatorial". Default is ALL.
 #' @param CombinatorialArgs When returnType Combinatorial, the two fluorophores to create quadrants for.
 #'
 #' @importFrom utils read.csv
@@ -20,22 +20,22 @@
 #' @export
 #'
 #' @examples
-#' 
+#'
 #' File_Location <- system.file("extdata", package = "Coereba")
 #' panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
-#' binaryPath <- file.path(File_Location, "HeatmapExample.csv")
-#' dataPath <- file.path(File_Location, "ReadyFileExample.csv")
 #' panelData <- read.csv(panelPath, check.names=FALSE)
+#' binaryPath <- file.path(File_Location, "HeatmapExample.csv")
 #' binaryData <- read.csv(binaryPath, check.names=FALSE)
+#' dataPath <- file.path(File_Location, "ReadyFileExample.csv")
 #' dataData <- read.csv(dataPath, check.names=FALSE)
-#' 
+#'
 #' All <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
 #'  panel=panelData, starter="SparkBlue550")
-#' 
+#'
 #' Memory <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
 #'  panel=panelData, starter="SparkBlue550", returnType = "Combinatorial",
 #'  CombinatorialArgs=c("BV510", "APC-Fire 750"))
-#' 
+#'
 Coereba_MarkerExpressions <- function(data, binary, panel, starter, returnType="All",
   CombinatorialArgs=NULL){
 
@@ -46,7 +46,7 @@ Coereba_MarkerExpressions <- function(data, binary, panel, starter, returnType="
 
   AllMarkers <- binary %>% select(!starts_with("Identity")) %>% colnames()
   #x <- AllMarkers[1]
-  
+
   if (returnType == "Combinatorial" && !is.null(CombinatorialArgs)){
     #CombinatorialArgs <- c("BV510", "APC-Fire 750")
     internalstrings <- c(" ", "-", "_", ".")
@@ -55,14 +55,14 @@ Coereba_MarkerExpressions <- function(data, binary, panel, starter, returnType="
       stop("Combinatorial Args should be a list of two fluorophores to generate quadrants from")
     }
 
-    SwampPuppy <-CombinatorialAggregate(x=TheCombinatorialArgs, data=data, binary=binary, panel=MyPanel) 
+    SwampPuppy <-CombinatorialAggregate(x=TheCombinatorialArgs, data=data, binary=binary, panel=MyPanel)
   }
 
   if (returnType == "All"){
   # Return Marker Expressions for All Markers
-  SwampPuppy <- map(.x=AllMarkers, .f=.Internal_Aggregate, data=data, 
+  SwampPuppy <- map(.x=AllMarkers, .f=.Internal_Aggregate, data=data,
     binary=binary) %>% bind_cols()
-  
+
   # Swap out Fluorophore for Marker Names
   SwampFluors <- SwampPuppy %>% colnames()
   SwampFluors <- data.frame(SwampFluors) %>% rename(Fluorophore = SwampFluors)
@@ -97,7 +97,7 @@ CombinatorialAggregate <- function(x, data, binary, panel){
   SwampFluors <- data.frame(SwampFluors) %>% rename(Fluorophore = SwampFluors)
   RetainedFluors <- left_join(SwampFluors, panel, by = "Fluorophore")
   NewNames <- RetainedFluors$Marker
-  
+
   Q1 <- binary %>% dplyr::filter(.data[[First]] == 0 & .data[[Second]] == 1)
   Q1_Label <- paste0(NewNames[1], "-", NewNames[2], "+")
   Q1_Assembly <- DataRetrieval(x=Q1, data=data, binary=binary, Column=Q1_Label)
@@ -118,37 +118,37 @@ CombinatorialAggregate <- function(x, data, binary, panel){
 }
 
 #' Internal for CombinatorialAggregate Coereba_MarkerExpressions
-#' 
+#'
 #' @param x The two fluorophores to quadrant by
 #' @param data The data.frame of clusters vs individual specimens, with the ratio values
 #' @param binary The data.frame of markers vs clusters, with 0 and 1 values
 #' @param Column The label name for the respective quadrant
-#' 
+#'
 #' @importFrom tidyr as_tibble
 #' @importFrom dplyr rowwise
 #' @importFrom dplyr mutate
 #' @importFrom dplyr c_across
-#' @importFrom tidyselect everything 
+#' @importFrom tidyselect everything
 #' @importFrom dplyr select
 #' @importFrom dplyr mutate_all
-#' 
+#'
 DataRetrieval <- function(x, data, binary, Column){
   Positive <- x
     #Retrieve corresponding Clusters from data
     TheInternalBypass <- Positive$Identity
     TheInternalBypass <- gsub("_", "", TheInternalBypass)
     TheInternalBypass <- gsub("-", "", TheInternalBypass)
-    InternalData <- data[, names(data) %in% TheInternalBypass] 
+    InternalData <- data[, names(data) %in% TheInternalBypass]
     InternalData <- as_tibble(InternalData)
-  
+
     if(nrow(Positive) >0){
       #Aggregate the Ratio Values
       Subsetted <- InternalData %>% rowwise() %>% mutate(
         aggregate = sum(c_across(everything()), na.rm = TRUE))
       InternalFinal <- Subsetted %>% select(aggregate)
-  
+
     } else {
-      #Aggregate the Ratio Values  
+      #Aggregate the Ratio Values
       Subsetted <- InternalData %>% rowwise() %>% mutate(
         aggregate = sum(c_across(everything()), na.rm = TRUE))
       InternalFinal <- Subsetted %>% select(aggregate) %>%
@@ -166,11 +166,11 @@ DataRetrieval <- function(x, data, binary, Column){
 #' @param binary The data.frame of markers vs clusters, with 0 and 1 values
 #'
 #' @importFrom dplyr filter
-#' @importFrom tidyr as_tibble 
+#' @importFrom tidyr as_tibble
 #' @importFrom dplyr rowwise
 #' @importFrom dplyr mutate
 #' @importFrom dplyr c_across
-#' @importFrom tidyselect everything 
+#' @importFrom tidyselect everything
 #' @importFrom dplyr select
 #' @importFrom dplyr mutate_all
 #'
@@ -185,7 +185,7 @@ DataRetrieval <- function(x, data, binary, Column){
   TheInternalBypass <- Positive$Identity
   TheInternalBypass <- gsub("_", "", TheInternalBypass)
   TheInternalBypass <- gsub("-", "", TheInternalBypass)
-  InternalData <- data[, names(data) %in% TheInternalBypass] 
+  InternalData <- data[, names(data) %in% TheInternalBypass]
   InternalData <- as_tibble(InternalData)
 
   if(nrow(Positive) >0){
@@ -195,14 +195,14 @@ DataRetrieval <- function(x, data, binary, Column){
     InternalFinal <- Subsetted %>% select(aggregate)
 
   } else {
-    #Aggregate the Ratio Values  
+    #Aggregate the Ratio Values
     Subsetted <- InternalData %>% rowwise() %>% mutate(
       aggregate = sum(c_across(everything()), na.rm = TRUE))
     InternalFinal <- Subsetted %>% select(aggregate) %>%
       mutate_all(~0) # Since No Positive Columns
   }
 
-  #Change Name  
+  #Change Name
   colnames(InternalFinal)[1] <- Column
 
   return(InternalFinal)

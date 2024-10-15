@@ -418,7 +418,10 @@ ThePlot
 If I recall correctly, fusing some of the t-testing with the above heatmap approach, with a touch of iteration to visualize a couple steps above and below. Not likely to be retained in it's current format. 
 
 ```{r}
-
+Utility_Aggregate(binary=binaryData, data=dataData, markers=NULL,
+                  panel=panelData, starter="SparkBlue550",
+                  myfactor="ptype", shape_palette = shape_ptype,
+                  fill_palette = fill_ptype)
 ```
 
 
