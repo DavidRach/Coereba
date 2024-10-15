@@ -1,16 +1,18 @@
 #' Coereba's main function. Runs normality, runs stats, plots the results.
 #'
-#' @param data A data.frame of your data.
-#' @param var A column containing your variables of interest.
-#' @param myfactor A column containing the factor you want to compare
-#' @param normality Choice of normality test, use NULL or "dagostino" or "shapiro"
-#' @param specified In absence of normality test, dictates "parametric" or "nonparametric"
+#' @param data A data.frame object with metadata and data columns
+#' @param var The column name for your variable of interest
+#' @param myfactor The column name for your column containing your factor to group by
+#' @param normality The Normality test to be applied, "dagostino" or "shapiro". Default NULL
+#' @param specifiedNormality Default NULL leading to non-parametric, can switch by specifying
+#' "parametric" or "nonparametric". 
+#' @param correction Multiple comparison correction argument, default is set at "none"
+#' @param override Internal, default 0.05. Set to 0.99 to force pairwise comparison in anova/kw.
+#' 
 #' @param shape_palette Palette corresponding to factor levels, designating each's shape
 #' @param fill_palette Palette corresponding to factor levels, designating each's fill
 #' @param cex The width of the ggbeeswarm bin
 #' @param size Size for the ggbeeswarm circles.
-#' @param Override Not for general use, increase to 0.99 to force pairwise comparison past anova/kw.
-#' @param correction Choice of multiple choice correction, default is set at "none"
 #' @param TheValue width of corral bin argument for beeswarm.
 #' @param ... Additional arguments
 #'
@@ -34,103 +36,21 @@
 #'
 #' @examples NULL
 #'
-Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specified = NULL, correction = "none", Override=0.05, shape_palette,
-                             fill_palette, cex, size, TheValue, ...){
+Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNormality = NULL,
+  correction = "none", override=0.05, shape_palette, fill_palette, cex, size, TheValue, ...){
 
-  theYlim <- max(data[[var]])
-  FactorLevelsCount <- length(unique(data[[myfactor]]))
-
-  if (!is.null(normality)){
-    if (normality == "dagostino") {
-      Stashed <- data %>% group_by(.data[[myfactor]]) %>%
-        summarize(dagostino_result = dago_wrapper(.data[[var]])) %>%
-        unnest(dagostino_result)
-
-      Distribution <- if(all(Stashed$p.value > 0.05)) {
-        "parametric"} else{"nonparametric"}
-
-    } else if (normality == "shapiro") {
-      Stashed <- data %>% group_by(.data[[myfactor]]) %>%
-        summarize(shapiro_result = list(tidy(shapiro.test(.data[[var]])))) %>%
-        unnest(shapiro_result)
-
-      Distribution <- if(all(Stashed$p.value > 0.05)) {
-        "parametric"} else{"nonparametric"}
-
-    } else {message("To skip normality testing, use value NULL")}
-
-  }
-
-
-  # If A Normality Test Was Given, proceeds accordingly. Returns value "TheTest"
-  if (!is.null(normality)|is.null(specified)){
-
-    TheTest <- if (Distribution == "parametric" & FactorLevelsCount == 2) {
-      tt<- tidy(t.test(data[[var]] ~ data[[myfactor]],
-                       alternative = "two.sided", var.equal = TRUE))
-    } else if (Distribution == "parametric" & FactorLevelsCount > 2){
-      at <- tidy(aov(data[[var]] ~ data[[myfactor]], data = data))
-      at$method <- "One-way Anova"
-      if(at$p.value[1] < 0.05) {
-        subset_data <- subset(data, select = c(var, myfactor))
-        ptt <- tidy(pairwise.t.test(subset_data[[var]], subset_data[[myfactor]],
-                                    p.adjust.method = correction))
-        ptt$method <- "Pairwise t-test"
-        ptt
-      } else(at)
-    } else if (Distribution == "nonparametric" & FactorLevelsCount == 2){
-      wt <- tidy(wilcox.test(data[[var]] ~ data[[myfactor]],
-                             alternative = "two.sided", var.equal = TRUE))
-    } else if (Distribution == "nonparametric" & FactorLevelsCount > 2){
-      kt <- tidy(kruskal.test(data[[var]] ~ data[[myfactor]], data = data))
-      if (kt$p.value < 0.05) {
-        subset_data <- subset(data, select = c(var, myfactor))
-        pwt <- tidy(pairwise.wilcox.test(subset_data[[var]],
-                      g=subset_data[[myfactor]], p.adjust.method = correction))
-        pwt$method <- "Pairwise Wilcox test"
-        pwt
-      } else {kt}
-    }
-
-    # When a specified is ordered
-  } else if (!is.null(specified)) {
-
-    Distribution <- specified
-    Override <- Override
-
-    TheTest <- if (Distribution == "parametric" & FactorLevelsCount == 2) {
-      tt<- tidy(t.test(data[[var]] ~ data[[myfactor]],
-                       alternative = "two.sided", var.equal = TRUE))
-    } else if (Distribution == "parametric" & FactorLevelsCount > 2){
-      at <- tidy(aov(data[[var]] ~ data[[myfactor]], data = data))
-      at$method <- "One-way Anova"
-      if(at$p.value[1] < Override) {
-        subset_data <- subset(data, select = c(var, myfactor))
-        ptt <- tidy(pairwise.t.test(subset_data[[var]], subset_data[[myfactor]],
-                                    p.adjust.method = correction))
-        ptt$method <- "Pairwise t-test"
-        ptt
-      } else(at)
-    } else if (Distribution == "nonparametric" & FactorLevelsCount == 2){
-      wt <- tidy(wilcox.test(data[[var]] ~ data[[myfactor]],
-                             alternative = "two.sided", var.equal = TRUE))
-    } else if (Distribution == "nonparametric" & FactorLevelsCount > 2){
-      kt <- tidy(kruskal.test(data[[var]] ~ data[[myfactor]], data = data))
-      if (kt$p.value < Override) {
-        subset_data <- subset(data, select = c(var, myfactor))
-        pwt <- tidy(pairwise.wilcox.test(subset_data[[var]],
-                                         g=subset_data[[myfactor]], p.adjust.method = correction))
-        pwt$method <- "Pairwise Wilcox test"
-        pwt
-      } else {kt}
-    }
-  }
-
-  # This is the source of the double bars.
-  if (Distribution == "parametric"){ MethodDictate <- "mean"
-  } else if (Distribution == "nonparametric") {MethodDictate <- "median"}
-
+  TheStatsReturn <- Utility_Stats(data=data, var=var, myfactor=myfactor, normality=normality,
+     specifiedNormality=specifiedNormality, correction=correction, override=override,
+    returnType="behemoth")
+  
+  TheTest <- TheStatsReturn[[1]]
+  Distribution <- TheStatsReturn[[2]]
+  theYlim <- TheStatsReturn[[3]]
+  
   Method <- unique(TheTest$method)
+  if (Distribution == "parametric"){ MethodDictate <- "mean"
+    } else if (Distribution == "nonparametric") {MethodDictate <- "median"}
+
   MyPval <- if(Method %in% c("Two Sample t-test",
             "Wilcoxon rank sum test with continuity correction", "Wilcoxon rank sum exact test")){
     thepvalue <- pval_mold(TheTest$p.value)
@@ -163,7 +83,6 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specified = NU
   Cleaned_string2 <- paste(cleaned_string, "", sep = " ") #Site for an append argument
 
   wrapped_title <- str_wrap(Cleaned_string2, width = 100)
-
 
   plot <- ggplot(data, aes(x =.data[[myfactor]], y = .data[[var]])) +
     geom_boxplot(show.legend = FALSE) +
@@ -228,18 +147,4 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specified = NU
   } else {message("Test type not recognized")}
 
  return(plot)
-}
-
-
-dago_wrapper <- function(x){
-  A <- Coereba::dagoTest(x)
-  method <- A@test$method
-  p.value <- A@test$p.value[[1]]
-  C <- data.frame(cbind(p.value, method))
-}
-
-pval_mold <- function(x){
-  if (x > 0.10){"n.s"} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
-    round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {
-      round(x, 5)} else if (x > 0.000001) {round(x, 6)}
 }

@@ -14,6 +14,7 @@
 #' @importFrom dplyr bind_cols
 #' @importFrom dplyr rename
 #' @importFrom dplyr left_join
+#' @importFrom Luciernaga NameCleanUp
 #'
 #' @return returns a data.frame
 #' @export

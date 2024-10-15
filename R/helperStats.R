@@ -1,18 +1,35 @@
-#' Dagostino Omnibus K2 wrapper from fBasics, only change is the n parameter.
+pval_mold <- function(x){
+  if (x > 0.10){"n.s"} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
+    round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {
+      round(x, 5)} else if (x > 0.000001) {round(x, 6)}
+}
+
+dago_wrapper <- function(x){
+  A <- Coereba:::dagoTest(x)
+  method <- A@test$method
+  p.value <- A@test$p.value[[1]]
+  C <- data.frame(cbind(p.value, method))
+}
+
+#' Wrapper for fBasics implementation of the Dagostino Omnibus K2 normality test.
+#' Original goal was to replicate GraphPad Prism results, which have significiantly
+#' lower required n than what fBasics test is set at. Since no other way to specify
+#' alternate n to those functions, leveraging the GPL3-0 license and changing the
+#' original function n to n < 8 for equivalency to avoid the original implementation
+#' stop when n<20 not met. Leaving rest of the original functions untouched. 
 #'
-#' @param x Some Text
-#' @param title Some Text
-#' @param description Some Text
+#' @param x The data for your variable of interest
+#' @param title Default is NULL in original
+#' @param description Default is NULL in original
 #'
 #' @importClassesFrom fBasics fHTEST
 #' @importFrom stats pchisq
 #' @importFrom stats pnorm
 #'
-#' @return Some Text
+#' @return Normalization Test results
+#' 
 #' @noRd
-
-dagoTest <- function(x, title = NULL, description = NULL)
-{
+dagoTest <- function(x, title = NULL, description = NULL){
   # A function implemented by Diethelm Wuertz
 
   # Description:
@@ -74,13 +91,9 @@ dagoTest <- function(x, title = NULL, description = NULL)
 }
 
 
-.omnibus.test <-
-  function(x)
-  {
+.omnibus.test <- function(x){
     # Internal Function for D'Agostino Normality Test:
-
-    # FUNCTION:
-
+  
     DNAME = deparse(substitute(x))
     if (exists("complete.cases")) {
       test = complete.cases(x)
@@ -124,14 +137,9 @@ dagoTest <- function(x, title = NULL, description = NULL)
     # Return Value:
     class(RVAL) = "htest"
     RVAL
-  }
-
-.kurtosis.test <-
-  function(x)
-  {
+}
+.kurtosis.test <-function(x) {
     # Internal Function for D'Agostino Normality Test:
-
-    # FUNCTION:
 
     DNAME = deparse(substitute(x))
 
@@ -170,8 +178,7 @@ dagoTest <- function(x, title = NULL, description = NULL)
     RVAL
   }
 
-.skewness.test <- function(x)
-{
+.skewness.test <- function(x){
   # Internal Function for D'Agostino Normality Test:
 
   DNAME = deparse(substitute(x))

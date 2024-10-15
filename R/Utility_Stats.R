@@ -1,71 +1,83 @@
 #' Normality Test followed by t-test/Anova
 #'
-#' @param data A data.frame object containing the data values
-#' @param var A data.frame column of interest
-#' @param myfactor A data.frame column for which you want to differentionally compare if they are different
-#' @param normality The Normality test to be applied, "dagostino" or "shapiro"
-#' @param shape_palette provide the shape palette matches your provided factor
-#' names
-#' @param fill_palette provide the fill palette matches your provided factor
-#'  names
-#' @param switch Unclear
+#' @param data A data.frame object with metadata and data columns
+#' @param var The column name for your variable of interest
+#' @param myfactor The column name for your column containing your factor to group by
+#' @param normality The Normality test to be applied, "dagostino" or "shapiro". Default NULL
+#' @param specifiedNormality Default NULL leading to non-parametric, can switch by specifying
+#' "parametric" or "nonparametric". 
+#' @param correction Multiple comparison correction argument, default is set at "none"
+#' @param override Internal, default 0.05. Set to 0.99 to force pairwise comparison in anova/kw.
+#' @param returnType Internal, default is "stats". "behemoth" for internal usage. 
 #'
-#' @importFrom tidyr unnest
-#' @importFrom broom tidy
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
+#' @importFrom tidyr unnest
 #' @importFrom stats shapiro.test
+#' @importFrom broom tidy 
 #' @importFrom stats t.test
-#' @importFrom stats wilcox.test
-#' @importFrom stats pairwise.t.test
 #' @importFrom stats aov
+#' @importFrom stats pairwise.t.test
+#' @importFrom stats wilcox.test
 #' @importFrom stats kruskal.test
 #' @importFrom stats pairwise.wilcox.test
-#'
-#' @return Some additional value to edit
+#' 
+#' @return A data.frame of test results
 #' @export
 #'
 #' @examples NULL
-Utility_Stats <- function(data, var, myfactor, normality, shape_palette,
-                          fill_palette, switch, correction="none"){
+Utility_Stats <- function(data, var, myfactor, normality=NULL, specifiedNormality=NULL, 
+  correction="none", override=0.05, returnType="stats"){
 
   theYlim <- max(data[[var]])
-  FactorLevels <- levels(data[[myfactor]])
-  FactorLevelsCount <- length(levels(data[[myfactor]]))
+  FactorLevels <- unique(data[[myfactor]])
+  FactorLevelsCount <- length(unique(data[[myfactor]]))
 
-  dago_wrapper <- function(x){
-    A <- Coereba::dagoTest(x)
-    method <- A@test$method
-    p.value <- A@test$p.value[[1]]
-    C <- data.frame(cbind(p.value, method))
-  }
+  ####################################
+  # Do you belive in normality test? #
+  ####################################
 
-  if (normality == "dagostino") {Stashed <- data %>% group_by(
-    .data[[myfactor]]) %>%
-    summarize(dagostino_result = dago_wrapper(.data[[var]])) %>%
-    unnest(dagostino_result)
+  if (!is.null(normality)){
 
-    Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"
+    if (normality == "dagostino") {
+      Stashed <- data %>% group_by(.data[[myfactor]]) %>%
+      summarize(dagostino_result = dago_wrapper(.data[[var]])) %>%
+      unnest(dagostino_result)
+  
+      Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"
+        } else {"nonparametric"}
+  
+    } else if (normality == "shapiro") {Stashed <- data %>% group_by(
+      .data[[myfactor]]) %>%
+      summarize(shapiro_result = list(tidy(shapiro.test(.data[[var]])))) %>%
+      unnest(shapiro_result)
+  
+      Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"
       } else{"nonparametric"}
+  
+    } else {stop(
+      "Only normality test currently supported are
+        `dagostino` and `shapiro` or NULL, please correct")
+      }
+  } else {Distribution <- "nonparametric"}
 
-  } else if (normality == "shapiro") {Stashed <- data %>% group_by(
-    .data[[myfactor]]) %>%
-    summarize(shapiro_result = list(tidy(shapiro.test(.data[[var]])))) %>%
-    unnest(shapiro_result)
+  #####################################
+  # Override and Specify Distribution #
+  #####################################
 
-    Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"
-    } else{"nonparametric"}
+  if (!is.null(specifiedNormality)){Distribution <- specifiedNormality}
 
-  } else {message("No Normality Test specified")
-    Distribution <- "nonparametric"}
+  ################
+  # Testing Tree #
+  ################
 
   TheTest <- if (Distribution == "parametric" & FactorLevelsCount == 2) {
-    tt<- tidy(t.test(data[[var]] ~ data[[myfactor]], alternative = "two.sided",
-                     var.equal = TRUE))
+    tt<- tidy(t.test(data[[var]] ~ data[[myfactor]],
+                     alternative = "two.sided", var.equal = TRUE))
   } else if (Distribution == "parametric" & FactorLevelsCount > 2){
-    at<- tidy(aov(data[[var]] ~ data[[myfactor]], data = data))
+    at <- tidy(aov(data[[var]] ~ data[[myfactor]], data = data))
     at$method <- "One-way Anova"
-    if(at$p.value[1] < 0.05) {
+    if(at$p.value[1] < override) {
       subset_data <- subset(data, select = c(var, myfactor))
       ptt <- tidy(pairwise.t.test(subset_data[[var]], subset_data[[myfactor]],
                                   p.adjust.method = correction))
@@ -77,18 +89,30 @@ Utility_Stats <- function(data, var, myfactor, normality, shape_palette,
                            alternative = "two.sided", var.equal = TRUE))
   } else if (Distribution == "nonparametric" & FactorLevelsCount > 2){
     kt <- tidy(kruskal.test(data[[var]] ~ data[[myfactor]], data = data))
-    if (kt$p.value < 0.05) {
+    if (kt$p.value < override) {
       subset_data <- subset(data, select = c(var, myfactor))
       pwt <- tidy(pairwise.wilcox.test(subset_data[[var]],
-                    g=subset_data[[myfactor]], p.adjust.method = correction))
+                                       g=subset_data[[myfactor]], p.adjust.method = correction))
       pwt$method <- "Pairwise Wilcox test"
       pwt
     } else {kt}
   }
-
-  Values <- TheTest$p.value %>% unlist()
-  Values <- Values[!is.na(Values)]
-
-  Returns <- cbind(var, min(Values))
-  Returns <- data.frame(Returns)
+  
+  if (returnType == "behemoth"){
+    TheReturnPacket <- list(TheTest, Distribution, theYlim)
+    return(TheReturnPacket)
+  } else if (returnType == "stats"){
+    Values <- TheTest$p.value %>% unlist()
+    Values <- Values[!is.na(Values)]
+  
+    Returns <- cbind(var, min(Values), Distribution)
+    Returns <- data.frame(Returns)
+    colnames(Returns)[1] <- "marker"
+    colnames(Returns)[2] <- "pvalue"
+    colnames(Returns)[3] <- "normality"
+    return(Returns)
+  }
 }
+
+
+

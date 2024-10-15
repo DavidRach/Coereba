@@ -9,9 +9,9 @@ Utility_Behemoth(
   var,
   myfactor,
   normality = NULL,
-  specified = NULL,
+  specifiedNormality = NULL,
   correction = "none",
-  Override = 0.05,
+  override = 0.05,
   shape_palette,
   fill_palette,
   cex,
@@ -21,19 +21,20 @@ Utility_Behemoth(
 )
 }
 \arguments{
-\item{data}{A data.frame of your data.}
+\item{data}{A data.frame object with metadata and data columns}
 
-\item{var}{A column containing your variables of interest.}
+\item{var}{The column name for your variable of interest}
 
-\item{myfactor}{A column containing the factor you want to compare}
+\item{myfactor}{The column name for your column containing your factor to group by}
 
-\item{normality}{Choice of normality test, use NULL or "dagostino" or "shapiro"}
+\item{normality}{The Normality test to be applied, "dagostino" or "shapiro". Default NULL}
 
-\item{specified}{In absence of normality test, dictates "parametric" or "nonparametric"}
+\item{specifiedNormality}{Default NULL leading to non-parametric, can switch by specifying
+"parametric" or "nonparametric".}
 
-\item{correction}{Choice of multiple choice correction, default is set at "none"}
+\item{correction}{Multiple comparison correction argument, default is set at "none"}
 
-\item{Override}{Not for general use, increase to 0.99 to force pairwise comparison past anova/kw.}
+\item{override}{Internal, default 0.05. Set to 0.99 to force pairwise comparison in anova/kw.}
 
 \item{shape_palette}{Palette corresponding to factor levels, designating each's shape}
 

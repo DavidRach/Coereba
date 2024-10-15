@@ -8,32 +8,33 @@ Utility_Stats(
   data,
   var,
   myfactor,
-  normality,
-  shape_palette,
-  fill_palette,
-  switch,
-  correction = "none"
+  normality = NULL,
+  specifiedNormality = NULL,
+  correction = "none",
+  override = 0.05,
+  returnType = "stats"
 )
 }
 \arguments{
-\item{data}{A data.frame object containing the data values}
+\item{data}{A data.frame object with metadata and data columns}
 
-\item{var}{A data.frame column of interest}
+\item{var}{The column name for your variable of interest}
 
-\item{myfactor}{A data.frame column for which you want to differentionally compare if they are different}
+\item{myfactor}{The column name for your column containing your factor to group by}
 
-\item{normality}{The Normality test to be applied, "dagostino" or "shapiro"}
+\item{normality}{The Normality test to be applied, "dagostino" or "shapiro". Default NULL}
 
-\item{shape_palette}{provide the shape palette matches your provided factor
-names}
+\item{specifiedNormality}{Default NULL leading to non-parametric, can switch by specifying
+"parametric" or "nonparametric".}
 
-\item{fill_palette}{provide the fill palette matches your provided factor
-names}
+\item{correction}{Multiple comparison correction argument, default is set at "none"}
 
-\item{switch}{Unclear}
+\item{override}{Internal, default 0.05. Set to 0.99 to force pairwise comparison in anova/kw.}
+
+\item{returnType}{Internal, default is "stats". "behemoth" for internal usage.}
 }
 \value{
-Some additional value to edit
+A data.frame of test results
 }
 \description{
 Normality Test followed by t-test/Anova

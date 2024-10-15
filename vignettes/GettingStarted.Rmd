@@ -293,7 +293,6 @@ ThePlot <- Utility_MarkerPlots(data=AllMarkers, panel=panelData,
 ThePlot
 ```
 
-
 Let's abbreviate the number of columns by specifying the marker names to include (filterForThese), and rearrange them in desired X-axis order
 
 ```{r}
@@ -308,6 +307,15 @@ And to ggsave directly to a desired folder:
 
 ```{r}
 
+```
+
+# Utility_Stats
+
+```{r}
+colnames(AllMarkers)
+
+Utility_Stats(data=AllMarkers, var="CD26", myfactor="ptype", normality=NULL, specifiedNormality=NULL, 
+  correction="none", override=0.05)
 ```
 
 
