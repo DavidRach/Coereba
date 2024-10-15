@@ -132,6 +132,7 @@ CombinatorialAggregate <- function(x, data, binary, panel){
 #' @importFrom dplyr select
 #' @importFrom dplyr mutate_all
 #'
+#' @noRd
 DataRetrieval <- function(x, data, binary, Column){
   Positive <- x
     #Retrieve corresponding Clusters from data

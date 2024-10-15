@@ -60,7 +60,7 @@ Coereba_GateCutoffs <- function(x, subset, sample.name, remove.strings) {
 #' @importFrom dplyr pull
 #' @importFrom dplyr lag
 #'
-#' @keywords internal
+#' @noRd
 ColumnExprs <- function(x, TheDF, w, span, ...) {
   Fluorophore <- x
   TheData <- TheDF %>% select(all_of(x)) %>% round(., 0)
@@ -228,7 +228,7 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
 #' @importFrom ggplot2 ggplot
 #' @importFrom dplyr select
 #'
-#' @keywords internal
+#' @noRd
 LocalMinima <- function(theX, theY, w, therepeats, alternatename, ...){
 
   repeats <- therepeats*2

@@ -58,7 +58,7 @@ Coereba_UpdateGates <- function(Clicks, Old, fileName, outpath){
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr select
 #'
-#' @keywords internal
+#' @noRd
 InternalGateUpdate <- function(x){
   TheClicks <- read.csv(x, check.names = FALSE)
   TheClicks <- TheClicks %>% rename(specimen = Plot_Name)
