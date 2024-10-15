@@ -18,10 +18,25 @@
 #' @return returns a data.frame
 #' @export
 #'
-#' @examples NULL
-
+#' @examples
+#' 
+#' File_Location <- system.file("extdata", package = "Coereba")
+#' panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
+#' binaryPath <- file.path(File_Location, "HeatmapExample.csv")
+#' dataPath <- file.path(File_Location, "ReadyFileExample.csv")
+#' panelData <- read.csv(panelPath, check.names=FALSE)
+#' binaryData <- read.csv(binaryPath, check.names=FALSE)
+#' dataData <- read.csv(dataPath, check.names=FALSE)
+#' 
+#' All <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
+#'  panel=panelData, starter="SparkBlue550")
+#' 
+#' Memory <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
+#'  panel=panelData, starter="SparkBlue550", returnType = "Combinatorial",
+#'  CombinatorialArgs=c("BV510", "APC-Fire 750"))
+#' 
 Coereba_MarkerExpressions <- function(data, binary, panel, starter, returnType="All",
-CombinatorialArgs=NULL){
+  CombinatorialArgs=NULL){
 
   if (!is.data.frame(panel)) {MyPanel <- read.csv(panel, check.names = FALSE)
   } else {MyPanel <- panel}
@@ -79,7 +94,7 @@ CombinatorialAggregate <- function(x, data, binary, panel){
 
   SwampFluors <- rbind(First, Second)
   SwampFluors <- data.frame(SwampFluors) %>% rename(Fluorophore = SwampFluors)
-  RetainedFluors <- left_join(SwampFluors, MyPanel, by = "Fluorophore")
+  RetainedFluors <- left_join(SwampFluors, panel, by = "Fluorophore")
   NewNames <- RetainedFluors$Marker
   
   Q1 <- binary %>% dplyr::filter(.data[[First]] == 0 & .data[[Second]] == 1)

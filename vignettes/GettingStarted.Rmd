@@ -235,13 +235,81 @@ Some things are literally poisson noise. Others are cell clusters with varying a
 
 ```
 
-# Utility_MarkerExpressions
+# Coereba_MarkerExpressions
 
-From the same Coereba identities, we can backcalculate the proportion of cells for a given cell node of interest that express any given marker (see ILT paper). The Utility_MarkerExpressions() function was the original implementation of this idea. See 5-subject notebook remodel post submission. 
+Having generated a Marker by Cluster data.frame (binaryData) and a Cluster by Specimen data.frame (dataData), we can leverage the combination of the two data.frames to aggregate the clusters on the basis of marker presence, returning the proportion of of cells that are positive for a given marker. 
+
+For this demonstration, we will focus on MAITs, using stored .csv files for their binary and data outputs stored within the Coereba extdata folder.
+
+```{r}
+File_Location <- system.file("extdata", package = "Coereba")
+
+panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
+panelData <- read.csv(panelPath, check.names=FALSE)
+
+binaryPath <- file.path(File_Location, "HeatmapExample.csv")
+binaryData <- read.csv(binaryPath, check.names=FALSE)
+
+dataPath <- file.path(File_Location, "ReadyFileExample.csv")
+dataData <- read.csv(dataPath, check.names=FALSE)
+```
+
+We will first just return the marker expressions for all markers: 
+```{r}
+AllMarkers <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
+  panel=panelData, starter="SparkBlue550")
+  
+head(AllMarkers, 5)
+```
+
+We can additionally by specifying returnType = "Combinatorial" derrive proportions within quadrant gates for
+two markers of interest. To do so, we specify the fluorophores corresponding to the markers as a list in the CombinatorialArgs.
+
+```{r}
+MemoryQuadrants <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
+  panel=panelData, starter="SparkBlue550", returnType = "Combinatorial", 
+  CombinatorialArgs = c("BV510", "BUV395"))
+
+head(MemoryQuadrants, 5)
+```
+
+# Utility_MarkerPlots
+
+Having returned aggregated data above with `Coereba_MarkerExpressions`, we can plot this data using `Utility_MarkerPlots()`. These are combination of `r CRANpkg("ggplot2")` geom_boxplot() and `r CRANpkg("ggbeeswarm")` geom_beeswarm plots. We provide some arguments that allow for filtering and reordering the markers shown in these plots, some basic customizations to the plots, and the ability to save as a .png file to a designated folder. 
+
+To do so for your own individual spots, you will need to specify a metadata column by which to factor by, and provide a list of shape and fill values corresponding to each factor level. 
+
+```{r}
+shape_ptype <- c("HU" = 22, "HEU-lo" = 21, "HEU-hi" = 21)
+fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
+```
+
+We can start by viewing all markers:
+
+```{r}
+ThePlot <- Utility_MarkerPlots(data=AllMarkers, panel=panelData,
+  myfactor="ptype", shape_palette = shape_ptype, fill_palette = fill_ptype)
+
+ThePlot
+```
+
+
+Let's abbreviate the number of columns by specifying the marker names to include (filterForThese), and rearrange them in desired X-axis order
+
+```{r}
+ThePlot <- Utility_MarkerPlots(data=AllMarkers, panel=panelData,
+  myfactor="ptype", shape_palette = shape_ptype, fill_palette = fill_ptype,
+  filterForThese=c("CD7", "CD4", "CD8"), XAxisLevels = c("CD7", "CD4", "CD8"))
+
+ThePlot
+```
+
+And to ggsave directly to a desired folder:
 
 ```{r}
 
 ```
+
 
 # Utility_Heatmap
 

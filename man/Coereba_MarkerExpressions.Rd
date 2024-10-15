@@ -33,5 +33,20 @@ returns a data.frame
 Generate overall marker expressions across Coereba clusters,
 }
 \examples{
-NULL
+
+File_Location <- system.file("extdata", package = "Coereba")
+panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
+binaryPath <- file.path(File_Location, "HeatmapExample.csv")
+dataPath <- file.path(File_Location, "ReadyFileExample.csv")
+panelData <- read.csv(panelPath, check.names=FALSE)
+binaryData <- read.csv(binaryPath, check.names=FALSE)
+dataData <- read.csv(dataPath, check.names=FALSE)
+
+All <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
+ panel=panelData, starter="SparkBlue550")
+
+Memory <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
+ panel=panelData, starter="SparkBlue550", returnType = "Combinatorial",
+ CombinatorialArgs=c("BV510", "APC-Fire 750"))
+
 }
