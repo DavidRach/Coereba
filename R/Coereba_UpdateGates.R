@@ -15,8 +15,12 @@
 #' @return An updated .csv file to the new location, and a data.frame
 #' @export
 #'
-#' @examples NULL
-
+#' @examples
+#'
+#' File_Location <- system.file("extdata", package = "Coereba")
+#' TheOldCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
+#' TheUpdateClickInfo <- file.path(File_Location, "UpdateClickData.csv")
+#'
 Coereba_UpdateGates <- function(Clicks, Old, fileName, outpath){
   TheFiles <- list.files(Clicks, pattern=".csv", full.names = TRUE)
   TheOld <- read.csv(Old, check.names = FALSE)

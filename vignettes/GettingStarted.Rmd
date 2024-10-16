@@ -5,7 +5,7 @@ author:
 - name: David Rach
   email: drach@som.umaryland.edu
   affiliation: University of Maryland, Baltimore
-package: "`r BiocStyle::pkg_ver('Luciernaga')`"
+package: "`r BiocStyle::pkg_ver('Coereba')`"
 output:
   BiocStyle::html_document
 abstract: |
