@@ -4,16 +4,18 @@
 \alias{Coereba_UpdateGates}
 \title{Update a gate cutoff csv with the Coereba_App edits}
 \usage{
-Coereba_UpdateGates(Clicks, Old, fileName, outpath)
+Coereba_UpdateGates(Clicks, Old, export = TRUE, outpath, fileName)
 }
 \arguments{
 \item{Clicks}{A path to a .csv file or a folder containing only the Click .csv files.}
 
 \item{Old}{File path to the CSV containing the original Estimated Gate Cutoffs}
 
-\item{fileName}{Desired name for the updated .csv file}
+\item{export}{Whether to export the updated .csv, default is TRUE}
 
 \item{outpath}{File path to save new .csv file at.}
+
+\item{fileName}{Desired name for the updated .csv file}
 }
 \value{
 An updated .csv file to the new location, and a data.frame
@@ -22,5 +24,12 @@ An updated .csv file to the new location, and a data.frame
 Update a gate cutoff csv with the Coereba_App edits
 }
 \examples{
-NULL
+
+File_Location <- system.file("extdata", package = "Coereba")
+TheOldCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
+TheClickInfo <- file.path(File_Location, "ClickDataExample.csv")
+
+UpdatedCSV <- Coereba_UpdateGates(Clicks=TheClickInfo, Old=TheOldCSV,
+ export=FALSE, outpath=NULL, fileName="UpdatedCSV")
+
 }

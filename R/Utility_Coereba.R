@@ -43,7 +43,7 @@
 #' UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles,
 #'  truncate_max_range = FALSE, transformation = FALSE)
 #' UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
-#' Markers <- colnames(UnmixedCytoSet)
+#' Markers <- colnames(UnmixedCytoSet[[1]])
 #' KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 #' biex_transform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000,
 #'  pos = 4.5, neg = 0, widthBasis = -1000)
@@ -53,6 +53,9 @@
 #'  pattern = 'GatesUnmixed.csv'))
 #' UnmixedGating <- gatingTemplate(UnmixedGates)
 #' gt_gating(UnmixedGating, UnmixedGatingSet)
+#' 
+#' CoerebaIDs <- Utility_Coereba(x=UnmixedGatingSet[1], subsets="live",
+#'  sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A")
 #'
 #'
 Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=NULL,

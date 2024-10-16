@@ -2,8 +2,9 @@
 #'
 #' @param Clicks A path to a .csv file or a folder containing only the Click .csv files.
 #' @param Old  File path to the CSV containing the original Estimated Gate Cutoffs
-#' @param fileName Desired name for the updated .csv file
+#' @param export Whether to export the updated .csv, default is TRUE
 #' @param outpath File path to save new .csv file at.
+#' @param fileName Desired name for the updated .csv file
 #'
 #' @importFrom utils read.csv
 #' @importFrom purrr map
@@ -19,10 +20,17 @@
 #'
 #' File_Location <- system.file("extdata", package = "Coereba")
 #' TheOldCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
-#' TheUpdateClickInfo <- file.path(File_Location, "UpdateClickData.csv")
+#' TheClickInfo <- file.path(File_Location, "ClickDataExample.csv")
+#' 
+#' UpdatedCSV <- Coereba_UpdateGates(Clicks=TheClickInfo, Old=TheOldCSV,
+#'  export=FALSE, outpath=NULL, fileName="UpdatedCSV")
 #'
-Coereba_UpdateGates <- function(Clicks, Old, fileName, outpath){
+Coereba_UpdateGates <- function(Clicks, Old, export=TRUE, outpath, fileName){
+
+  if (!grepl("\\.csv$", Clicks)){
   TheFiles <- list.files(Clicks, pattern=".csv", full.names = TRUE)
+  } else {TheFiles <- Clicks}
+
   TheOld <- read.csv(Old, check.names = FALSE)
 
   Retained <- map(.x=TheFiles, .f=InternalGateUpdate) %>% bind_rows()
@@ -39,12 +47,12 @@ Coereba_UpdateGates <- function(Clicks, Old, fileName, outpath){
     TheModified[row_index, col_index] <- TheValue
   }
 
+  if(export==TRUE){
   TheName <- gsub(".csv", "", fileName)
   StorageLocation <- file.path(outpath, TheName)
   write.csv(TheModified, file=paste0(StorageLocation, ".csv"), row.names = FALSE)
-
-  return(TheModified)
-}
+  } else {return(TheModified)}
+  }
 
 
 

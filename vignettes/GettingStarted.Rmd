@@ -214,7 +214,31 @@ Since the code is within a ShinyApp running in R, it has both the advantages and
 
 Once you have completed validating the GateCutoffs with `Coereba_App()`, it is time to convert your validated click-data and update the GateCutoff.csv. To fascilitate this, provide the location of the folder containing just the clickpoint .csv's to  `Coereba_UpdateGates()` and fill out the required arguments. It will proceed to update the GateCutoffs. 
 
-This can then be validated, by re-running `Luciernaga` `Utility_UnityPlots()` using the updated GateCutoff.csv and seeing if the previous issues have been corrected. 
+For this example, we will use ClickDataExamples.csv stored within `Coereba`'s extdata folder:
+
+```{r}
+File_Location <- system.file("extdata", package = "Coereba")
+TheOldCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
+TheClickInfo <- file.path(File_Location, "ClickDataExample.csv")
+TheClickData <- read.csv(TheClickInfo, check.names=FALSE)
+TheClickData
+```
+
+The old data:
+```{r}
+TheOldData <- read.csv(TheOldCSV, check.names=FALSE)
+TheOldData
+```
+
+We can then run `Coereba_UpdateGates()` and watch the values for BUV469-A are updated.
+```{r}
+UpdatedCSV <- Coereba_UpdateGates(Clicks=TheClickInfo, Old=TheOldCSV,
+  export=FALSE, outpath=NULL, fileName="UpdatedCSV")
+
+UpdatedCSV
+```
+
+We can further validate this by re-running `Luciernaga` `Utility_UnityPlots()` using the updated GateCutoff.csv and seeing if the previous issues have been corrected. 
 
 # Note on Cell Populations and Splitpoint
 
@@ -243,7 +267,12 @@ Consequently, we can iteratively leverage the number of markers included to targ
 Both functions are currently waiting on the ILT paper to be sent to collaborators so that David can implement his 5-subject binder worth of notes to implement a S4 OOP class to make manipulating the final outputs easier than the current .qmd files full of tidyverse data tidying. 
 
 ```{r}
+CoerebaIDs <- Utility_Coereba(x=UnmixedGatingSet[1], subsets="live",
+  sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A")
+```
 
+```{r}
+head(CoerebaIDs, 5)
 ```
 
 
