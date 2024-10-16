@@ -181,7 +181,18 @@ Once we have generated a GateCutoffs.csv file, we can visualize how well the spl
 
 Previously, all adjustments to the above splitpoints had to eye-balled in the pdf, and then adjusted in the .csv file, and repeated ad nauseum. This obviously did not scale well. We have subsequently created a ShinyApp that will bring in the GatingSet object, and plot an interactive version of `Utility_UnityPlot()` from the `Luciernaga` package, visualizing the splitpoint for a given marker across all individuals as red vertical lines. 
 
-To get started, you first will need to call the ShinyApp by running the following:
+To get started, first make sure you know where the `Coereba_GateCutoffs()` .csv output is saved at, as you will need to select the file within the App. 
+
+```{r}
+File_Location <- system.file("extdata", package = "Coereba")
+TheCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
+TheCSVData <- read.csv(TheCSV, check.names=FALSE)
+head(TheCSVData)
+```
+
+Next, make sure to remember the name of your GatingSet ("UnmixedGatingSet" for this case), and the sample.name keyword to identify individual specimens, as you will need to input these values within the app. 
+
+Then, run the following command in your console:
 
 ```{r, eval = FALSE}
 Coereba_App()
