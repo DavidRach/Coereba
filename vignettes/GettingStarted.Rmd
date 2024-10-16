@@ -128,8 +128,7 @@ MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256, maxValue = 10
 TransformList <- transformerList(KeptMarkers, MyBiexponentialTransform)
 UnmixedGatingSet <- transform(UnmixedGatingSet, TransformList)
 
-FileLocation <- system.file("extdata", package = "Coereba")
-UnmixedGates <- fread(file.path(path = FileLocation, pattern = 'GatesUnmixed.csv'))
+UnmixedGates <- fread(file.path(path = File_Location, pattern = 'GatesUnmixed.csv'))
 UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 ```
@@ -157,7 +156,17 @@ These could be written out individually, or based on automated calculations. To 
 Both approaches can be computationally heavy, but still faster than eye-balling everything and typing in the values one-by-one. Save the eyestrain for subsequent validation steps.
 
 ```{r}
+TheGateCutoff <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
+  subset="live", sample.name="GROUPNAME", remove.strings=".fcs",
+  marker=c("BUV805-A"))
 
+TheGateCutoffs <- map(.x=UnmixedGatingSet[1:3], .f=Coereba_GateCutoffs,
+  subset="live", sample.name="GROUPNAME", remove.strings=".fcs",
+  marker=c("BUV805-A")) %>% bind_rows()
+```
+
+```{r}
+TheGateCutoffs
 ```
 
 # Visualizing Gate Cutoffs

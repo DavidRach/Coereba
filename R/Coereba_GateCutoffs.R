@@ -1,9 +1,11 @@
-#' Improved Gate Estimates
+#' Function to guess the gate cutoff values
 #'
 #' @param x A GatingSet object
-#' @param subset Node level of interest
-#' @param sample.name The keyword where names are stored
+#' @param subset Gate node of interest
+#' @param sample.name The keyword where specimens name is stored
 #' @param remove.strings Values to be removed from the name
+#' @param marker Default set to NULL, otherwise a list of Fluorophores
+#'  you want to gate
 #'
 #' @importFrom flowCore keyword
 #' @importFrom Luciernaga NameCleanUp
@@ -14,27 +16,61 @@
 #' @importFrom tidyr pivot_wider
 #' @importFrom dplyr rename
 #'
-#' @return A data.frame with estimated gate cutoffs for every marker for every specimen
+#' @return A data.frame with estimated gate cutoffs for every marker
+#'  for every specimen
 #' @export
 #'
-#' @examples NULL
+#' @examples
+#' 
+#' library(flowCore)
+#' library(flowWorkspace)
+#' library(openCyto)
+#' library(data.table)
+#' 
+#' File_Location <- system.file("extdata", package = "Coereba")
+#' FCS_Files <- list.files(path = File_Location, pattern = ".fcs", full.names = TRUE)
+#' UnmixedFCSFiles <- FCS_Files[1]
+#' UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles,
+#'  truncate_max_range = FALSE, transformation = FALSE)
+#' UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
+#' Markers <- colnames(UnmixedCytoSet)
+#' KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+#' biex_transform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000,
+#'  pos = 4.5, neg = 0, widthBasis = -1000)
+#' TransformList <- transformerList(KeptMarkers, biex_transform)
+#' flowWorkspace::transform(UnmixedGatingSet, TransformList)
+#' UnmixedGates <- fread(file.path(path = File_Location,
+#'  pattern = 'GatesUnmixed.csv'))
+#' UnmixedGating <- gatingTemplate(UnmixedGates)
+#' gt_gating(UnmixedGating, UnmixedGatingSet)
+#' 
+#' TheGateCutoffs <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
+#'  subset="live", sample.name="GROUPNAME", remove.strings=".fcs",
+#'  marker=c("BUV805-A"))
 #'
-Coereba_GateCutoffs <- function(x, subset, sample.name, remove.strings) {
+Coereba_GateCutoffs <- function(x, subset, sample.name, remove.strings,
+  marker) {
+  if (length(sample.name) == 2){
+    first <- sample.name[[1]]
+    second <- sample.name[[2]]
+    first <- keyword(x, first)
+    second <- keyword(x, second)
+    name <- paste(first, second, sep="_")
+  } else {name <- keyword(x, sample.name)}
 
-  name <- keyword(x, sample.name)
   alternate.name <- NameCleanUp(name = name, remove.strings)
-
   cs <- gs_pop_get_data(x, subset, inverse.transform = FALSE)
-  #fr <- cs[[1, returnType = "flowFrame"]]
   df <- exprs(cs[[1]])
   TheDFlocal <- data.frame(df, check.names = FALSE)
+
   TheColumnNames <- colnames(TheDFlocal)
   DFNames <- TheColumnNames[!grepl("^(Time|FS|SC|SS|Original|W$|H$)", TheColumnNames)]
-
   #x <- DFNames[1]
-  AssembledData <- map(.x = DFNames, .f=ColumnExprs, TheDF = TheDFlocal, w = 2, span = 0.1) %>%
-    bind_rows()
-  Pivoted <- pivot_wider(AssembledData, names_from = Fluorophore, values_from = CutoffMinima)
+
+  if (!is.null(marker)){DFNames <- as.character(marker)}
+
+  Data <- map(.x = DFNames, .f=ColumnExprs, TheDF = TheDFlocal) %>% bind_rows()
+  Pivoted <- pivot_wider(Data, names_from = Fluorophore, values_from = CutoffMinima)
   Data <- cbind(alternate.name, Pivoted)
   Data <- Data %>% rename(specimen = alternate.name)
 
@@ -45,11 +81,11 @@ Coereba_GateCutoffs <- function(x, subset, sample.name, remove.strings) {
 
 #' Internal for Modern Gate Cutoff
 #'
-#' @param x Something
-#' @param TheDF Something
-#' @param w Something
-#' @param span Something
-#' @param ... Something
+#' @param x Iterated Fluorophore Name
+#' @param TheDF The sample data in a data.frame
+#' @param w Argument passed to zoo for local minima
+#' @param span Argument passed to zoo for local minima
+#' @param ... Additional argument to zoo
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
@@ -57,11 +93,14 @@ Coereba_GateCutoffs <- function(x, subset, sample.name, remove.strings) {
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
 #' @importFrom dplyr filter
+#' @importFrom dplyr row_number
+#' @importFrom magrittr %>%
 #' @importFrom dplyr pull
 #' @importFrom dplyr lag
+#' 
 #'
 #' @noRd
-ColumnExprs <- function(x, TheDF, w, span, ...) {
+ColumnExprs <- function(x, TheDF, w=2, span=0.1, ...) {
   Fluorophore <- x
   TheData <- TheDF %>% select(all_of(x)) %>% round(., 0)
   colnames(TheData) <- "xVal"
@@ -91,8 +130,8 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
   freqX <- freq_table1 %>% pull(xVal)
   freqY <- freq_table1 %>% pull(yVal)
 
-  Minima <- LocalMinima(theX = freqX, theY = freqY,
-                        w = w, therepeats = 4, span=span, alternatename = Fluorophore)
+  Minima <- LocalMinima(theX = freqX, theY = freqY, w = w, therepeats = 4,
+     span=span, alternatename = Fluorophore)
 
   if(nrow(Minima) == 0){
     #If no Minima is detected, use the max value
@@ -132,39 +171,48 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
   } else {orientation <- "left"} #Need to fix for center
   #orientation
 
-  if (shape == "greater" & orientation == "left"){ code <- paste(shape, orientation, Fluorophore, sep = " ")
+  if (shape == "greater" & orientation == "left"){ 
+    code <- paste(shape, orientation, Fluorophore, sep = " ")
   TheYmaxLimit <- TheYMax*0.2
   freq_table2 <- freq_table1 %>% filter(xVal > TheMax) %>%
     filter(yVal < TheYmaxLimit)
   index <- which(freq_table2$yVal > lag(freq_table2$yVal),
                  arr.ind = TRUE)[1] - 1
 
-  if(length(index) != 0 && !is.na(index)){CutoffMinima <- freq_table2[index,] %>% pull(xVal)} else{
+  if(length(index) != 0 && !is.na(index)){
+    CutoffMinima <- freq_table2[index,] %>% pull(xVal)} else{
     CutoffMinima <- Minima1[1] #Temporary Glue.
   }
 
-  } else if (shape == "greater" & orientation == "right"){code <- paste(shape, orientation, Fluorophore, sep = " ")
+  } else if (shape == "greater" & orientation == "right"){
+    code <- paste(shape, orientation, Fluorophore, sep = " ")
   CutoffMinima <- Minima1[length(Minima1)]
 
-  } else if (shape == "lesser" & orientation == "left"){code <- paste(shape, orientation, Fluorophore, sep = " ")
+  } else if (shape == "lesser" & orientation == "left"){
+    code <- paste(shape, orientation, Fluorophore, sep = " ")
   CutoffMinima <- Minima1[1]
 
-  } else if (shape == "lesser" & orientation == "right"){code <- paste(shape, orientation, Fluorophore, sep = " ")
+  } else if (shape == "lesser" & orientation == "right"){
+    code <- paste(shape, orientation, Fluorophore, sep = " ")
 
   #Theoretical Flip Side, check the code with an example.
   TheYmaxLimit <- TheYMax*0.2
-  freq_table2 <- freq_table1 %>% filter(xVal < TheMax) %>% filter(yVal < TheYmaxLimit)
+  freq_table2 <- freq_table1 %>% filter(xVal < TheMax) %>%
+    filter(yVal < TheYmaxLimit)
   index <- which(freq_table2$yVal < lag(freq_table2$yVal), arr.ind = TRUE)
   index <- index[length(index)] - 1
 
-  if(length(index) != 0 && !is.na(index)){CutoffMinima <- freq_table2[index,] %>% pull(xVal)} else{
+  if(length(index) != 0 && !is.na(index)){CutoffMinima <- freq_table2[index,] %>%
+    pull(xVal)} else{
     CutoffMinima <- Minima1[1] #Temporary Glue.
   }
 
-  } else if (shape == "sandwhich" & orientation == "left") {code <- paste(shape, orientation, Fluorophore, sep = " ")
+  } else if (shape == "sandwhich" & orientation == "left") {
+    code <- paste(shape, orientation, Fluorophore, sep = " ")
   Minima1 <- Minima1[Minima1 > TheMax]
   CutoffMinima <- Minima1[1]
-  } else if (shape == "sandwhich" & orientation == "right") {code <- paste(shape, orientation, Fluorophore, sep = " ")
+  } else if (shape == "sandwhich" & orientation == "right") {
+    code <- paste(shape, orientation, Fluorophore, sep = " ")
 
   Minima1 <- Minima1[Minima1 < TheMax]
   CutoffMinima <- Minima1[length(Minima1)]
@@ -173,25 +221,31 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
     }
 
 
-  if (abs(CutoffMinima - TheMax)/TheRange > 0.3){#message("Range Exceeded ", Fluorophore)
+  if (abs(CutoffMinima - TheMax)/TheRange > 0.3){
+    #message("Range Exceeded ", Fluorophore)
 
     if (orientation == "left"){
       TheYmaxLimit <- TheYMax*0.2
-      freq_table2 <- freq_table1 %>% filter(xVal > TheMax) %>% filter(yVal < TheYmaxLimit)
+      freq_table2 <- freq_table1 %>% filter(xVal > TheMax) %>% 
+        filter(yVal < TheYmaxLimit)
       index <- which(freq_table2$yVal > lag(freq_table2$yVal), arr.ind = TRUE)[1] - 1
 
-      if(length(index) != 0 && !is.na(index)){CutoffMinima <- freq_table2[index,] %>% pull(xVal)} else{
+      if(length(index) != 0 && !is.na(index)){
+        CutoffMinima <- freq_table2[index,] %>% pull(xVal)} else{
         CutoffMinima <- CutoffMinima #Temporary Glue.
       }
 
     } else if (orientation == "right"){
       #Theoretical Flip Side, check the code with an example.
       TheYmaxLimit <- TheYMax*0.2
-      freq_table2 <- freq_table1 %>% filter(xVal < TheMax) %>% filter(yVal < TheYmaxLimit)
-      index <- which(freq_table2$yVal < lag(freq_table2$yVal), arr.ind = TRUE) # This is where
+      freq_table2 <- freq_table1 %>% filter(xVal < TheMax) %>%
+        filter(yVal < TheYmaxLimit)
+      index <- which(freq_table2$yVal < lag(freq_table2$yVal), arr.ind = TRUE)
+      # This is where
       index <- index[length(index)] - 1
 
-      if(length(index) != 0 && !is.na(index)){CutoffMinima <- freq_table2[index,] %>% pull(xVal)} else{
+      if(length(index) != 0 && !is.na(index)){CutoffMinima <- freq_table2[index,] %>%
+        pull(xVal)} else{
         CutoffMinima <- CutoffMinima #Temporary Glue.
       }
 
@@ -204,7 +258,8 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
   CutoffMinima <- freq_table1 %>% filter(xVal == CutoffMinima) %>% pull(OriginalX)
 
   NewData <- data.frame(cbind(Fluorophore, CutoffMinima))
-  NewData$CutoffMinima <- as.numeric(NewData$CutoffMinima) #Site of fail, error is above with NA location signal
+  NewData$CutoffMinima <- as.numeric(NewData$CutoffMinima)
+  #Site of fail, error is above with NA location signal
 
   return(NewData)
 }
@@ -226,6 +281,15 @@ ColumnExprs <- function(x, TheDF, w, span, ...) {
 #' @importFrom zoo zoo
 #' @importFrom dplyr filter
 #' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 geom_point
+#' @importFrom ggplot2 geom_line
+#' @importFrom ggplot2 geom_segment
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 theme_bw
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_text
+#' @importFrom ggplot2 element_blank
 #' @importFrom dplyr select
 #'
 #' @noRd
@@ -251,7 +315,8 @@ LocalMinima <- function(theX, theY, w, therepeats, alternatename, ...){
   y.min <- rollapply(zoo(y.smooth), 2*w+1, min, align="center")
   delta <- y.min - y.smooth[-c(1:w, n+1-1:w)]
   i.min <- which(delta >= 0) + w
-  peaks <- list(x=x[i.min]-therepeats, i=i.min-therepeats, y.hat=y.smooth[(therepeats + 1):(length(y.smooth) - therepeats)])
+  peaks <- list(x=x[i.min]-therepeats, i=i.min-therepeats,
+     y.hat=y.smooth[(therepeats + 1):(length(y.smooth) - therepeats)])
 
   peak_points <- peaks$x
 
@@ -259,12 +324,20 @@ LocalMinima <- function(theX, theY, w, therepeats, alternatename, ...){
 
   PointData <- MainData %>% dplyr::filter(x %in% peak_points)
 
-  Views <- ggplot(MainData, aes(x = x, y = y)) + geom_point(size = 2, color = "Gray") + geom_line(aes(y = yhat), linewidth = 1)  +
-    geom_point(data = PointData, aes(x, yhat), color = "Red", shape = 19, size = 2) +
-    geom_segment(data = PointData, aes(x = x, xend = x, y = 0, yend = yhat), color = "Red", linewidth = 1, linetype = "dashed") +
+  Views <- ggplot(MainData, aes(x = x, y = y)) + 
+    geom_point(size = 2, color = "Gray") +
+    geom_line(aes(y = yhat), linewidth = 1)  +
+    geom_point(data = PointData, aes(x, yhat),
+     color = "Red", shape = 19, size = 2) +
+    geom_segment(data = PointData, aes(x = x, 
+      xend = x, y = 0, yend = yhat), color = "Red",
+       linewidth = 1, linetype = "dashed") +
     labs(title = alternatename) + theme_bw() +
-    theme(plot.title = element_text(hjust = 0.5), axis.title.x = element_blank(), axis.title.y = element_blank(),
-          panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+    theme(plot.title = element_text(hjust = 0.5),
+          axis.title.x = element_blank(),
+           axis.title.y = element_blank(),
+          panel.grid.major = element_blank(),
+           panel.grid.minor = element_blank())
 
   #message(Views)
 

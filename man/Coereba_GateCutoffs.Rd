@@ -2,26 +2,55 @@
 % Please edit documentation in R/Coereba_GateCutoffs.R
 \name{Coereba_GateCutoffs}
 \alias{Coereba_GateCutoffs}
-\title{Improved Gate Estimates}
+\title{Function to guess the gate cutoff values}
 \usage{
-Coereba_GateCutoffs(x, subset, sample.name, remove.strings)
+Coereba_GateCutoffs(x, subset, sample.name, remove.strings, marker)
 }
 \arguments{
 \item{x}{A GatingSet object}
 
-\item{subset}{Node level of interest}
+\item{subset}{Gate node of interest}
 
-\item{sample.name}{The keyword where names are stored}
+\item{sample.name}{The keyword where specimens name is stored}
 
 \item{remove.strings}{Values to be removed from the name}
+
+\item{marker}{Default set to NULL, otherwise a list of Fluorophores
+you want to gate}
 }
 \value{
-A data.frame with estimated gate cutoffs for every marker for every specimen
+A data.frame with estimated gate cutoffs for every marker
+ for every specimen
 }
 \description{
-Improved Gate Estimates
+Function to guess the gate cutoff values
 }
 \examples{
-NULL
+
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(data.table)
+
+File_Location <- system.file("extdata", package = "Coereba")
+FCS_Files <- list.files(path = File_Location, pattern = ".fcs", full.names = TRUE)
+UnmixedFCSFiles <- FCS_Files[1]
+UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles,
+ truncate_max_range = FALSE, transformation = FALSE)
+UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
+Markers <- colnames(UnmixedCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+biex_transform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000,
+ pos = 4.5, neg = 0, widthBasis = -1000)
+TransformList <- transformerList(KeptMarkers, biex_transform)
+flowWorkspace::transform(UnmixedGatingSet, TransformList)
+UnmixedGates <- fread(file.path(path = File_Location,
+ pattern = 'GatesUnmixed.csv'))
+UnmixedGating <- gatingTemplate(UnmixedGates)
+gt_gating(UnmixedGating, UnmixedGatingSet)
+
+TheGateCutoffs <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
+ subset="live", sample.name="GROUPNAME", remove.strings=".fcs",
+ marker=c("BUV805-A"))
 
 }
