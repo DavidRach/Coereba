@@ -59,6 +59,9 @@ Utility_MarkerPlots(
 \item{height}{Specify desired height inches}
 
 \item{filterForThese}{A list containing names of markers desire to include final plot, default NULL}
+
+\item{combinatorialStartsWith}{Default NULL, if aggregated data is combinatorial, starting string
+of characters (ex. CD45)}
 }
 \value{
 Returns a ggplot object to R or designated Folder
