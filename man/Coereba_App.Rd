@@ -6,6 +6,9 @@
 \usage{
 Coereba_App()
 }
+\value{
+Launches the Shiny app
+}
 \description{
 Deploy a Shiny app to modify the estimated gate cutoff placement.
 }

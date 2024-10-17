@@ -2,18 +2,19 @@
 #'
 #' @importFrom shiny runApp
 #'
+#' @return Launches the Shiny app
 #' @export
-#' 
+#'
 #' @examples
-#' 
+#'
 #' library(flowCore)
 #' library(flowWorkspace)
 #' library(openCyto)
 #' library(data.table)
-#' 
+#'
 #' File_Location <- system.file("extdata", package = "Coereba")
 #' TheCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
-#' 
+#'
 #' FCS_Files <- list.files(path = File_Location, pattern = ".fcs", full.names = TRUE)
 #' UnmixedFCSFiles <- FCS_Files[1]
 #' UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles,
@@ -29,9 +30,9 @@
 #'  pattern = 'GatesUnmixed.csv'))
 #' UnmixedGating <- gatingTemplate(UnmixedGates)
 #' gt_gating(UnmixedGating, UnmixedGatingSet)
-#' 
+#'
 #' # Coereba_App()
-#' 
+#'
 Coereba_App <- function() {
     runApp(
     system.file("shiny", package="Coereba"),

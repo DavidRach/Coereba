@@ -51,7 +51,7 @@ remotes::install_github("https://github.com/DavidRach/Coereba")
 
 ## Loading Libraries
 
-Coereba relies on underlying infrastructure provided `r Biopkg("flowWorkspace")` and other Bioconductor cytometry packages. It leverages functional programming principles implemented in `r CRANpkg("tidyverse")` packages available via CRAN. It is important to make sure that all the required packages are installed on your computer, and that library is called for each.
+Coereba relies on underlying infrastructure provided `r Biocpkg("flowWorkspace")` and other Bioconductor cytometry packages. It leverages functional programming principles implemented in `r CRANpkg("tidyverse")` packages available via CRAN. It is important to make sure that all the required packages are installed on your computer, and that library is called for each.
 
 ```{r, echo=FALSE, results = "hide", warning=FALSE}
 suppressPackageStartupMessages({
@@ -151,7 +151,7 @@ MyPlot
 
 Having set up a GatingSet with transformations and gates applied, we can proceed to test the `Coereba` workflow. The first step is to create a .csv file, containing the individual specimens, and the individual markers of interest. Each cell within the .csv file will correspond to the MFI for a given marker for a given individual where positive expression of a marker transitions to becoming a negative (referred here to as a splitpoint). 
 
-These could be written out individually, or based on automated calculations. To simplify the process, in Coereba, we have implemented two approaches to estimating these splitpoints. One function is the in-house `Coereba_GateCutoffs()`, which does an "okay-ish but work-in progress". The flip approach is leveraging the `r BiocPkg("openCyto")` pipeline (in development) and retrieving the values. 
+These could be written out individually, or based on automated calculations. To simplify the process, in Coereba, we have implemented two approaches to estimating these splitpoints. One function is the in-house `Coereba_GateCutoffs()`, which does an "okay-ish but work-in progress". The flip approach is leveraging the `r Biocpkg("openCyto")` pipeline (in development) and retrieving the values. 
 
 Both approaches can be computationally heavy, but still faster than eye-balling everything and typing in the values one-by-one. Save the eyestrain for subsequent validation steps.
 
@@ -266,7 +266,7 @@ Consequently, we can iteratively leverage the number of markers included to targ
 
 Both functions are currently waiting on the ILT paper to be sent to collaborators so that David can implement his 5-subject binder worth of notes to implement a S4 OOP class to make manipulating the final outputs easier than the current .qmd files full of tidyverse data tidying. 
 
-```{r}
+```{r, warning=FALSE}
 CoerebaIDs <- Utility_Coereba(x=UnmixedGatingSet[1], subsets="live",
   sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A")
 ```
