@@ -172,6 +172,7 @@ Coereba_Processing2 <- function(x){
 #'
 #' @noRd
 Coereba_Processing3 <- function(x){
+  Filtered <- x
   TheWeightedDataset <- Filtered %>% group_by(Clusters) %>%
     summarise(Total_Counts = sum(Count)) %>% arrange((Total_Counts))
   TheDataset <- TheWeightedDataset %>% rename(Identity = Clusters) %>%
@@ -194,5 +195,63 @@ Coereba_Processing3 <- function(x){
   ColsC <- ncol(C)
   C[,2:ColsC] <- lapply(C[,2:ColsC], as.numeric)
   return(C)
+}
+
+#' The Assembly Function for all the above
+#'
+#' @param x A list of data.frames
+#' @param y A list of names for respective data.frames in argument x
+#' @param DictionaryPath Path to dictionary to convert
+#' @param ReplaceCharacters Char to revert
+#' @param Metadata Path to metadata csv
+#' @param MetadataCols Desired csv columns
+#' @param IdentityColName Colname corresponding to identity
+#' @param summarizeMedians Default is TRUE, returns median
+#' @param panel Path to the panel
+#' @param starter Character string corresponding to Coereba start clusterid
+#'
+#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr select
+#' @importFrom dplyr summarise
+#' @importFrom dplyr across
+#' @importFrom tidyselect everything
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#'
+#' @return Either data.frame with specimens by marker, or a summarized version
+#'
+#' @noRd
+Coereba_LocalMarkerExpressions <- function(x, y, DictionaryPath,
+                                           ReplaceCharacters, Metadata, MetadataCols,
+                                           IdentityColName, summarizeMedians=TRUE,
+                                           panel, starter){
+  TheX <- x
+  TheName <- y
+
+  Here <- Coereba:::Coereba_Enumeration(x=TheX, TheDictionary = DictionaryPath,
+                                        ReplaceCharacters=ReplaceCharacters)
+
+  Hmm2 <- Coereba:::HEUAnnotation(x=Here, Metadata=Metadata,
+                                  Identity=IdentityColName, thecolumns=MetadataCols)
+
+  Filtered <- Coereba:::Coereba_Processing2(x=Hmm2)
+
+  C <- Coereba:::Coereba_Processing3(x=Filtered)
+
+  Ready <- Filtered %>% pivot_wider(names_from = Clusters, values_from = Count)
+  Ready[is.na(Ready)] <- 0
+
+  Aggregated <- Coereba_MarkerExpressions(data=Ready, binary=C,
+                                          panel=panel, starter=starter)
+
+  if(summarizeMedians==TRUE){
+
+    TheMarkerMedians <- Aggregated %>% select(-c(1:8)) %>%
+      summarise(across(everything(), median, na.rm = TRUE)) %>%
+      round(., digits=2) %>% mutate(Population=TheName[[1]]) %>%
+      relocate(Population, .before=1)
+
+  } else {return(Aggregated)}
+
 }
 
