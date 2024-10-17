@@ -1,0 +1,9 @@
+pandoc: '3.2'
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  GettingStarted: GettingStarted.html
+last_built: 2024-10-17T03:19Z
+urls:
+  reference: https://davidrach.github.io/Coereba/reference
+  article: https://davidrach.github.io/Coereba/articles
