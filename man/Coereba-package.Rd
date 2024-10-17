@@ -12,6 +12,7 @@ To learn more about how to use Coereba, please start by browsing the vignettes:
 Useful links:
 \itemize{
   \item \url{https://github.com/DavidRach/Coereba}
+  \item \url{https://davidrach.github.io/Coereba/}
   \item Report bugs at \url{https://github.com/DavidRach/Coereba/issues}
 }
 

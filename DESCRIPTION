@@ -9,7 +9,7 @@ Description: This package allows for the implementation of a semi-supervised ana
 License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: FALSE
-URL: https://github.com/DavidRach/Coereba
+URL: https://github.com/DavidRach/Coereba, https://davidrach.github.io/Coereba/
 BugReports: https://github.com/DavidRach/Coereba/issues
 RoxygenNote: 7.3.2
 Imports: 
@@ -50,6 +50,7 @@ Suggests:
     shinyBS,
     shinydashboard,
     shinyjs,
+    shinytest2,
     testthat (>= 3.0.0),
     withr
 biocViews: Clustering, FlowCytometry, Preprocessing, Software
