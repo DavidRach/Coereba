@@ -5,7 +5,7 @@
 #' @param myfactor The column name for your column containing your factor to group by
 #' @param normality The Normality test to be applied, "dagostino" or "shapiro". Default NULL
 #' @param specifiedNormality Default NULL leading to non-parametric, can switch by specifying
-#' "parametric" or "nonparametric". 
+#' "parametric" or "nonparametric".
 #' @param correction Multiple comparison correction argument, default is set at "none"
 #' @param override Internal, default 0.05. Set to 0.99 to force pairwise comparison in anova/kw.
 #' @param shape_palette Palette corresponding to factor levels, designating each's shape
@@ -14,6 +14,7 @@
 #' @param size Size for the ggbeeswarm circles.
 #' @param corral.width width of corral bin argument for beeswarm.
 #' @param XAxisLevels Provide list marker names correct order for x-axis reordering, default NULL
+#' @param statLines Default is TRUE, otherwise skips plotting pvalue and brackets
 #'
 #' @importFrom dplyr select
 #' @importFrom stringr str_wrap
@@ -36,10 +37,10 @@
 #' @export
 #'
 #' @examples
-#' 
+#'
 #' shape_ptype <- c("HU" = 22, "HEU-lo" = 21, "HEU-hi" = 21)
 #' fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
-#' 
+#'
 #' File_Location <- system.file("extdata", package = "Coereba")
 #' panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
 #' binaryPath <- file.path(File_Location, "HeatmapExample.csv")
@@ -47,26 +48,26 @@
 #' panelData <- read.csv(panelPath, check.names=FALSE)
 #' binaryData <- read.csv(binaryPath, check.names=FALSE)
 #' dataData <- read.csv(dataPath, check.names=FALSE)
-#' 
+#'
 #' All <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
 #'  panel=panelData, starter="SparkBlue550")
-#' 
+#'
 #' Plot <- Utility_Behemoth(data=All, var="CD62L", myfactor="ptype",
 #'  normality="dagostino", correction="none", shape_palette=shape_ptype,
 #'  fill_palette=fill_ptype, XAxisLevels = c("HU", "HEU-lo", "HEU-hi"))
 #'
 Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNormality = NULL,
   correction = "none", override=0.05, shape_palette, fill_palette, cex=2, size=3, corral.width=1,
-  XAxisLevels=NULL){
+  XAxisLevels=NULL, statLines=TRUE){
 
   TheStatsReturn <- Utility_Stats(data=data, var=var, myfactor=myfactor, normality=normality,
      specifiedNormality=specifiedNormality, correction=correction, override=override,
     returnType="behemoth")
-  
+
   TheTest <- TheStatsReturn[[1]]
   Distribution <- TheStatsReturn[[2]]
   theYlim <- TheStatsReturn[[3]]
-  
+
   Method <- unique(TheTest$method)
   if (Distribution == "parametric"){ MethodDictate <- "mean"
     } else if (Distribution == "nonparametric") {MethodDictate <- "median"}
@@ -121,6 +122,8 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
           panel.grid.minor = element_blank(),
           plot.title = element_text(hjust = 0.5, size = 8))
 
+  if (statLines==TRUE){
+
   if (Method %in% c("Two Sample t-test",
       "Wilcoxon rank sum test with continuity correction", "Wilcoxon rank sum exact test")){
     plot <- plot + geom_line(data=tibble(x=c(1,2), y=c(SingleY, SingleY)),
@@ -169,6 +172,8 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
                 size = 4, inherit.aes = FALSE) +
       labs(caption = Method)
   } else {message("Test type not recognized")}
+
+  }
 
  return(plot)
 }

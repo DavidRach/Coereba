@@ -17,7 +17,8 @@ Utility_Behemoth(
   cex = 2,
   size = 3,
   corral.width = 1,
-  XAxisLevels = NULL
+  XAxisLevels = NULL,
+  statLines = TRUE
 )
 }
 \arguments{
@@ -47,6 +48,8 @@ Utility_Behemoth(
 \item{corral.width}{width of corral bin argument for beeswarm.}
 
 \item{XAxisLevels}{Provide list marker names correct order for x-axis reordering, default NULL}
+
+\item{statLines}{Default is TRUE, otherwise skips plotting pvalue and brackets}
 }
 \value{
 A ggplot2 object for the corresponding data of interest.
