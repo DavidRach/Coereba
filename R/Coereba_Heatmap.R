@@ -50,7 +50,7 @@ Coereba_Heatmap <- function(data, RemoveMarkers=NULL, MarkerOrder=NULL,
     Pops <- TheExpressionData %>% select(!where(is.numeric))
     Markers <- TheExpressionData %>% select(where(is.numeric)) %>%
       relocate(all_of(MarkerOrder))
-    TheExpressioNData <- cbind(Pops, Markers)
+    TheExpressionData <- cbind(Pops, Markers)
   }
 
   RoundedExpressions <- TheExpressionData %>%
@@ -61,7 +61,7 @@ Coereba_Heatmap <- function(data, RemoveMarkers=NULL, MarkerOrder=NULL,
   colnames(TheTable) <- TheTable[1,]
   TheTable <- TheTable[-1,]
   TheTable <- TheTable %>% rownames_to_column(., var="Marker")
-  TheColumns <- colnames(TheTableMedians)
+  TheColumns <- colnames(TheTable)
   TheColumns <- TheColumns[-1]
 
   TheDataTable <- TheTable %>% gt()
