@@ -25,9 +25,8 @@ UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 
 # Execute the test
-TheGateCutoffs <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
-  subset="live", sample.name="GROUPNAME", remove.strings=".fcs",
-  marker=c("BUV805-A"))
+TheGateCutoffs <- Coereba_GateCutoffs(gs=UnmixedGatingSet[1],
+  subset="live", sample.name="GROUPNAME")
 
 # Is it more than 1 row
 expect_equal(nrow(TheGateCutoffs), 1)

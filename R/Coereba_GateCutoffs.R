@@ -1,32 +1,36 @@
 #' Function to guess the gate cutoff values
 #'
-#' @param x A GatingSet object
+#' @param gs A GatingSet object
 #' @param subset Gate node of interest
 #' @param sample.name The keyword where specimens name is stored
-#' @param remove.strings Values to be removed from the name
-#' @param marker Default set to NULL, otherwise a list of Fluorophores
+#' @param desiredColumns Values to be removed from the name
+#' @param GatingTemplate Default set to NULL, otherwise a list of Fluorophores
 #'  you want to gate
 #'
 #' @importFrom flowCore keyword
-#' @importFrom Luciernaga NameCleanUp
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore exprs
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#' @importFrom data.table fread
 #' @importFrom purrr map
+#' @importFrom purrr walk
 #' @importFrom dplyr bind_rows
+#' @importFrom dplyr pull
+#' @importFrom tibble rownames_to_column
 #' @importFrom tidyr pivot_wider
-#' @importFrom dplyr rename
 #'
 #' @return A data.frame with estimated gate cutoffs for every marker
 #'  for every specimen
 #' @export
 #'
 #' @examples
-#' 
+#'
 #' library(flowCore)
 #' library(flowWorkspace)
 #' library(openCyto)
 #' library(data.table)
-#' 
+#'
 #' File_Location <- system.file("extdata", package = "Coereba")
 #' FCS_Files <- list.files(path = File_Location, pattern = ".fcs", full.names = TRUE)
 #' UnmixedFCSFiles <- FCS_Files[1]
@@ -43,12 +47,112 @@
 #'  pattern = 'GatesUnmixed.csv'))
 #' UnmixedGating <- gatingTemplate(UnmixedGates)
 #' gt_gating(UnmixedGating, UnmixedGatingSet)
-#' 
-#' TheGateCutoffs <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
-#'  subset="live", sample.name="GROUPNAME", remove.strings=".fcs",
-#'  marker=c("BUV805-A"))
 #'
-Coereba_GateCutoffs <- function(x, subset, sample.name, remove.strings,
+#' TheGateCutoffs <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
+#'  subset="live", sample.name="GROUPNAME")
+#'
+Coereba_GateCutoffs <- function(gs, subset, sample.name,
+                                desiredCols=NULL, GatingTemplate=NULL){
+    if (length(sample.name) == 2){
+      first <- sample.name[[1]]
+      second <- sample.name[[2]]
+      first <- keyword(gs, first)
+      second <- keyword(gs, second)
+      name <- paste(first, second, sep="_")
+    } else {name <- keyword(gs, sample.name)}
+
+    LiveCells <- gs_pop_get_data(gs, root=subset)
+    TheCols <- colnames(LiveCells)
+
+    TheExprs <- exprs(LiveCells[[1]])
+    TheExprs <- data.frame(TheExprs, check.names=FALSE)
+
+
+    if (is.null(desiredCols)){
+      Data <- TheExprs[,-grep("Time|FS|SC|SS|Original|W$|H$",
+                              names(TheExprs))]
+    } else {Data <- TheExprs %>% select(all_of(desiredCols))
+    }
+
+    TheGates <- colnames(Data)
+
+
+    if (is.null(GatingTemplate)){
+      FileLocation <- system.file("extdata", package = "Luciernaga")
+      UnmixedGates <- fread(file.path(path = FileLocation,
+                                      pattern = 'GatesUnmixed.csv'))
+      Example <- UnmixedGates[6]
+      Example[1,3] <- subset
+      # Keeping the negative pop.
+      # Retaining the gate_mindensity arg.
+
+      Template <- map(.x=TheGates, .f=GateTemplateAssembly,
+                      data=Example) %>% bind_rows()
+    } else {Template <- fread(GatingTemplate)}
+
+    TheseOnes <- Template %>% pull(alias)
+
+    walk(.x=TheseOnes, .f=GateExecution, data=Template, gs=gs)
+
+    Data <- map(.x=TheseOnes, .f=GateRetrieval, gs=gs) %>% bind_rows
+    Data <- rownames_to_column(Data, var="Fluorophore")
+    Data <- Data %>% pivot_wider(names_from = "Fluorophore",
+                                 values_from = "Cutoff")
+    specimen <- data.frame(specimen=name[[1]])
+    Final <- cbind(specimen, Data)
+    return(Final)
+}
+
+#' Internal for Coereba_GateCutoffs
+#'
+#' @importFrom flowWorkspace gs_pop_get_gate
+#'
+#' @noRd
+GateRetrieval <- function(x, gs){
+  ReturnValue <- gs_pop_get_gate(gs, x)
+  Cutoff <- ReturnValue[[1]]@min
+  Cutoff <- data.frame(Cutoff, check.names=FALSE)
+}
+
+#' Internal for Coereba_GateCutoffs
+#'
+#' @importFrom dplyr filter
+#' @importFrom openCyto gs_add_gating_method
+#'
+#' @noRd
+GateExecution <- function(x, data, gs){
+  Data <- data %>% dplyr::filter(alias %in% x)
+  if (nrow(Data) != 1){stop("Too many rows at GateFilter")}
+
+  suppressMessages(
+    gs_add_gating_method(gs, parent = Data[[1,3]], pop = "+",
+                         alias = Data[[1,1]], gating_method = "gate_mindensity",
+                         dims = Data[[1,4]])
+  )
+}
+
+#' Internal for Coereba_GateCutoffs
+#'
+#' @noRd
+GateTemplateAssembly <- function(x, data){
+  data[1,1] <- x
+  data[1,4] <- x
+  return(data)
+}
+
+#' The old version of the gate cutoffs
+#'
+#' @importFrom flowCore keyword
+#' @importFrom Luciernaga NameCleanUp
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore exprs
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr rename
+#'
+#' @noRd
+Coereba_GateCutoffsOld <- function(x, subset, sample.name, remove.strings,
   marker) {
   if (length(sample.name) == 2){
     first <- sample.name[[1]]
@@ -77,8 +181,6 @@ Coereba_GateCutoffs <- function(x, subset, sample.name, remove.strings,
   return(Data)
 }
 
-
-
 #' Internal for Modern Gate Cutoff
 #'
 #' @param x Iterated Fluorophore Name
@@ -97,7 +199,6 @@ Coereba_GateCutoffs <- function(x, subset, sample.name, remove.strings,
 #' @importFrom magrittr %>%
 #' @importFrom dplyr pull
 #' @importFrom dplyr lag
-#' 
 #'
 #' @noRd
 ColumnExprs <- function(x, TheDF, w=2, span=0.1, ...) {
@@ -171,7 +272,7 @@ ColumnExprs <- function(x, TheDF, w=2, span=0.1, ...) {
   } else {orientation <- "left"} #Need to fix for center
   #orientation
 
-  if (shape == "greater" & orientation == "left"){ 
+  if (shape == "greater" & orientation == "left"){
     code <- paste(shape, orientation, Fluorophore, sep = " ")
   TheYmaxLimit <- TheYMax*0.2
   freq_table2 <- freq_table1 %>% filter(xVal > TheMax) %>%
@@ -226,7 +327,7 @@ ColumnExprs <- function(x, TheDF, w=2, span=0.1, ...) {
 
     if (orientation == "left"){
       TheYmaxLimit <- TheYMax*0.2
-      freq_table2 <- freq_table1 %>% filter(xVal > TheMax) %>% 
+      freq_table2 <- freq_table1 %>% filter(xVal > TheMax) %>%
         filter(yVal < TheYmaxLimit)
       index <- which(freq_table2$yVal > lag(freq_table2$yVal), arr.ind = TRUE)[1] - 1
 
@@ -324,12 +425,12 @@ LocalMinima <- function(theX, theY, w, therepeats, alternatename, ...){
 
   PointData <- MainData %>% dplyr::filter(x %in% peak_points)
 
-  Views <- ggplot(MainData, aes(x = x, y = y)) + 
+  Views <- ggplot(MainData, aes(x = x, y = y)) +
     geom_point(size = 2, color = "Gray") +
     geom_line(aes(y = yhat), linewidth = 1)  +
     geom_point(data = PointData, aes(x, yhat),
      color = "Red", shape = 19, size = 2) +
-    geom_segment(data = PointData, aes(x = x, 
+    geom_segment(data = PointData, aes(x = x,
       xend = x, y = 0, yend = yhat), color = "Red",
        linewidth = 1, linetype = "dashed") +
     labs(title = alternatename) + theme_bw() +

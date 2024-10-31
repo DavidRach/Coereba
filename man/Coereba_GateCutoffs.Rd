@@ -4,19 +4,25 @@
 \alias{Coereba_GateCutoffs}
 \title{Function to guess the gate cutoff values}
 \usage{
-Coereba_GateCutoffs(x, subset, sample.name, remove.strings, marker)
+Coereba_GateCutoffs(
+  gs,
+  subset,
+  sample.name,
+  desiredCols = NULL,
+  GatingTemplate = NULL
+)
 }
 \arguments{
-\item{x}{A GatingSet object}
+\item{gs}{A GatingSet object}
 
 \item{subset}{Gate node of interest}
 
 \item{sample.name}{The keyword where specimens name is stored}
 
-\item{remove.strings}{Values to be removed from the name}
-
-\item{marker}{Default set to NULL, otherwise a list of Fluorophores
+\item{GatingTemplate}{Default set to NULL, otherwise a list of Fluorophores
 you want to gate}
+
+\item{desiredColumns}{Values to be removed from the name}
 }
 \value{
 A data.frame with estimated gate cutoffs for every marker
@@ -50,7 +56,6 @@ UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 
 TheGateCutoffs <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
- subset="live", sample.name="GROUPNAME", remove.strings=".fcs",
- marker=c("BUV805-A"))
+ subset="live", sample.name="GROUPNAME")
 
 }
