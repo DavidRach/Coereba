@@ -3,9 +3,11 @@
 #' @param gs A GatingSet object
 #' @param subset Gate node of interest
 #' @param sample.name The keyword where specimens name is stored
-#' @param desiredColumns Values to be removed from the name
-#' @param GatingTemplate Default set to NULL, otherwise a list of Fluorophores
-#'  you want to gate
+#' @param desiredColumns Column names of fluorophores you want to gate
+#' @param returnTemplate Default FALSE, when set to TRUE returns a .csv of Gating
+#' Template that can be modified and provisioned by the GatingTemplate argument
+#' @param outpath Default NULL, provides file path to desired folder to store returnTemplate
+#' @param GatingTemplate A file.path to the GatingTemplate .csv you want to swap in
 #'
 #' @importFrom flowCore keyword
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -19,6 +21,7 @@
 #' @importFrom dplyr pull
 #' @importFrom tibble rownames_to_column
 #' @importFrom tidyr pivot_wider
+#' @importFrom utils write.csv
 #'
 #' @return A data.frame with estimated gate cutoffs for every marker
 #'  for every specimen
@@ -51,8 +54,9 @@
 #' TheGateCutoffs <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
 #'  subset="live", sample.name="GROUPNAME")
 #'
-Coereba_GateCutoffs <- function(gs, subset, sample.name,
-                                desiredCols=NULL, GatingTemplate=NULL){
+Coereba_GateCutoffs <- function(gs, subset, sample.name, desiredCols=NULL,
+                                returnTemplate=FALSE, outpath=NULL,
+                                GatingTemplate=NULL){
     if (length(sample.name) == 2){
       first <- sample.name[[1]]
       second <- sample.name[[2]]
@@ -90,7 +94,18 @@ Coereba_GateCutoffs <- function(gs, subset, sample.name,
                       data=Example) %>% bind_rows()
     } else {Template <- fread(GatingTemplate)}
 
+    if (returnTemplate == TRUE){
+      if (is.null(outpath)){StorageLocation <- getwd()
+      } else {StorageLocation <- outpath}
+
+      StorageName <- file.path(StorageLocation, "TemplateForGates.csv")
+      write.csv(Template, StorageName, row.names=FALSE)
+      return(Template)
+    }
+
     TheseOnes <- Template %>% pull(alias)
+    # x <- TheseOnes[1]
+    # data <- Template
 
     walk(.x=TheseOnes, .f=GateExecution, data=Template, gs=gs)
 
@@ -118,17 +133,25 @@ GateRetrieval <- function(x, gs){
 #'
 #' @importFrom dplyr filter
 #' @importFrom openCyto gs_add_gating_method
+#' @importFrom flowWorkspace gs_get_pop_paths
+#' @importFrom stringr str_detect
 #'
 #' @noRd
 GateExecution <- function(x, data, gs){
   Data <- data %>% dplyr::filter(alias %in% x)
   if (nrow(Data) != 1){stop("Too many rows at GateFilter")}
 
+  ExistingGates <- gs_get_pop_paths(gs, path="auto")
+  #ExistingGates <- gs_get_leaf_nodes(gs)
+
+  if(!any(str_detect(ExistingGates, x))){
+
   suppressMessages(
     gs_add_gating_method(gs, parent = Data[[1,3]], pop = "+",
                          alias = Data[[1,1]], gating_method = "gate_mindensity",
                          dims = Data[[1,4]])
   )
+  } else {Harry <- "Youre a Wizard"}
 }
 
 #' Internal for Coereba_GateCutoffs

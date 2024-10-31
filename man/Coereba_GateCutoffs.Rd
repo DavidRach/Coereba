@@ -9,6 +9,8 @@ Coereba_GateCutoffs(
   subset,
   sample.name,
   desiredCols = NULL,
+  returnTemplate = FALSE,
+  outpath = NULL,
   GatingTemplate = NULL
 )
 }
@@ -19,10 +21,14 @@ Coereba_GateCutoffs(
 
 \item{sample.name}{The keyword where specimens name is stored}
 
-\item{GatingTemplate}{Default set to NULL, otherwise a list of Fluorophores
-you want to gate}
+\item{returnTemplate}{Default FALSE, when set to TRUE returns a .csv of Gating
+Template that can be modified and provisioned by the GatingTemplate argument}
 
-\item{desiredColumns}{Values to be removed from the name}
+\item{outpath}{Default NULL, provides file path to desired folder to store returnTemplate}
+
+\item{GatingTemplate}{A file.path to the GatingTemplate .csv you want to swap in}
+
+\item{desiredColumns}{Column names of fluorophores you want to gate}
 }
 \value{
 A data.frame with estimated gate cutoffs for every marker
