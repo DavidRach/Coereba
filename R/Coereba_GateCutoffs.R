@@ -8,6 +8,7 @@
 #' Template that can be modified and provisioned by the GatingTemplate argument
 #' @param outpath Default NULL, provides file path to desired folder to store returnTemplate
 #' @param GatingTemplate A file.path to the GatingTemplate .csv you want to swap in
+#' @param returnPlots Default FALSE, will instead return plots for troubleshooting
 #'
 #' @importFrom flowCore keyword
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -56,7 +57,7 @@
 #'
 Coereba_GateCutoffs <- function(gs, subset, sample.name, desiredCols=NULL,
                                 returnTemplate=FALSE, outpath=NULL,
-                                GatingTemplate=NULL){
+                                GatingTemplate=NULL, returnPlots=FALSE){
     if (length(sample.name) == 2){
       first <- sample.name[[1]]
       second <- sample.name[[2]]
@@ -116,6 +117,8 @@ Coereba_GateCutoffs <- function(gs, subset, sample.name, desiredCols=NULL,
 
     if (InternalCheck == TRUE) {
     Data <- GateChecks(splitpoint=TheSplitpoints, data=TheData)
+
+    if (returnPlots== TRUE){return(Data)}
     }
 
     Data <- Data %>% pivot_wider(names_from = "Fluorophore",
@@ -127,39 +130,51 @@ Coereba_GateCutoffs <- function(gs, subset, sample.name, desiredCols=NULL,
 }
 
 
-
-
 #' Internal for Coereba_GateCutoffs
 #'
 #' @param splitpoint The data.frame of Fluorophore and Cutoff columns
 #' @param data The sample data in a data.frame
 #'
-#' @importFrom dplyr select
+#' @importFrom magrittr %>%
+#' @importFrom dplyr pull
+#' @importFrom purrr map
 #' @importFrom tidyselect all_of
 #' @importFrom dplyr rename
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
 #' @importFrom dplyr filter
 #' @importFrom dplyr row_number
-#' @importFrom magrittr %>%
-#' @importFrom dplyr pull
+
 #' @importFrom dplyr lag
 #'
 #' @noRd
-GateChecks <- function(splitpoint, data) {
+GateChecks <- function(splitpoint, data, returnPlots=FALSE) {
   TheMarkers <- splitpoint %>% pull(Fluorophore)
-  #x <- TheMarkers[2]
+  #x <- TheMarkers[7]
 
-  CorrectedData <- map(.x=TheMarkers[10], .f=FunctionStandin,
-                       splitpoint=splitpoint, data=data)
+  CorrectedData <- map(.x=TheMarkers, .f=FunctionStandin,
+                       splitpoint=splitpoint, data=data,
+                       returnPlots=returnPlots)
 
+  if (returnPlots== TRUE){return(CorrectedData)}
 }
 
 
 #' Internal for Coereba_GateCutoffs
 #'
+#' @param x The Fluorophore being iterated on
+#' @param splitpoint The data.frame of fluorophore cutoff splitpoints
+#' @param data The data.frame of exprs for the fluorophores
+#' @param returnPlots Default False, returns plots for troubleshooting
 #'
-#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr rename
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom dplyr row_number
 #'
 #' @noRd
 FunctionStandin <- function(x, splitpoint, data, returnPlots=FALSE){
@@ -190,9 +205,9 @@ FunctionStandin <- function(x, splitpoint, data, returnPlots=FALSE){
   if (length(TheModeCount) > 1){TheModeCount <- TheModeCount[1]}
 
   # TheMin <- TheLow
-  TheMin <- freq_table %>% filter(row_number() == 1) %>% pull(OriginalX)
+  TheMin <- freq_table %>% dplyr::filter(row_number() == 1) %>% pull(OriginalX)
   # TheMax <- TheHigh
-  TheMax <- freq_table %>% filter(row_number() == nrow(freq_table)) %>%
+  TheMax <- freq_table %>% dplyr::filter(row_number() == nrow(freq_table)) %>%
     pull(OriginalX)
   TheRange <- TheMax-TheMin # Caution Here With Negative Values
   Middle <- (TheRange/2)+TheMin
@@ -214,38 +229,26 @@ FunctionStandin <- function(x, splitpoint, data, returnPlots=FALSE){
   return(Plot)
   }
 
-  return(TheMinima)
+  if (length(TheMinima) == 0){message("No minima present")}
+
+  Options <- c(TheSplitpoint, TheMinima)
+
+  if (TheMode <= Middle){orientation <- "left"
+  } else {orientation <- "right"}
+
+  if (all(Options <= TheMode)){shape <- "lesser"
+  } else if (all(Options > TheMode)){shape <- "greater"
+  } else {shape <- "sandwhich"}
+
+  Summons <- paste(Fluorophore, shape, orientation, sep=" ")
+  return(Summons)
 }
 
 
 #' Internal for Coereba_GateCutoffs
 #'
-#'
-#'
-#'
 #' @noRd
-NewFunctionStandIn <- function(){
-
-  if(nrow(Minima) == 0){
-    #If no Minima is detected, use the max value
-    Minima1 <- freq_table1 %>% filter(row_number() == nrow(freq_table1)) %>%
-      pull(xVal)
-    Minima2 <- freq_table1 %>% filter(row_number() == nrow(freq_table1)) %>%
-      pull(yVal)
-
-  } else {
-
-    Minima1 <- Minima %>% pull(x) #What happens if it finds none?
-    Minima2 <- Minima %>% pull(yhat)
-
-  }
-
-  #if(any(Minima2 > (TheYMax*0.1))) {message("Override is in play ", Fluorophore )}
-
-  if (all(Minima1 < TheMax)){shape <- "greater"} else if (
-    all(Minima1 > TheMax)) {shape <- "lesser"} else {
-      shape <- "sandwhich"}
-
+NewFunctionStandIn <- function(x){
   if (shape == "sandwhich" & length(Minima1) > 2){
     Minima1 <- Minima1[-c(1, length(Minima1))]
     if (all(Minima1 < TheMax)) {shape1 <- "greater"
@@ -364,31 +367,21 @@ NewFunctionStandIn <- function(){
 
 #' Internal for Coereba_Gate Cutoffs
 #'
-#' @param theX Something
-#' @param theY Something
-#' @param w Something
-#' @param therepeats Something
+#' @param theX A vector of MFI positions
+#' @param theY A Vector of Counts for theX positions
+#' @param span Default 0.11 passed to roll apply zoo
+#' @param w Default 3 passed to roll apply zoo
+#' @param therepeats Extra positions applied to both end to allow roll
 #' @param alternatename Something
-#' @param ... Something
 #'
 #' @importFrom stats loess
 #' @importFrom zoo rollapply
 #' @importFrom zoo zoo
 #' @importFrom dplyr filter
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_point
-#' @importFrom ggplot2 geom_line
-#' @importFrom ggplot2 geom_segment
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_text
-#' @importFrom ggplot2 element_blank
 #' @importFrom dplyr select
 #'
 #' @noRd
-LocalMinima <- function(theX, theY, span=0.11, w=3, therepeats=3, alternatename){
+LocalMinima <- function(theX, theY, span=0.11, w=3, therepeats=3){
   # plot(theX, theY)
 
   # Setting up X Ranked
@@ -442,6 +435,13 @@ LocalMinima <- function(theX, theY, span=0.11, w=3, therepeats=3, alternatename)
 
 #' Internal for Coereba_GateCutoffs
 #'
+#' @param data The passed dataframe
+#' @param TheMin The mininum MFI for the dataset with a count of 3
+#' @param TheMax The maxinum MFI with a count of 3
+#' @param TheMiddle The estimated middle point between TheMin and TheMax
+#' @param TheSplitpoint The splitpoint retrieved by GateRetrieval
+#' @param name The Fluorophore name for the plot
+#'
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes
 #' @importFrom ggplot2 geom_line
@@ -452,14 +452,13 @@ LocalMinima <- function(theX, theY, span=0.11, w=3, therepeats=3, alternatename)
 #' @noRd
 MinimaPlot <- function(data, TheMin, TheMax, Middle, TheSplitpoint,
                        LocalMinima, name=Fluorophore){
-  if (length(LocalMinima) > 1)
 
     Plot <- ggplot(data, aes(x=MFI, y=Count)) + geom_line() +
-      geom_vline(aes(xintercept = TheMax), color = "red", size = 0.5) +
-      geom_vline(aes(xintercept = TheMin), color = "red", size = 0.5) +
-      geom_vline(aes(xintercept = Middle), color = "red", size = 0.5) +
-      geom_vline(aes(xintercept = TheSplitpoint), color = "blue", size = 1) +
-      geom_vline(xintercept = LocalMinima, color = "black", size = 1) +
+      geom_vline(aes(xintercept = TheMax), color = "red", linewidth = 0.5) +
+      geom_vline(aes(xintercept = TheMin), color = "red", linewidth = 0.5) +
+      geom_vline(aes(xintercept = Middle), color = "red", linewidth = 0.5) +
+      geom_vline(aes(xintercept = TheSplitpoint), color = "blue", linewidth = 1) +
+      geom_vline(xintercept = LocalMinima, color = "black", linewidth = 1) +
       labs(title=name)+
       theme_bw()
 
@@ -469,6 +468,9 @@ MinimaPlot <- function(data, TheMin, TheMax, Middle, TheSplitpoint,
 
 
 #' Internal for Coereba_GateCutoffs
+#'
+#' @param x The passed gate corresponding fluorophore splitpoint
+#' @param gs The iterated on GatingSet object
 #'
 #' @importFrom flowWorkspace gs_pop_get_gate
 #'
@@ -481,10 +483,14 @@ GateRetrieval <- function(x, gs){
 
 #' Internal for Coereba_GateCutoffs
 #'
+#' @param x The particular Fluorophore to be gated
+#' @param data The data.frame containing the openCyto gating template
+#' @param gs The iterated on GatingSet object
+#'
 #' @importFrom dplyr filter
-#' @importFrom openCyto gs_add_gating_method
 #' @importFrom flowWorkspace gs_get_pop_paths
 #' @importFrom stringr str_detect
+#' @importFrom openCyto gs_add_gating_method
 #'
 #' @noRd
 GateExecution <- function(x, data, gs){
@@ -505,6 +511,9 @@ GateExecution <- function(x, data, gs){
 }
 
 #' Internal for Coereba_GateCutoffs
+#'
+#' @param x A fluorophore name
+#' @param data The data.frame row of to-be-modified gating template
 #'
 #' @noRd
 GateTemplateAssembly <- function(x, data){

@@ -11,7 +11,8 @@ Coereba_GateCutoffs(
   desiredCols = NULL,
   returnTemplate = FALSE,
   outpath = NULL,
-  GatingTemplate = NULL
+  GatingTemplate = NULL,
+  returnPlots = FALSE
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ Template that can be modified and provisioned by the GatingTemplate argument}
 \item{outpath}{Default NULL, provides file path to desired folder to store returnTemplate}
 
 \item{GatingTemplate}{A file.path to the GatingTemplate .csv you want to swap in}
+
+\item{returnPlots}{Default FALSE, will instead return plots for troubleshooting}
 
 \item{desiredColumns}{Column names of fluorophores you want to gate}
 }
