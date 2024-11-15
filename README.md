@@ -40,7 +40,7 @@ library(Coereba)
 
 ### Get Started
 
-Please check out our how-to [vignettes](https://davidrach.github.io/Coereba/articles/Coereba)
+Please check out our how-to [vignettes](https://davidrach.github.io/Coereba/articles/GettingStarted.html)
 to get started
 
 
