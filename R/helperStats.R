@@ -1,3 +1,16 @@
+utils::globalVariables(c(".", ".data", "ART", "Cluster", "ClusterCount",
+                         "Clusters", "Count", "Cutoff", "Fluorophore",
+                         "Freq", "Identity", "InternalCheck", "MFI", "Marker",
+                         "Middle", "OriginalX", "Plot_Name", "Population",
+                         "SpecimenCount", "TheMax", "TheRange", "TheYMax",
+                         "Time", "Total_Counts", "Value", "Viral", "X_Label",
+                         "aggregate", "alias", "artexposure", "bid",
+                         "complete.cases", "dagostino_result", "distinct",
+                         "freq_table1", "levels_of_bid", "median", "n", "pData<-",
+                         "parameters<-", "ptype", "residuals", "shapiro_result",
+                         "specimen", "sym", "to", "value", "variable", "x", "xVal",
+                         "y", "yVal"))
+
 pval_mold <- function(x){
   if (x > 0.10){"n.s"} else if (x > 0.01) {round(x, 2)} else if (x > 0.001) {
     round(x, 3)} else if (x > 0.0001) {round(x, 4)} else if (x > 0.00001) {
@@ -16,7 +29,7 @@ dago_wrapper <- function(x){
 #' lower required n than what fBasics test is set at. Since no other way to specify
 #' alternate n to those functions, leveraging the GPL3-0 license and changing the
 #' original function n to n < 8 for equivalency to avoid the original implementation
-#' stop when n<20 not met. Leaving rest of the original functions untouched. 
+#' stop when n<20 not met. Leaving rest of the original functions untouched.
 #'
 #' @param x The data for your variable of interest
 #' @param title Default is NULL in original
@@ -27,7 +40,7 @@ dago_wrapper <- function(x){
 #' @importFrom stats pnorm
 #'
 #' @return Normalization Test results
-#' 
+#'
 #' @noRd
 dagoTest <- function(x, title = NULL, description = NULL){
   # A function implemented by Diethelm Wuertz
@@ -93,7 +106,7 @@ dagoTest <- function(x, title = NULL, description = NULL){
 
 .omnibus.test <- function(x){
     # Internal Function for D'Agostino Normality Test:
-  
+
     DNAME = deparse(substitute(x))
     if (exists("complete.cases")) {
       test = complete.cases(x)

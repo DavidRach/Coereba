@@ -228,15 +228,15 @@ Coereba_LocalMarkerExpressions <- function(x, y, DictionaryPath,
   TheX <- x
   TheName <- y
 
-  Here <- Coereba:::Coereba_Enumeration(x=TheX, TheDictionary = DictionaryPath,
+  Here <- Coereba_Enumeration(x=TheX, TheDictionary = DictionaryPath,
                                         ReplaceCharacters=ReplaceCharacters)
 
-  Hmm2 <- Coereba:::HEUAnnotation(x=Here, Metadata=Metadata,
+  Hmm2 <- HEUAnnotation(x=Here, Metadata=Metadata,
                                   Identity=IdentityColName, thecolumns=MetadataCols)
 
-  Filtered <- Coereba:::Coereba_Processing2(x=Hmm2)
+  Filtered <- Coereba_Processing2(x=Hmm2)
 
-  C <- Coereba:::Coereba_Processing3(x=Filtered)
+  C <- Coereba_Processing3(x=Filtered)
 
   Ready <- Filtered %>% pivot_wider(names_from = Clusters, values_from = Count)
   Ready[is.na(Ready)] <- 0

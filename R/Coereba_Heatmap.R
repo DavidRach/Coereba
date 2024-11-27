@@ -5,6 +5,8 @@
 #' @param data A path to a .csv file or a data.frame of Markers by Cell Pop
 #' @param RemoveMarkers Default is NULL, otherwise a list of markers to exclude.
 #' @param MarkerOrder Default is null, otherwise provide a list of markers in order desired.
+#' @param ColorFill Insert color
+#' @param ShapeFill Insert shapes
 #'
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom utils read.csv
@@ -26,7 +28,6 @@
 #' @importFrom gt cols_align
 #'
 #' @return A gt table ready for modification
-#' @export
 #'
 #' @noRd
 Coereba_Heatmap <- function(data, RemoveMarkers=NULL, MarkerOrder=NULL,

@@ -13,16 +13,23 @@ URL: https://github.com/DavidRach/Coereba, https://davidrach.github.io/Coereba/
 BugReports: https://github.com/DavidRach/Coereba/issues
 RoxygenNote: 7.3.2
 Imports: 
+    Biobase,
     broom,
+    data.table,
     dplyr,
     fBasics,
     flowCore,
     flowWorkspace,
     ggbeeswarm,
     ggplot2,
+    gt,
     Luciernaga,
     magrittr,
+    methods,
+    openCyto,
+    plotly,
     purrr,
+    RColorBrewer,
     shiny,
     stats,
     stringr,
@@ -34,16 +41,14 @@ Imports:
     utils,
     zoo,
     BiocGenerics
-Depends: R (>= 4.3.0)
+Depends: R (>= 4.4.0)
 Suggests: 
     BiocStyle,
-    data.table,
     DT,
     ggcyto,
     htmltools,
     htmlwidgets,
     knitr,
-    openCyto,
     rmarkdown,
     shinyBS,
     shinydashboard,

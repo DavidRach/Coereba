@@ -3,7 +3,7 @@
 #' @param gs A GatingSet object
 #' @param subset Gate node of interest
 #' @param sample.name The keyword where specimens name is stored
-#' @param desiredColumns Column names of fluorophores you want to gate
+#' @param desiredCols Column names of fluorophores you want to gate
 #' @param returnTemplate Default FALSE, when set to TRUE returns a .csv of Gating
 #' Template that can be modified and provisioned by the GatingTemplate argument
 #' @param outpath Default NULL, provides file path to desired folder to store returnTemplate
@@ -215,7 +215,7 @@ FunctionStandin <- function(x, splitpoint, data, returnPlots=FALSE){
   freqX <- freq_table %>% pull(OriginalX)
   freqY <- freq_table %>% pull(yVal)
 
-  Minima <- LocalMinima(theX = freqX, theY = freqY, alternatename = Fluorophore)
+  Minima <- LocalMinima(theX = freqX, theY = freqY)
   TheMinima <- Minima %>% pull(x)
 
   if (returnPlots == TRUE){
@@ -387,7 +387,7 @@ LocalMinima <- function(theX, theY, span=0.11, w=3, therepeats=3){
   # Setting up X Ranked
   repeats <- therepeats*2
   NewX <- length(theX) + repeats
-  NewX <- 1:NewX
+  NewX <- seq_len(NewX)
 
   # Setting up equivalent Y
   LengthY <- length(theY)

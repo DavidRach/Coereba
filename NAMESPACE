@@ -2,7 +2,6 @@
 
 export(Coereba_App)
 export(Coereba_GateCutoffs)
-export(Coereba_Heatmap)
 export(Coereba_MarkerExpressions)
 export(Coereba_UpdateGates)
 export(Utility_Behemoth)

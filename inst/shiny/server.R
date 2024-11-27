@@ -107,7 +107,7 @@ server <- function(input, output, session) {
       local({
         idx <- i  # Makes a local copy - DTR
         output[[paste0("plot_", idx)]] <- renderPlotly({
-          p <- ggplotly(plots_list[[idx]])
+          p <- plotly::ggplotly(plots_list[[idx]])
 
           # Detects the click event  - DTR
           p <- htmlwidgets::onRender(
