@@ -1,5 +1,5 @@
 ---
-title: "Getting Started with `Coereba`"
+title: "Getting Started with Coereba"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
@@ -93,7 +93,8 @@ To get started, you will first need to provide the location on your computer whe
 ```{r Additional Example, eval = FALSE}
 File_Location <- file.path("C:", "Users", "JohnDoe", "Desktop", "TodaysExperiment")
 FCS_Pattern <- ".fcs$"
-FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
+                        full.names = TRUE, recursive = FALSE)
 ```
 
 For this vignette, we will using several small .fcs files that can be found in Coereba's extdata folder for our example. 
@@ -101,7 +102,8 @@ For this vignette, we will using several small .fcs files that can be found in C
 ```{r Access Package Data}
 File_Location <- system.file("extdata", package = "Coereba")
 FCS_Pattern <- ".fcs$"
-FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
+                        full.names = TRUE, recursive = FALSE)
 head(FCS_Files, 3)
 ```
 
@@ -113,7 +115,8 @@ Working with the unmixed full-stained samples mentioned above, we will proceed b
 
 ```{r}
 UnmixedFCSFiles <- FCS_Files[c(1:3)]
-UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles, truncate_max_range = FALSE, transformation = FALSE)
+UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles, truncate_max_range = FALSE,
+                                        transformation = FALSE)
 UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
 UnmixedGatingSet
 ```
@@ -121,10 +124,12 @@ UnmixedGatingSet
 Now that we have created a GatingSet object, we will identify the markers/fluorophores present within the .fcs files, and exclude markers from the list don't require transformation (as is the case with FSC, SSC). We will then bi-exponentially transform the data using `r Biocpkg("flowWorkspace")` `flowWorkspace::flowjo_biexp_trans()` before applying a `r Biocpkg("openCyto")`gating template that was customized for this particular panel, which can be found in the extdata folder. 
 
 ```{r}
+#| message: false
 Markers <- colnames(UnmixedCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 
-MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000, pos = 4.5, neg = 0, widthBasis = -1000)
+MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000,
+                                               pos = 4.5, neg = 0, widthBasis = -1000)
 TransformList <- transformerList(KeptMarkers, MyBiexponentialTransform)
 UnmixedGatingSet <- transform(UnmixedGatingSet, TransformList)
 
@@ -142,7 +147,10 @@ We can additionally verify that the gating of the cell populations of interest w
 ```{r}
 library(Luciernaga)
 
-MyPlot <- Utility_GatingPlots(x=UnmixedGatingSet[1], sample.name=c("GROUPNAME", "TUBENAME"), removestrings=".fcs", subset="live", gtFile=UnmixedGates, DesiredGates=NULL, outpath = getwd(), export=FALSE, therows=3, thecolumns=2)
+MyPlot <- Utility_GatingPlots(x=UnmixedGatingSet[1], sample.name=c("GROUPNAME", "TUBENAME"),
+                              removestrings=".fcs", subset="live", gtFile=UnmixedGates,
+                              DesiredGates=NULL, outpath = getwd(), export=FALSE,
+                              therows=3, thecolumns=2)
 
 MyPlot
 ```
@@ -266,7 +274,9 @@ Consequently, we can iteratively leverage the number of markers included to targ
 
 Both functions are currently waiting on the ILT paper to be sent to collaborators so that David can implement his 5-subject binder worth of notes to implement a S4 OOP class to make manipulating the final outputs easier than the current .qmd files full of tidyverse data tidying. 
 
-```{r, warning=FALSE}
+```{r}
+#| warning: false
+
 CoerebaIDs <- Utility_Coereba(x=UnmixedGatingSet[1], subsets="live",
   sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A")
 ```
@@ -338,6 +348,8 @@ fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
 We can start by viewing all markers:
 
 ```{r}
+#| warning: FALSE
+
 ThePlot <- Utility_MarkerPlots(data=AllMarkers, panel=panelData,
   myfactor="ptype", shape_palette = shape_ptype, fill_palette = fill_ptype)
 
