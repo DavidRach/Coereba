@@ -53,7 +53,7 @@
 #'  pattern = 'GatesUnmixed.csv'))
 #' UnmixedGating <- gatingTemplate(UnmixedGates)
 #' gt_gating(UnmixedGating, UnmixedGatingSet)
-#' 
+#'
 #' CoerebaIDs <- Utility_Coereba(x=UnmixedGatingSet[1], subsets="live",
 #'  sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A")
 #'
@@ -125,19 +125,21 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=N
   Columns <- Columns[!Columns == starter]
   Columns <- Columns[!Columns == "AF"]
 
+  New1 <- New %>% dplyr::filter(.data[[sample.name]] %in% name)
+
   # Starting the Cluster Name
   MyNewestData <- My.Data %>% mutate(Cluster = case_when(
-    My.Data[[starter]] < New[New[[sample.name]] == name, starter] ~ paste(
+    My.Data[[starter]] < New1[New1[[sample.name]] == name, starter] ~ paste(
       starter, "neg", sep = "", collapse = NULL),
-    My.Data[[starter]] > New[New[[sample.name]] == name, starter] ~ paste(
+    My.Data[[starter]] > New1[New1[[sample.name]] == name, starter] ~ paste(
       starter, "pos", sep = "", collapse = NULL)))
 
   # Expanding the Cluster Name
   for(i in Columns) {MyNewestData <- MyNewestData %>%
     mutate(Cluster = case_when(
-      MyNewestData[[i]] < New[New[[sample.name]] == name, i] ~
+      MyNewestData[[i]] < New1[New1[[sample.name]] == name, i] ~
         paste(MyNewestData$Cluster, i, "neg", sep = ""),
-      MyNewestData[[i]] > New[New[[sample.name]] == name, i] ~
+      MyNewestData[[i]] > New1[New1[[sample.name]] == name, i] ~
         paste(MyNewestData$Cluster, i, "pos", sep = "")
     ))
   }

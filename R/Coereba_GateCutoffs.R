@@ -9,6 +9,7 @@
 #' @param outpath Default NULL, provides file path to desired folder to store returnTemplate
 #' @param GatingTemplate A file.path to the GatingTemplate .csv you want to swap in
 #' @param returnPlots Default FALSE, will instead return plots for troubleshooting
+#' @param InternalCheck Development, default is FALSE
 #'
 #' @importFrom flowCore keyword
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -57,7 +58,8 @@
 #'
 Coereba_GateCutoffs <- function(gs, subset, sample.name, desiredCols=NULL,
                                 returnTemplate=FALSE, outpath=NULL,
-                                GatingTemplate=NULL, returnPlots=FALSE){
+                                GatingTemplate=NULL, returnPlots=FALSE,
+                                InternalCheck=FALSE){
     if (length(sample.name) == 2){
       first <- sample.name[[1]]
       second <- sample.name[[2]]

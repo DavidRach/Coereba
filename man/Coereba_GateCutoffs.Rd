@@ -12,7 +12,8 @@ Coereba_GateCutoffs(
   returnTemplate = FALSE,
   outpath = NULL,
   GatingTemplate = NULL,
-  returnPlots = FALSE
+  returnPlots = FALSE,
+  InternalCheck = FALSE
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ Template that can be modified and provisioned by the GatingTemplate argument}
 \item{GatingTemplate}{A file.path to the GatingTemplate .csv you want to swap in}
 
 \item{returnPlots}{Default FALSE, will instead return plots for troubleshooting}
+
+\item{InternalCheck}{Development, default is FALSE}
 }
 \value{
 A data.frame with estimated gate cutoffs for every marker
