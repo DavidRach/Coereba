@@ -5,28 +5,28 @@
 #' @param myfactor The column name for your column containing your factor to group by
 #' @param normality The Normality test to be applied, "dagostino" or "shapiro". Default NULL
 #' @param specifiedNormality Default NULL leading to non-parametric, can switch by specifying
-#' "parametric" or "nonparametric". 
+#' "parametric" or "nonparametric".
 #' @param correction Multiple comparison correction argument, default is set at "none"
 #' @param override Internal, default 0.05. Set to 0.99 to force pairwise comparison in anova/kw.
-#' @param returnType Internal, default is "stats". "behemoth" for internal usage. 
+#' @param returnType Internal, default is "stats". Alternate "mean", "median". "behemoth" for internal usage.
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
 #' @importFrom tidyr unnest
 #' @importFrom stats shapiro.test
-#' @importFrom broom tidy 
+#' @importFrom broom tidy
 #' @importFrom stats t.test
 #' @importFrom stats aov
 #' @importFrom stats pairwise.t.test
 #' @importFrom stats wilcox.test
 #' @importFrom stats kruskal.test
 #' @importFrom stats pairwise.wilcox.test
-#' 
+#'
 #' @return A data.frame of test results
 #' @export
 #'
 #' @examples
-#' 
+#'
 #' File_Location <- system.file("extdata", package = "Coereba")
 #' panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
 #' binaryPath <- file.path(File_Location, "HeatmapExample.csv")
@@ -34,14 +34,14 @@
 #' panelData <- read.csv(panelPath, check.names=FALSE)
 #' binaryData <- read.csv(binaryPath, check.names=FALSE)
 #' dataData <- read.csv(dataPath, check.names=FALSE)
-#' 
+#'
 #' All <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
 #'  panel=panelData, starter="SparkBlue550")
-#' 
+#'
 #' TheStats <- Utility_Stats(data=All, var="CD62L",
 #'  myfactor="ptype", normality="dagostino")
-#' 
-Utility_Stats <- function(data, var, myfactor, normality=NULL, specifiedNormality=NULL, 
+#'
+Utility_Stats <- function(data, var, myfactor, normality=NULL, specifiedNormality=NULL,
   correction="none", override=0.05, returnType="stats"){
 
   theYlim <- max(data[[var]])
@@ -58,18 +58,18 @@ Utility_Stats <- function(data, var, myfactor, normality=NULL, specifiedNormalit
       Stashed <- data %>% group_by(.data[[myfactor]]) %>%
       summarize(dagostino_result = dago_wrapper(.data[[var]])) %>%
       unnest(dagostino_result)
-  
+
       Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"
         } else {"nonparametric"}
-  
+
     } else if (normality == "shapiro") {Stashed <- data %>% group_by(
       .data[[myfactor]]) %>%
       summarize(shapiro_result = list(tidy(shapiro.test(.data[[var]])))) %>%
       unnest(shapiro_result)
-  
+
       Distribution <- if(all(Stashed$p.value > 0.05)) {"parametric"
       } else{"nonparametric"}
-  
+
     } else {stop(
       "Only normality test currently supported are
         `dagostino` and `shapiro` or NULL, please correct")
@@ -112,14 +112,26 @@ Utility_Stats <- function(data, var, myfactor, normality=NULL, specifiedNormalit
       pwt
     } else {kt}
   }
-  
+
+  if (returnType == "mean"){TheMean <- MeanSD(data=data, var=var, myfactor=myfactor)
+                          TheMean <- TheMean %>% mutate(Marker=var) %>%
+                            relocate(Marker, .before=1)
+                          return(TheMean)}
+
+  if (returnMedian == TRUE){TheMedian <- MedianIQR(data=data, var=var, myfactor=myfactor)
+                            TheMedian <- TheMedian %>% mutate(Marker=var) %>%
+                              relocate(Marker, .before=1)
+                            return(TheMedian)
+
+  }
+
   if (returnType == "behemoth"){
     TheReturnPacket <- list(TheTest, Distribution, theYlim)
     return(TheReturnPacket)
   } else if (returnType == "stats"){
     Values <- TheTest$p.value %>% unlist()
     Values <- Values[!is.na(Values)]
-  
+
     Returns <- cbind(var, min(Values), Distribution)
     Returns <- data.frame(Returns)
     colnames(Returns)[1] <- "marker"
@@ -130,4 +142,19 @@ Utility_Stats <- function(data, var, myfactor, normality=NULL, specifiedNormalit
 }
 
 
+MeanSD <- function(data, var, myfactor) {
+  Tada <- data %>% group_by(.data[[myfactor]]) %>%
+    summarize(Mean = mean(.data[[var]], na.rm = TRUE),
+      SD = sd(.data[[var]], na.rm = TRUE), .groups = "drop")
+  return(Tada)
+}
 
+MedianIQR <- function(data, var, myfactor) {
+  Tada <- data %>% group_by(.data[[myfactor]]) %>%
+    summarize(Median = median(.data[[var]], na.rm = TRUE),
+      IQR = IQR(.data[[var]], na.rm = TRUE),
+      P25 = quantile(.data[[var]], 0.25, na.rm = TRUE),
+      P75 = quantile(.data[[var]], 0.75, na.rm = TRUE),
+      .groups = "drop")
+  return(Tada)
+}
