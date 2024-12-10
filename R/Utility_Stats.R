@@ -118,7 +118,7 @@ Utility_Stats <- function(data, var, myfactor, normality=NULL, specifiedNormalit
                             relocate(Marker, .before=1)
                           return(TheMean)}
 
-  if (returnMedian == TRUE){TheMedian <- MedianIQR(data=data, var=var, myfactor=myfactor)
+  if (returnType == "median"){TheMedian <- MedianIQR(data=data, var=var, myfactor=myfactor)
                             TheMedian <- TheMedian %>% mutate(Marker=var) %>%
                               relocate(Marker, .before=1)
                             return(TheMedian)
