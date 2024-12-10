@@ -224,7 +224,8 @@ Coereba_Processing3 <- function(x){
 Coereba_LocalMarkerExpressions <- function(x, y, DictionaryPath,
                                            ReplaceCharacters, Metadata, MetadataCols,
                                            IdentityColName, summarizeMedians=TRUE,
-                                           panel, starter){
+                                           panel, starter, returnType="All",
+                                           CombinatorialArgs=NULL){
   TheX <- x
   TheName <- y
 
@@ -242,7 +243,9 @@ Coereba_LocalMarkerExpressions <- function(x, y, DictionaryPath,
   Ready[is.na(Ready)] <- 0
 
   Aggregated <- Coereba_MarkerExpressions(data=Ready, binary=C,
-                                          panel=panel, starter=starter)
+                                          panel=panel, starter=starter,
+                                          returnType=returnType,
+                                          CombinatorialArgs = CombinatorialArgs)
 
   if(summarizeMedians==TRUE){
 
