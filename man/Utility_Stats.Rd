@@ -31,7 +31,7 @@ Utility_Stats(
 
 \item{override}{Internal, default 0.05. Set to 0.99 to force pairwise comparison in anova/kw.}
 
-\item{returnType}{Internal, default is "stats". "behemoth" for internal usage.}
+\item{returnType}{Internal, default is "stats". Alternate "mean", "median". "behemoth" for internal usage.}
 }
 \value{
 A data.frame of test results
