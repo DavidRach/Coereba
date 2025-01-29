@@ -1,5 +1,4 @@
-#' Preliminary Function, processes colnames, reverts from dictionary if needed,
-#'  derives Ratio.
+#' Processes concatinated file to pivot_longer data.frame with specimen, Cluster, Ratio. 
 #'
 #' @param x A Coereba data.frame containing specimen and Cluster columns.
 #' @param TheDictionary Default NULL, alternatively a file.path
