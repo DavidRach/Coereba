@@ -1,3 +1,79 @@
+#' Takes Utility_Coereba output and returns a Bioconductor Summarized Experiment object
+Coereba_Processing <- function(x, TheDictionary=NULL,  Sprint="%03d", ReplaceCharacters=NULL,
+Metadata, Identity, thecolumns){
+
+  if(!is.data.frame(x)){
+    stop("Please provide Utility_Coereba output consisting of a data.frame 
+    with the exprs and Coereba columns")
+  }
+
+  TheIsolatedData <- data.frame(x, check.names = FALSE)
+
+  if(!is.null(TheDictionary)){
+
+    if(!is.data.frame(TheDictionary)){
+      Dictionary <- read.csv(TheDictionary, check.names=FALSE)
+    } else {Dictionary <- TheDictionary}
+
+    Conjoined <- left_join(TheIsolatedData, Dictionary, by="ClusterNumber")
+    Conjoined <- Conjoined %>% select(-all_of(c("Freq", "ClusterNumber")))
+
+    TheIsolatedData <- Conjoined
+  }
+
+  if(!is.null(ReplaceCharacters)){
+
+    if (!is.null(Sprint)){
+      TheIsolatedData$specimen <- sprintf(Sprint, TheIsolatedData$specimen)
+    }
+    
+    TheIsolatedData$specimen <- paste0(ReplaceCharacters, TheIsolatedData$specimen)
+  }
+
+  TheIsolatedData <- TheIsolatedData %>% select(specimen, Cluster)
+  #TheIsolatedData <- TheIsolatedData %>% select(.data[[specimen]], Cluster)
+  #colnames(TheIsolatedData)[[1]] <- "specimen"
+
+  # Derriving Count and Ratio
+  TheClusters <- TheIsolatedData %>% group_by(specimen, Cluster) %>%
+    summarise(Count = n()) %>% ungroup() #Counts clusters per specimen
+  TheSpecimens <- TheIsolatedData %>% group_by(specimen) %>%
+    summarise(SpecimenCount = n()) %>% ungroup() #Counts per Specimen
+  Merging <- left_join(TheClusters, TheSpecimens, by = "specimen")
+  Data <- Merging %>% mutate(Ratio = Count / SpecimenCount)
+
+  Ratio <- Data %>% select(-Count, -SpecimenCount) %>%
+    pivot_wider(names_from = specimen, values_from = Ratio)
+  Ratio[is.na(Ratio)] <- 0
+
+  # Derriving Assay Objects for S4
+  Counts <- Data %>% select(-Ratio, -SpecimenCount) %>% 
+    pivot_wider(names_from = specimen, values_from = Ratio)
+  Counts[is.na(Counts)] <- 0
+
+  # Assembling Metadata
+
+  if(!is.data.frame(Metadata)){Metadata <- read.csv(Metadata, check.names = FALSE)
+  } else {Metadata <- Metadata}
+
+  if (!is.null(thecolumns)){
+    Metadata <- Metadata %>% select(all_of(thecolumns))
+  }
+  
+  Metadata <- Metadata %>% rename(specimen = all_of(Identity))
+  #Metadata <- Metadata %>% rename(specimen = .data[[Identity]])
+  Metadata <- Metadata %>% unique() # Handling Issues With Repeated Rows.
+
+
+
+
+
+}
+
+
+
+
+
 #' Processes concatinated file to pivot_longer data.frame with specimen, Cluster, Ratio. 
 #'
 #' @param x A Coereba data.frame containing specimen and Cluster columns.
@@ -18,14 +94,16 @@
 #' @return An intermediate
 #'
 #' @noRd
-Coereba_Enumeration <- function(x, TheDictionary=NULL, ReplaceCharacters=NULL){
+Coereba_Enumeration <- function(x, TheDictionary=NULL, Sprint="%03d", ReplaceCharacters=NULL){
 
   TheIsolatedData <- data.frame(x, check.names = FALSE)
   TheIsolatedData <- TheIsolatedData[,-grep("Time|FS|SC|SS|Original|W$|H$|AF",
                                             names(TheIsolatedData))]
-  internalstrings <- c("FJComp-", "Comp-", "-A", "-", "_", " ")
-  colnames(TheIsolatedData) <- NameCleanUp(colnames(TheIsolatedData),
-                                           removestrings = internalstrings)
+  
+  #internalstrings <- c("FJComp-", "Comp-", "-A")
+  #internalstrings <- c("FJComp-", "Comp-", "-A", "-", "_", " ")
+  #colnames(TheIsolatedData) <- NameCleanUp(colnames(TheIsolatedData),
+  #                                         removestrings = internalstrings)
 
   if(!is.null(TheDictionary)){
 
@@ -36,15 +114,21 @@ Coereba_Enumeration <- function(x, TheDictionary=NULL, ReplaceCharacters=NULL){
     Conjoined <- left_join(TheIsolatedData, Dictionary, by="ClusterNumber")
     Conjoined <- Conjoined %>% select(-all_of(c("Freq", "ClusterNumber")))
 
-    if(!is.null(ReplaceCharacters)){
-      Conjoined$specimen <- sprintf("%03d", Conjoined$specimen) #Not Generalizable
-      Conjoined$specimen <- paste0(ReplaceCharacters, Conjoined$specimen)
-    }
-
     TheIsolatedData <- Conjoined
   }
 
+  if(!is.null(ReplaceCharacters)){
+
+    if (!is.null(Sprint)){
+      TheIsolatedData$specimen <- sprintf(Sprint, TheIsolatedData$specimen)
+    }
+    
+    TheIsolatedData$specimen <- paste0(ReplaceCharacters, TheIsolatedData$specimen)
+  }
+
   TheIsolatedData <- TheIsolatedData %>% select(specimen, Cluster)
+  #TheIsolatedData <- TheIsolatedData %>% select(.data[[specimen]], Cluster)
+  #colnames(TheIsolatedData)[[1]] <- "specimen"
 
   TheClusters <- TheIsolatedData %>% group_by(specimen, Cluster) %>%
     summarise(ClusterCount = n()) %>% ungroup() #Counts clusters per specimen
@@ -80,19 +164,22 @@ HEUAnnotation <- function(x, Metadata, Identity, thecolumns){
   if(!is.data.frame(Metadata)){Metadata <- read.csv(Metadata, check.names = FALSE)
   } else {Metadata <- Metadata}
 
-  # My specific non-generalizable edits
+  # My specific non-generalizable edits #Needs to be External.
   Metadata[[Identity]] <- gsub("INF-", "", Metadata[[Identity]])
   Metadata[[Identity]] <- sub("^0+", "", Metadata[[Identity]])
   Metadata[[Identity]] <- sub("-[0-9]{1}", "", Metadata[[Identity]])
   Metadata[[Identity]] <- str_pad(Metadata[[Identity]], 3, pad = "0")
   Metadata <- Metadata %>% mutate(
     bid = ifelse(grepl("^[0-9]", bid), paste0("INF", bid), bid))
+  
+  
   Metadata <- Metadata %>% select(all_of(thecolumns))
   Metadata <- Metadata %>% rename(specimen = all_of(Identity))
   Metadata <- Metadata %>% unique() # Handling Issues With Repeated Rows.
 
-  Merged <- merge(x, Metadata, by= "specimen")
-
+  Merged <- merge(x, Metadata, by= "specimen") #Swap left-join
+  
+  # Provide as Factor Levels Arguments (List?)
   Merged$specimen <- factor(Merged$specimen)
   Merged$ptype <- factor(Merged$ptype, levels = c("HU", "HEU-lo", "HEU-hi"))
   Merged$infant_sex <- factor(Merged$infant_sex, levels = c("Female", "Male"))
