@@ -8,8 +8,8 @@
 #' Template that can be modified and provisioned by the GatingTemplate argument
 #' @param outpath Default NULL, provides file path to desired folder to store returnTemplate
 #' @param GatingTemplate A file.path to the GatingTemplate .csv you want to swap in
-#' @param returnPlots Default FALSE, will instead return plots for troubleshooting
 #' @param InternalCheck Development, default is FALSE
+#' @param returnPlots Development, when TRUE and Internal Check TRUE, returns troubleshooting plots
 #'
 #' @importFrom flowCore keyword
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -53,7 +53,7 @@
 #' UnmixedGating <- gatingTemplate(UnmixedGates)
 #' gt_gating(UnmixedGating, UnmixedGatingSet)
 #'
-#' TheGateCutoffs <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
+#' TheGateCutoffs <- Coereba_GateCutoffs(gs=UnmixedGatingSet[1],
 #'  subset="live", sample.name="GROUPNAME")
 #'
 Coereba_GateCutoffs <- function(gs, subset, sample.name, desiredCols=NULL,

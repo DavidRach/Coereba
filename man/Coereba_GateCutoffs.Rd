@@ -32,7 +32,7 @@ Template that can be modified and provisioned by the GatingTemplate argument}
 
 \item{GatingTemplate}{A file.path to the GatingTemplate .csv you want to swap in}
 
-\item{returnPlots}{Default FALSE, will instead return plots for troubleshooting}
+\item{returnPlots}{Development, when TRUE and Internal Check TRUE, returns troubleshooting plots}
 
 \item{InternalCheck}{Development, default is FALSE}
 }
@@ -67,7 +67,7 @@ UnmixedGates <- fread(file.path(path = File_Location,
 UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 
-TheGateCutoffs <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
+TheGateCutoffs <- Coereba_GateCutoffs(gs=UnmixedGatingSet[1],
  subset="live", sample.name="GROUPNAME")
 
 }

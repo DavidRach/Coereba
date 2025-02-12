@@ -1,4 +1,6 @@
 #' Takes Utility_Coereba output and returns a Bioconductor Summarized Experiment object
+#' 
+#' @noRd
 Coereba_Processing <- function(x, TheDictionary=NULL,  Sprint="%03d", ReplaceCharacters=NULL,
 Metadata, Identity, thecolumns){
 
