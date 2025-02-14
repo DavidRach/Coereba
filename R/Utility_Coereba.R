@@ -62,7 +62,6 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=N
                             notcolumns=NULL, reference, starter,
                             inverse.transform = TRUE){
   
-  # Bringing in splitpoint and clean column names
   if (!is.data.frame(reference)){
     ReferenceLines <- read.csv(reference, check.names = FALSE)
     } else {ReferenceLines <- reference}
@@ -71,17 +70,14 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=N
   colnames(ReferenceLines) <- NameCleanUp(colnames(ReferenceLines),
                                           removestrings = internalstrings)
   
-  # Checking for specimen identifier consistency
   if (sample.name != colnames(ReferenceLines)[[1]]){
     message("sample.name does not match the specimen identifier name found in reference,
      converting over")
     colnames(ReferenceLines)[1] <- sample.name
   }
 
-  # Internal switch in naming convention
   New <- ReferenceLines
   
-  # Retrieving a name, needs to match that in reference file naming convention.
   name <- keyword(x, sample.name)
 
   Specimens <- ReferenceLines %>% pull(.data[[sample.name]])
@@ -93,7 +89,6 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=N
     return(Reintegrated1)
   }
 
-  # Preparing if sending back to .fcs
   if (inverse.transform == TRUE){
   inversed_ff <- gs_pop_get_data(x, subsets, inverse.transform = TRUE)
   flippedDF <- as.data.frame(exprs(inversed_ff[[1]]), check.names = FALSE)
@@ -101,18 +96,14 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=N
     relocate(Backups, .before=1)
   }
 
-  # Retrieving Data for Coereba assignment
   ff <- gs_pop_get_data(x, subsets, inverse.transform = FALSE)
 
-  # Extracting Data
   startingcells <- RowWorkAround(ff)
-  DF <- as.data.frame(exprs(ff[[1]]), check.names = FALSE)
+  OriginalDF <- as.data.frame(exprs(ff[[1]]), check.names = FALSE)
 
-  # Saving Columns for future column reordering
-  OriginalColumnsVector <- colnames(DF)
+  OriginalColumnsVector <- colnames(OriginalDF)
 
-  # Adding Backups for future row reordering
-  DF <- DF |> mutate(Backups = 1:nrow(DF)) 
+  OriginalDF <- OriginalDF |> mutate(Backups = 1:nrow(OriginalDF)) 
 
   if (inverse.transform == TRUE){
     if (nrow(ff)[[1]] != nrow(inversed_ff)[[1]]){
@@ -120,43 +111,41 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=N
     }
   }
 
-  # Optional Downsampling
-  if(!is.null(subsample)){DF <- slice_sample(DF, n = subsample,
+  if(!is.null(subsample)){DF <- slice_sample(OriginalDF, n = subsample,
                                              replace = FALSE)
     startingcells <- nrow(DF)
-  } else{DF <- DF}
+  } else{DF <- OriginalDF}
 
-  # Identifying retained cells
   TheBackups <- DF |> dplyr::select(Backups)
 
-  #Stashing Away FSC SSC For Later
   StashedDF <- DF[,grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
   StashedDF <- cbind(TheBackups, StashedDF)
 
-  #Consolidating Columns Going Forward
   CleanedDF <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
   BackupNames <- colnames(CleanedDF)
   CleanedDF <- CleanedDF |> dplyr::select(-Backups)
 
-  # If external columns interest specified
   if (!is.null(columns) && !is.null(notcolumns)){
     stop("Please select either columns (to keep) or notcolumns (to exclude).
     Leave the other agument as NULL")
     }
 
-  if (!is.null(columns)){dsf <- CleanedDF %>% select(all_of(columns))
-  } else {dsf <- CleanedDF}
+  if (!is.null(columns)){
+    dsf <- CleanedDF %>% select(all_of(c(columns, starter)))
+  } else {dsf <- CleanedDF
+  }
 
-  if (!is.null(notcolumns)){dsf <- CleanedDF %>% select(-all_of(columns))
-  } else {dsf <- dsf}
+  if (!is.null(notcolumns)){
+    if (starter %in% notcolumns){stop("The fluorophore ", starter, "shouldn't be included in the notcolumns list")}
+    dsf <- CleanedDF %>% select(-all_of(notcolumns))
+  } else {dsf <- dsf
+  }
 
   NamingColBackup <- colnames(dsf)
 
-  # Final Column Name Clean Up On Data Side
   colnames(dsf) <- NameCleanUp(colnames(dsf), removestrings = internalstrings)
   starter <- NameCleanUp(starter, removestrings = internalstrings)
 
-  # Name Swap and getting column vector ready.
   MyData <- dsf
   Columns <- colnames(MyData)
   Columns <- Columns[!Columns == starter]
@@ -177,27 +166,20 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=N
   Combined <- apply(MyDataPieces, 1, paste, collapse = "")
   Cluster <- data.frame(Cluster=Combined)
   MyNewestData <- cbind(MyData, Cluster)
-  #str(MyNewestData)
 
-  if (inverse.transform == FALSE){
-  # Return Original Names
-  Reordering <- MyNewestData
-  UpdatedBackupNames <- c(NamingColBackup, "Cluster")
-  colnames(Reordering) <- UpdatedBackupNames
-  # Left Join By Backups
-  Reordering <- cbind(TheBackups, Reordering)
-  Reintegrated <- left_join(Reordering, StashedDF, by = "Backups")
-  # Rearrange by original column order
-  DesiredOrder <- c("Backups", OriginalColumnsVector, "Cluster")
-  Reintegrated1 <- Reintegrated |> relocate(all_of(DesiredOrder)) |> select(-Backups)
-  Reintegrated1 <- Reintegrated1 |> mutate(specimen = name[[1]])
-  }
-
-  if (inverse.transform == TRUE && is.null(subsample)) {
+  # Left-joining to original data and adding ClusterID Specimen
+  if (inverse.transform == TRUE) {
+    Subsetted <- left_join(TheBackups,  flippedDF, by = "Backups")
     Cluster <- MyNewestData |> select(Cluster)
-    DF <- as.data.frame(exprs(inversed_ff[[1]]), check.names = FALSE)
-    Reintegrated1 <- cbind(DF, Cluster)
-    Reintegrated1 <- Reintegrated1 |> mutate(specimen = name[[1]])
+    Reintegrated1 <- cbind(Subsetted, Cluster) 
+    Reintegrated1 <- Reintegrated1 |> select(-Backups) |>
+      mutate(specimen = name[[1]])
+  } else {
+    Subsetted <- left_join(TheBackups,  OriginalDF, by = "Backups")
+    Cluster <- MyNewestData |> select(Cluster)
+    Reintegrated1 <- cbind(Subsetted, Cluster) 
+    Reintegrated1 <- Reintegrated1 |> select(-Backups) |>
+      mutate(specimen = name[[1]])
   }
 
   return(Reintegrated1)
@@ -229,8 +211,6 @@ TheCoerebaIterator <- function(x, data, reference, sample.name, name){
   colnames(Internal) <- paste("Cluster", x, sep="_")
   return(Internal)
 }
-
-
 
 #' Internal Utility_Coereba, work around for nrow function
 #' 
