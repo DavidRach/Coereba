@@ -1,7 +1,7 @@
 Package: Coereba
 Type: Package
 Title: Dichotomized Clustering for Spectral Flow Cytometry (SFC)
-Version: 0.99.0
+Version: 0.99.2
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
@@ -59,3 +59,4 @@ Suggests:
 biocViews: Clustering, FlowCytometry, Preprocessing, Software
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Config/rextendr/version: 0.3.1
