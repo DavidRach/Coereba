@@ -52,7 +52,7 @@ Coereba_FCSExport <- function(data, gs, outpath, filename, fcsname,
   
   # Updating Exprs Param
   new_fcs <- new("flowFrame", exprs=OldCols, parameters=original_param,
-                 description=original_descr)
+                 description=NewDescriptions)
   
   #Using Internal Function :( Bioconductor?
   new_pd <- flowCore:::cols_to_pd(fr=new_fcs, cols=NewColumns)
