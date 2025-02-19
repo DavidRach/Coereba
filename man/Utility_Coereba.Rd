@@ -16,7 +16,9 @@ Utility_Coereba(
   inverse.transform = TRUE,
   returnType,
   Individual = FALSE,
-  outpath = NULL
+  outpath = NULL,
+  filename = NULL,
+  nameAppend = NULL
 )
 }
 \arguments{
@@ -47,6 +49,8 @@ is calculated, Default is set to TRUE to allow for .fcs export.}
 \item{outpath}{Default NULL, file.path for fcs file storage}
 
 \item{filename}{Default NULL, sets name for aggregated flowframe or fcs}
+
+\item{nameAppend}{For flowframe and fcs returnType, what gets appended before .fcs}
 }
 \value{
 Either data, flowframe or fcs, individually or concatinated
@@ -83,6 +87,5 @@ gt_gating(UnmixedGating, UnmixedGatingSet)
 CoerebaIDs <- Utility_Coereba(gs=UnmixedGatingSet[1], subsets="live",
  sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A",
  returnType="flowframe", Individual=TRUE)
-
 
 }

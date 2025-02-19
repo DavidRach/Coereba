@@ -2,24 +2,20 @@
 #'
 #' @param data The Coereba Data
 #' @param gs Gating Set Object containing original parameters
-#' @param SaveDictionary Default is TRUE, exporting a Dictionary .csv
 #' @param outpath File path to desired storage location
-#' @param filename Desired name for csv dictionary
-#' @param fcsname Desired name for concatenated fcs file
-#' @param returntype Default is "fcs", alternatively "flowframe"
+#' @param filename Desired name for fcs file
+#' @param returnType Whether to return "flowframe" or "fcs"
+#' @param nameAppend For flowframe and fcs returnType, what gets appended before .fcs 
 #'
 #' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowWorkspace keyword
 #' @importFrom flowCore parameters
+#' @importFrom flowWorkspace keyword
 #' @importFrom flowCore exprs
-#' @importFrom dplyr filter
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
-#' @importFrom dplyr arrange
-#' @importFrom dplyr mutate
-#' @importFrom dplyr desc
-#' @importFrom dplyr row_number
-#' @importFrom utils write.csv
+#' @importFrom purrr map
+#' @importFrom purrr flatten
+#' @importFrom dplyr bind_cols
 #' @importFrom Biobase pData
 #' @importFrom methods new
 #' @importFrom flowCore write.FCS
@@ -27,66 +23,44 @@
 #' @return A dictionary .csv file, and a .fcs file. 
 #'
 #' @noRd
-Coereba_FCSExport <- function(data, gs, SaveDictionary=TRUE,
-                              outpath, filename, fcsname,
-                              returntype="fcs"){
+Coereba_FCSExport <- function(data, gs, outpath, filename, fcsname,
+                              returnType, nameAppend){
   # Retrieving param information
   cs <- gs_pop_get_data(gs, "root")
-  fr <- cs[[1, returnType = "flowFrame"]]
-  original_param <- parameters(fr)
-  original_descr <- keyword(fr)
-  original_exprs <- exprs(fr)
+  cf <- cs[[1]]
+  original_param <- parameters(cf)
+  original_descr <- keyword(cf)
+  original_exprs <- exprs(cf)
   
   # Identifying new columns
-  
-  OldColNames <- colnames(original_exprs) %>% unname()
+  OldColNames <- colnames(original_exprs) |> unname()
   NewColNames <- colnames(data)
   NovelColumns <- setdiff(NewColNames, OldColNames)
-  Previously <- data %>% select(!all_of(NovelColumns))
-  AddThese <- data %>% select(all_of(NovelColumns))
+  Previously <- data |> select(!all_of(NovelColumns))
+  AddThese <- data |> select(all_of(NovelColumns))
   
-  ## For each AddThese, generalize on rewrite for X # cols
-  ## Add way to removestrings approach for name specification
-  ## Or provide alternate dictionary for specimen name
-  
-  # Cleaning up specimen name
-  AddThese$specimen <- gsub("INF", "", AddThese$specimen)
-  AddThese$specimen <- gsub("ND", "", AddThese$specimen)
-  AddThese$specimen <- as.double(AddThese$specimen)
-  
-  # Creating a Cluster Dictionary
-  TabledCluster <- table(AddThese$Cluster)
-  TabledCluster <- as.data.frame(TabledCluster)
-  TabledCluster <- TabledCluster %>% arrange(desc(Freq))
-  Dictionary <- TabledCluster %>% mutate(ClusterNumber = row_number()*1000)
-  colnames(Dictionary)[1] <- "Cluster"
-  
-  if (SaveDictionary == TRUE){
-    TheFileName <- paste0(filename, ".csv")
-    StoreCSV <- file.path(outpath, TheFileName)
-    write.csv(Dictionary, file = StoreCSV, row.names = FALSE)
-  }
-  
-  # Generating clean New Columns
-  Hmm <- left_join(AddThese, Dictionary, by = "Cluster")
-  Hmm <- Hmm %>% select(-all_of(c("Cluster","Freq")))
-  
-  # Converting both Old and New exprs to matrix format.
-  NewCols <- as.matrix(Hmm)
+  # Adding to Descriptions
+  Here <- map(.x=NovelColumns, .f=PinkPonyClub, dataset=AddThese)
+  Descriptions <- lapply(Here, function(x) x$Description)
+  Descriptions <- flatten(Descriptions)
+  NewDescriptions <- c(original_descr, Descriptions)
+
+  Columns <- lapply(Here, function(x) x$Column)
+  NewColumns <- bind_cols(Columns)
+  NewColumns <- as.matrix(NewColumns)
   OldCols <- as.matrix(Previously)
   
   # Updating Exprs Param
-  
   new_fcs <- new("flowFrame", exprs=OldCols, parameters=original_param,
                  description=original_descr)
   
   #Using Internal Function :( Bioconductor?
-  new_pd <- flowCore:::cols_to_pd(fr=new_fcs, cols=NewCols)
+  new_pd <- flowCore:::cols_to_pd(fr=new_fcs, cols=NewColumns)
   
   # Attaching New Params and Exprs
   pd <- pData(parameters(new_fcs))
   pd <- rbind(pd, new_pd)
-  new_fcs@exprs <- cbind(exprs(new_fcs), NewCols)
+  new_fcs@exprs <- cbind(exprs(new_fcs), NewColumns)
   pData(parameters(new_fcs)) <- pd
   
   # Updating description
@@ -120,7 +94,7 @@ Coereba_FCSExport <- function(data, gs, SaveDictionary=TRUE,
   
   new_fcs1 <- new("flowFrame", exprs=UpdatedExprs, parameters=UpdatedParameters, description=new_kw)
   
-  AssembledName <- paste0(fcsname, ".fcs")
+  AssembledName <- paste0(filename, ".fcs")
   
   new_fcs1@description$GUID <- AssembledName
   new_fcs1@description$`$FIL` <- AssembledName
@@ -129,6 +103,40 @@ Coereba_FCSExport <- function(data, gs, SaveDictionary=TRUE,
   
   fileSpot <- file.path(outpath, AssembledName)
   
-  if (returntype == "fcs") {write.FCS(new_fcs1, filename = fileSpot, delimiter="#")
+  if (returnType == "fcs") {write.FCS(new_fcs1, filename = fileSpot, delimiter="#")
   } else {return(new_fcs1)}
+}
+
+#' Internal for Coereba_FCS, Dictionary conversion for Coereba
+#' 
+#' @param x Iterated column name to be appended
+#' @param dataset The data.frame containing the column names
+#' 
+#' @importFrom dplyr select
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom rlang sym
+#' @importFrom dplyr mutate
+#' @importFrom dplyr row_number
+#' @importFrom dplyr left_join
+#' 
+#' @return A list with Column and Description
+#' 
+#' @noRd
+PinkPonyClub <- function(x, dataset){
+  TheColumn <- dataset |> select(x)
+  Internal <- data.frame(table(TheColumn), check.names=FALSE)
+  Internal <- Internal |> arrange(desc(Freq))
+  KeywordName <- paste0("Coereba_", x)
+  Internal <- Internal |> mutate(!!sym(KeywordName) := row_number()*1000)
+  Internal <- Internal |> select(-Freq)
+  Internal[[x]] <- as.character(Internal[[x]])
+
+  Hmm <- left_join(TheColumn, Internal, by = x)
+  Hmm <- Hmm |> select(-x)
+
+  TheList <- list(Column = Hmm, 
+  Description = Internal)
+
+  return(TheList)
 }

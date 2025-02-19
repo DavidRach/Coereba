@@ -15,6 +15,7 @@
 #' @param Individual Default FALSE, when TRUE, returns individual fcs instead of grouped. 
 #' @param outpath Default NULL, file.path for fcs file storage
 #' @param filename Default NULL, sets name for aggregated flowframe or fcs
+#' @param nameAppend For flowframe and fcs returnType, what gets appended before .fcs 
 #'
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows
@@ -52,10 +53,9 @@
 #'  sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A",
 #'  returnType="flowframe", Individual=TRUE)
 #'
-#'
 Utility_Coereba <- function(gs, subsets, sample.name, subsample = NULL, columns=NULL,
   notcolumns=NULL, reference, starter, inverse.transform = TRUE, returnType,
-  Individual=FALSE, outpath=NULL){
+  Individual=FALSE, outpath=NULL, filename=NULL, nameAppend=NULL){
   
   Data <- map(.x=gs, .f=Internal_Coereba, subsets=subsets,
      sample.name=sample.name, subsample=subsample, columns=columns,
@@ -64,6 +64,8 @@ Utility_Coereba <- function(gs, subsets, sample.name, subsample = NULL, columns=
     Individual=Individual)
   
   if (returnType == "data" && Individual == TRUE){return(Data)}
+
+  if (returnType == "flowframe" && Individual == TRUE){return(Data)}
 
   if (length(Data) > 1){Data1 <- bind_rows(Data)
     } else {Data1 <- Data}
@@ -95,6 +97,9 @@ Utility_Coereba <- function(gs, subsets, sample.name, subsample = NULL, columns=
 #' @param inverse.transform Whether to reverse the data transform after Coereba cluster
 #'  is calculated, Default is set to TRUE to allow for .fcs export.
 #' @param returnType Whether to return data, flowframe or fcs
+#' @param outpath Default NULL, file.path to location to store fcs file
+#' @param filename Default NULL, filename to save the aggregated flowframe/fcs file.
+#' @param nameAppend For flowframe and fcs returnType, what gets appended before .fcs 
 #'
 #' @importFrom utils read.csv
 #' @importFrom Luciernaga NameCleanUp
@@ -114,7 +119,8 @@ Utility_Coereba <- function(gs, subsets, sample.name, subsample = NULL, columns=
 #' @noRd
 Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=NULL,
                             notcolumns=NULL, reference, starter,
-                            inverse.transform = TRUE, returnType, Individual){
+                            inverse.transform = TRUE, returnType, Individual,
+                            outpath=NULL, filename=NULL, nameAppend=NULL){
   
   if (!is.data.frame(reference)){
     ReferenceLines <- read.csv(reference, check.names = FALSE)
@@ -221,6 +227,12 @@ Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=
   Cluster <- data.frame(Cluster=Combined)
   MyNewestData <- cbind(MyData, Cluster)
 
+  if (inverse.transform == FALSE && returnType %in% c("fcs", "flowframe")){
+    message("For flowframe or fcs export, we inverse.transform to avoid distorting the original
+    fcs files. We are now internally setting inverse.transform to TRUE")
+    inverse.transform <- TRUE
+  }
+
   # Left-joining to original data and adding ClusterID Specimen
   if (inverse.transform == TRUE) {
     Subsetted <- left_join(TheBackups,  flippedDF, by = "Backups")
@@ -238,8 +250,14 @@ Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=
 
   if (returnType == "flowframe" && Individual == TRUE){
     message("returning individual flowframe")
+    FlowFrame <- Coereba_FCSExport(data=Reintegrated1, gs=x,
+       returnType=returnType, outpath=outpath, filename=name,
+      nameAppend=nameAppend)
+    return(FlowFrame)
   } else if (returnType == "fcs" && Individual == TRUE){
-    message("returning individual fcs")
+    FCSFile <- Coereba_FCSExport(data=Reintegrated1, gs=x,
+      returnType=returnType, outpath=outpath, filename=name,
+      nameAppend=nameAppend)
   } else {return(Reintegrated1)}
 }
 
