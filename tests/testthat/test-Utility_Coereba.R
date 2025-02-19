@@ -26,8 +26,9 @@ gt_gating(UnmixedGating, UnmixedGatingSet)
   
 # Execute the test
 
-CoerebaIDs <- Utility_Coereba(x=UnmixedGatingSet[1], subsets="live",
-sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A")
+CoerebaIDs <- Utility_Coereba(gs=UnmixedGatingSet[1], subsets="live",
+sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A",
+returnType = "data")
   
 TheOldie <- length(Markers)
 TheNew <- ncol(CoerebaIDs)

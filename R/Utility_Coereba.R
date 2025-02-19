@@ -1,6 +1,6 @@
 #' Runs Coereba for Dichotomized Gating Annotation
 #'
-#' @param x A Gating Set object
+#' @param gs A Gating Set object
 #' @param subsets The desired GatingHierarchy subset
 #' @param sample.name Keyword for sample name
 #' @param subsample An optional downsample, doesn't work with inverse.transform=TRUE
@@ -11,21 +11,15 @@
 #' @param starter The column name to start the splits with
 #' @param inverse.transform Whether to reverse the data transform after Coereba cluster
 #'  is calculated, Default is set to TRUE to allow for .fcs export.
+#' @param returnType Whether to return data, flowframe or fcs
+#' @param Individual Default FALSE, when TRUE, returns individual fcs instead of grouped. 
+#' @param outpath Default NULL, file.path for fcs file storage
+#' @param filename Default NULL, sets name for aggregated flowframe or fcs
 #'
-#' @importFrom utils read.csv
-#' @importFrom Luciernaga NameCleanUp
-#' @importFrom flowCore keyword
-#' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
-#' @importFrom dplyr slice_sample
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
-#' @importFrom tidyselect all_of
-#' @importFrom dplyr case_when
-#' @importFrom dplyr left_join
-#' @importFrom dplyr relocate
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
 #'
-#' @return A data.frame
+#' @return Either data, flowframe or fcs, individually or concatinated
 #' @export
 #'
 #' @examples
@@ -54,13 +48,73 @@
 #' UnmixedGating <- gatingTemplate(UnmixedGates)
 #' gt_gating(UnmixedGating, UnmixedGatingSet)
 #'
-#' CoerebaIDs <- Utility_Coereba(x=UnmixedGatingSet[1], subsets="live",
-#'  sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A")
+#' CoerebaIDs <- Utility_Coereba(gs=UnmixedGatingSet[1], subsets="live",
+#'  sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A",
+#'  returnType="flowframe", Individual=TRUE)
 #'
 #'
-Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=NULL,
+Utility_Coereba <- function(gs, subsets, sample.name, subsample = NULL, columns=NULL,
+  notcolumns=NULL, reference, starter, inverse.transform = TRUE, returnType,
+  Individual=FALSE, outpath=NULL){
+  
+  Data <- map(.x=gs, .f=Internal_Coereba, subsets=subsets,
+     sample.name=sample.name, subsample=subsample, columns=columns,
+    notcolumns=notcolumns, reference=reference, starter=starter,
+    inverse.transform = inverse.transform, returnType=returnType,
+    Individual=Individual)
+  
+  if (returnType == "data" && Individual == TRUE){return(Data)}
+
+  if (length(Data) > 1){Data1 <- bind_rows(Data)
+    } else {Data1 <- Data}
+  
+  if (returnType == "data" && Individual == FALSE){return(Data1)}
+
+  if (returnType == "flowframe" && Individual == FALSE){
+    message("Returning aggregated flowframe")}
+  
+  if (returnType == "fcs" && Individual == FALSE){
+      message("Returning aggregated fcs file")
+    #if(is.null(outpath)){outpath <- getwd()}
+  }
+
+}
+
+
+#' Internal for Utility_Coereba, orchestrates individual file processing
+#'
+#' @param x A Gating Set object
+#' @param subsets The desired GatingHierarchy subset
+#' @param sample.name Keyword for sample name
+#' @param subsample An optional downsample, doesn't work with inverse.transform=TRUE
+#' @param columns An optional way to select columns to keep.
+#' @param notcolumns An optional way to remove select columns.
+#' @param reference The external data.frame or path to the .csv with the
+#' specified gate split points by specimen and marker.
+#' @param starter The column name to start the splits with
+#' @param inverse.transform Whether to reverse the data transform after Coereba cluster
+#'  is calculated, Default is set to TRUE to allow for .fcs export.
+#' @param returnType Whether to return data, flowframe or fcs
+#'
+#' @importFrom utils read.csv
+#' @importFrom Luciernaga NameCleanUp
+#' @importFrom flowCore keyword
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore exprs
+#' @importFrom dplyr slice_sample
+#' @importFrom dplyr mutate
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr case_when
+#' @importFrom dplyr left_join
+#' @importFrom dplyr relocate
+#'
+#' @return Either data, flowframe or to the outfolder an .fcs
+#'
+#' @noRd
+Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=NULL,
                             notcolumns=NULL, reference, starter,
-                            inverse.transform = TRUE){
+                            inverse.transform = TRUE, returnType, Individual){
   
   if (!is.data.frame(reference)){
     ReferenceLines <- read.csv(reference, check.names = FALSE)
@@ -182,7 +236,11 @@ Utility_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=N
       mutate(specimen = name[[1]])
   }
 
-  return(Reintegrated1)
+  if (returnType == "flowframe" && Individual == TRUE){
+    message("returning individual flowframe")
+  } else if (returnType == "fcs" && Individual == TRUE){
+    message("returning individual fcs")
+  } else {return(Reintegrated1)}
 }
 
 
@@ -225,3 +283,4 @@ RowWorkAround <- function(x){
   TheNumberRows <- nrow(x)[[1]] # For Ratio
   return(TheNumberRows)
 }
+  

@@ -5,7 +5,7 @@
 \title{Runs Coereba for Dichotomized Gating Annotation}
 \usage{
 Utility_Coereba(
-  x,
+  gs,
   subsets,
   sample.name,
   subsample = NULL,
@@ -13,11 +13,14 @@ Utility_Coereba(
   notcolumns = NULL,
   reference,
   starter,
-  inverse.transform = TRUE
+  inverse.transform = TRUE,
+  returnType,
+  Individual = FALSE,
+  outpath = NULL
 )
 }
 \arguments{
-\item{x}{A Gating Set object}
+\item{gs}{A Gating Set object}
 
 \item{subsets}{The desired GatingHierarchy subset}
 
@@ -36,9 +39,17 @@ specified gate split points by specimen and marker.}
 
 \item{inverse.transform}{Whether to reverse the data transform after Coereba cluster
 is calculated, Default is set to TRUE to allow for .fcs export.}
+
+\item{returnType}{Whether to return data, flowframe or fcs}
+
+\item{Individual}{Default FALSE, when TRUE, returns individual fcs instead of grouped.}
+
+\item{outpath}{Default NULL, file.path for fcs file storage}
+
+\item{filename}{Default NULL, sets name for aggregated flowframe or fcs}
 }
 \value{
-A data.frame
+Either data, flowframe or fcs, individually or concatinated
 }
 \description{
 Runs Coereba for Dichotomized Gating Annotation
@@ -69,8 +80,9 @@ UnmixedGates <- fread(file.path(path = File_Location,
 UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 
-CoerebaIDs <- Utility_Coereba(x=UnmixedGatingSet[1], subsets="live",
- sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A")
+CoerebaIDs <- Utility_Coereba(gs=UnmixedGatingSet[1], subsets="live",
+ sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A",
+ returnType="flowframe", Individual=TRUE)
 
 
 }
