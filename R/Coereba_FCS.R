@@ -140,3 +140,67 @@ PinkPonyClub <- function(x, dataset){
 
   return(TheList)
 }
+
+#' Handles Description Digging for Dictionary Reversal going FCS to data
+#' 
+#' @param Coereba A flowframe or cytoframe with embedded Coereba Keywords
+#' 
+#' @importFrom flowCore exprs
+#' @importFrom dplyr select
+#' @importFrom tidyselect starts_with
+#' @importFrom dplyr across
+#' @importFrom tidyselect everything
+#' @importFrom dplyr mutate
+#' @importFrom flowCore keyword
+#' @importFrom dplyr left_join
+#' 
+#' @return The data columns to be passed to SummarizedExperiment
+#' 
+#' @noRd
+Coereba_FCS_Reversal <- function(Coereba){
+  
+  if (class(Coereba) %in% c("flowFrame", "cytoframe")){
+    Data <- exprs(Coereba)
+    Data <- data.frame(Data, check.names=FALSE)
+    Data <- Data |> select(starts_with("Coereba"))
+    Data <- Data |> mutate(across(everything(), as.character))
+    These <- gsub("Coereba_", "", colnames(Data))
+    These <- c(These, colnames(Data))
+
+    Description <- keyword(Coereba)
+
+    Vaiya <- Description[These]
+
+    specimen <- Vaiya[["specimen"]]
+    if (length(specimen) == 1){specimen <- strsplit(specimen, " ")}
+    specimen <- data.frame(specimen, check.names = FALSE)
+    colnames(specimen) <- "specimen"
+
+    Coereba_specimen <- Vaiya[["Coereba_specimen"]]
+    if (is.numeric(Coereba_specimen)){Coereba_specimen <- as.character(Coereba_specimen)}
+
+    if (length(Coereba_specimen) == 1){Coereba_specimen <- strsplit(Coereba_specimen, " ")}
+    Coereba_specimen <- data.frame(Coereba_specimen, check.names = FALSE)
+    colnames(Coereba_specimen) <- "Coereba_specimen"
+
+    SpecimenDictionary <- cbind(specimen, Coereba_specimen)
+    
+    Cluster <- Vaiya[["Cluster"]]
+    if (length(Cluster) == 1){Cluster <- strsplit(Cluster, " ")}
+    Cluster <- data.frame(Cluster, check.names = FALSE)
+      colnames(Cluster) <- "Cluster"
+
+    Coereba_Cluster <- Vaiya[["Coereba_Cluster"]]
+    if (is.numeric(Coereba_Cluster)){Coereba_Cluster <- as.character(Coereba_Cluster)}
+    if (length(Coereba_Cluster) == 1){Coereba_Cluster <- strsplit(Coereba_Cluster, " ")}
+    Coereba_Cluster <- data.frame(Coereba_Cluster, check.names=FALSE)
+    colnames(Coereba_Cluster) <- "Coereba_Cluster"
+
+    ClusterDictionary <- cbind(Cluster, Coereba_Cluster)
+
+    Combined <- left_join(Data, ClusterDictionary, by="Coereba_Cluster")
+    Combined <- left_join(Combined, SpecimenDictionary, by="Coereba_specimen")
+    Retained <- Combined |> select(-starts_with("Coereba"))
+    return(Retained)
+  } else {message("Handling Alternate Structure")}
+}
