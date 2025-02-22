@@ -75,9 +75,19 @@ Utility_Coereba <- function(gs, subsets, sample.name, subsample = NULL, columns=
   if (returnType == "flowframe" && Individual == FALSE){
     message("Returning aggregated flowframe")}
   
+    FlowFrame <- Coereba_FCSExport(data=Data1, gs=gs[1],
+      returnType=returnType, outpath=outpath, filename=filename,
+      nameAppend=nameAppend, Aggregate=TRUE)
+    return(FlowFrame)
+  
   if (returnType == "fcs" && Individual == FALSE){
       message("Returning aggregated fcs file")
-    #if(is.null(outpath)){outpath <- getwd()}
+    
+    FCSFile <- Coereba_FCSExport(data=Data1, gs=gs[1],
+      returnType=returnType, outpath=outpath, filename=filename,
+      nameAppend=nameAppend, Aggregate=TRUE)
+    
+    message("FCS file exported")
   }
 
 }

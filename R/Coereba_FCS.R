@@ -24,7 +24,7 @@
 #'
 #' @noRd
 Coereba_FCSExport <- function(data, gs, outpath, filename, fcsname,
-                              returnType, nameAppend){
+                              returnType, nameAppend, Aggregate=FALSE){
   # Retrieving param information
   cs <- gs_pop_get_data(gs, "root")
   cf <- cs[[1]]
@@ -98,6 +98,16 @@ Coereba_FCSExport <- function(data, gs, outpath, filename, fcsname,
   
   new_fcs1@description$GUID <- AssembledName
   new_fcs1@description$`$FIL` <- AssembledName
+
+  if(Aggregate == TRUE){
+    new_fcs1@description$CREATOR <- "Coereba v0.99.2"
+    new_fcs1@description$GROUPNAME <- filename
+    new_fcs1@description$TUBENAME <- filename
+    new_fcs1@description$USERSETTINGNAME <- filename
+    Date <- Sys.time()
+    Date <- as.Date(Date)
+    new_fcs1@description$`$DATE` <- Date
+  }
   
   if (is.null(outpath)) {outpath <- getwd()}
   
