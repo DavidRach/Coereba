@@ -10,7 +10,7 @@ Coereba_Processing(
   metadata = NULL,
   metadata_columns = NULL,
   Identity = "specimen",
-  metadataTemplate,
+  metadataTemplate = FALSE,
   outpath = NULL
 )
 }

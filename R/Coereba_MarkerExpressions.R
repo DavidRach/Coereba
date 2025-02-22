@@ -33,12 +33,12 @@ returnType="All",CombinatorialArgs=NULL){
 
   if (returnType == "All"){
   # Return Marker Expressions for All Markers
-  SwampPuppy <- map(.x=AllMarkers[1], .f=.Internal_Aggregate, data=Dataset,
-    binary=binary) %>% bind_cols()
+  SwampPuppy <- map(.x=AllMarkers, .f=.Internal_Aggregate, data=Dataset,
+    binary=binary) |> bind_cols()
 
   # Swap out Fluorophore for Marker Names
-  SwampFluors <- SwampPuppy %>% colnames()
-  SwampFluors <- data.frame(SwampFluors) %>% rename(Fluorophore = SwampFluors)
+  SwampFluors <- SwampPuppy |> colnames()
+  SwampFluors <- data.frame(SwampFluors) |> rename(Fluorophore = SwampFluors)
   RetainedFluors <- left_join(SwampFluors, MyPanel, by = "Fluorophore")
   NewNames <- RetainedFluors$Marker
   colnames(SwampPuppy) <- NewNames
@@ -48,6 +48,17 @@ returnType="All",CombinatorialArgs=NULL){
   MarkerExpressions <- cbind(Metadata, SwampPuppy)
 
   return(MarkerExpressions)
+}
+
+
+MarkerExpressionSummary <- function(x, stats="median", TheName){
+  data <- x %>% select(where(is.numeric))
+
+  if (stats == "median")
+  ReturnValues <- data |>
+    summarise(across(everything(), median, na.rm = TRUE)) |>
+    round(digits=2) %>% mutate(Population=TheName[[1]]) |>
+    relocate(Population, .before=1)
 }
 
 
@@ -192,8 +203,8 @@ DataRetrieval <- function(x, data, binary, Column){
   Positive <- x
     #Retrieve corresponding Clusters from data
     TheInternalBypass <- Positive$Identity
-    TheInternalBypass <- gsub("_", "", TheInternalBypass)
-    TheInternalBypass <- gsub("-", "", TheInternalBypass)
+    #TheInternalBypass <- gsub("_", "", TheInternalBypass)
+    #TheInternalBypass <- gsub("-", "", TheInternalBypass)
     InternalData <- data[, names(data) %in% TheInternalBypass]
     InternalData <- as_tibble(InternalData)
 
@@ -239,8 +250,8 @@ DataRetrieval <- function(x, data, binary, Column){
 
   #Retrieve corresponding Clusters from data
   TheInternalBypass <- Positive$Identity
-  TheInternalBypass <- gsub("_", "", TheInternalBypass)
-  TheInternalBypass <- gsub("-", "", TheInternalBypass)
+  #TheInternalBypass <- gsub("_", "", TheInternalBypass)
+  #TheInternalBypass <- gsub("-", "", TheInternalBypass)
   InternalData <- data[, names(data) %in% TheInternalBypass]
   InternalData <- as_tibble(InternalData)
 

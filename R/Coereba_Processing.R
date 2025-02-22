@@ -34,7 +34,7 @@
 #' library(Coereba)
 #' 
 Coereba_Processing <- function(x, metadata=NULL, metadata_columns=NULL,
-  Identity="specimen", metadataTemplate, outpath=NULL){
+  Identity="specimen", metadataTemplate=FALSE, outpath=NULL){
 
   if (class(x) == "character"){
     Coereba <- load_cytoframe_from_fcs(x, truncate_max_range = FALSE, 
