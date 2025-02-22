@@ -1,3 +1,58 @@
+Coereba_MarkerExpressions2 <- function(x, panel, theassay="ratios", 
+returnType="All",CombinatorialArgs=NULL){
+  
+  if (!is.data.frame(panel)){MyPanel <- read.csv(panel, check.names = FALSE)
+  } else {MyPanel <- panel}
+
+  Metadata <- colData(x)
+  Metadata <- as.data.frame(Metadata@listData)
+  
+  binary <- rowData(x)
+  binary <- as.data.frame(binary@listData)
+  TheCluster <- binary |> pull(Cluster)
+  AllMarkers <- binary %>% select(!starts_with("Cluster")) %>% colnames()
+  binary <- binary |> rename(Identity=Cluster)
+  #binary <- binary |> rename(Identity=Cluster)
+
+  data <- assay(x, theassay)
+  tdata1 <- t(data)
+  colnames(tdata1) <- TheCluster
+  tdata1 <- data.frame(tdata1, check.names=FALSE)
+  Dataset <- cbind(Metadata, tdata1)
+
+  if (returnType == "Combinatorial" && !is.null(CombinatorialArgs)){
+    #CombinatorialArgs <- c("BV510", "APC-Fire 750")
+    internalstrings <- c(" ", "-", "_", ".")
+    TheCombinatorialArgs <- NameCleanUp(CombinatorialArgs, removestrings=internalstrings)
+    if (length(TheCombinatorialArgs) != 2){
+      stop("Combinatorial Args should be a list of two fluorophores to generate quadrants from")
+    }
+
+    SwampPuppy <-CombinatorialAggregate(x=TheCombinatorialArgs, data=Dataset, binary=binary, panel=MyPanel)
+  }
+
+  if (returnType == "All"){
+  # Return Marker Expressions for All Markers
+  SwampPuppy <- map(.x=AllMarkers[1], .f=.Internal_Aggregate, data=Dataset,
+    binary=binary) %>% bind_cols()
+
+  # Swap out Fluorophore for Marker Names
+  SwampFluors <- SwampPuppy %>% colnames()
+  SwampFluors <- data.frame(SwampFluors) %>% rename(Fluorophore = SwampFluors)
+  RetainedFluors <- left_join(SwampFluors, MyPanel, by = "Fluorophore")
+  NewNames <- RetainedFluors$Marker
+  colnames(SwampPuppy) <- NewNames
+  }
+
+  #Reattach Metadata to Summarized Marker Expressions
+  MarkerExpressions <- cbind(Metadata, SwampPuppy)
+
+  return(MarkerExpressions)
+}
+
+
+
+
 #' Generate overall marker expressions across Coereba clusters,
 #'
 #' @param data The data.frame of clusters vs individual specimens, with the ratio values
