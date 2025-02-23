@@ -11,7 +11,8 @@ Coereba_Processing(
   metadata_columns = NULL,
   Identity = "specimen",
   metadataTemplate = FALSE,
-  outpath = NULL
+  outpath = NULL,
+  panel
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ include  a file.path to an .fcs, a flowFrame or cytoFrame, and a data.frame.}
 \item{metadataTemplate}{When metadata is NULL, returns a template data.frame containing specimen list.}
 
 \item{outpath}{Default NULL, alternate a file.path to send metadataTemplate output to.}
+
+\item{panel}{A data.frame or file.path to a .csv containing Fluorophore and Marker columns}
 }
 \value{
 A summarized experiment object

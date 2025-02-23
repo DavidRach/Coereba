@@ -1,18 +1,55 @@
-Coereba_MarkerExpressions2 <- function(x, panel, theassay="ratios", 
+#' Generate overall marker expressions across Coereba clusters,
+#'
+#' @param x The Coereba Summarized Experiment object from Coereba_Processing
+#' @param TheAssay Default is "ratios"
+#' @param returnType Either "All" or "Combinatorial". Default is ALL.
+#' @param CombinatorialArgs When returnType Combinatorial, the two fluorophores to create quadrants for.
+#'
+#' @importFrom S4Vectors metadata 
+#' @importFrom SummarizedExperiment colData
+#' @importFrom SummarizedExperiment rowData
+#' @importFrom SummarizedExperiment assay 
+#' @importFrom Luciernaga NameCleanUp
+#' @importFrom dplyr select
+#' @importFrom tidyselect starts_with
+#' @importFrom dplyr pull
+#' @importFrom purrr map
+#' @importFrom dplyr bind_cols
+#' @importFrom dplyr rename
+#' @importFrom dplyr left_join
+#' 
+#' @return returns a data.frame
+#' @export
+#'
+#' @examples
+#'
+#' File_Location <- system.file("extdata", package = "Coereba")
+#' panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
+#' 
+#' files <- gs_pop_get_data(gs, "CD4")
+#' MySE <- Coereba_Processing(x=files[[1]], panel=panelPath)
+#'
+#' All <- Coereba_MarkerExpressions2(x=MySE)
+#'
+#' Memory <- Coereba_MarkerExpressions2(x=MySE, returnType = "Combinatorial",
+#'  CombinatorialArgs=c("BV510", "APC-Fire 750"))
+#'
+Coereba_MarkerExpressions2 <- function(x, theassay="ratios", 
 returnType="All",CombinatorialArgs=NULL){
   
-  if (!is.data.frame(panel)){MyPanel <- read.csv(panel, check.names = FALSE)
-  } else {MyPanel <- panel}
+  panel <- metadata(x)$panel
+  internalstrings <- c(" ", "-", "_", ".")
+  Cleaned <- NameCleanUp(panel$Fluorophore, removestrings=internalstrings)
+  MyPanel <- data.frame(Fluorophore=Cleaned, Marker=panel[,2],
+     check.names=FALSE)
 
   Metadata <- colData(x)
   Metadata <- as.data.frame(Metadata@listData)
   
   binary <- rowData(x)
   binary <- as.data.frame(binary@listData)
-  TheCluster <- binary |> pull(Cluster)
-  AllMarkers <- binary %>% select(!starts_with("Cluster")) %>% colnames()
-  binary <- binary |> rename(Identity=Cluster)
-  #binary <- binary |> rename(Identity=Cluster)
+  TheCluster <- binary |> dplyr::pull(Identity)
+  AllMarkers <- binary |> select(!starts_with("Identity")) |> colnames()
 
   data <- assay(x, theassay)
   tdata1 <- t(data)
@@ -28,7 +65,8 @@ returnType="All",CombinatorialArgs=NULL){
       stop("Combinatorial Args should be a list of two fluorophores to generate quadrants from")
     }
 
-    SwampPuppy <-CombinatorialAggregate(x=TheCombinatorialArgs, data=Dataset, binary=binary, panel=MyPanel)
+    SwampPuppy <- CombinatorialAggregate(x=TheCombinatorialArgs,
+       data=Dataset, binary=binary, panel=MyPanel)
   }
 
   if (returnType == "All"){
@@ -39,7 +77,13 @@ returnType="All",CombinatorialArgs=NULL){
   # Swap out Fluorophore for Marker Names
   SwampFluors <- SwampPuppy |> colnames()
   SwampFluors <- data.frame(SwampFluors) |> rename(Fluorophore = SwampFluors)
+    
   RetainedFluors <- left_join(SwampFluors, MyPanel, by = "Fluorophore")
+  
+  if (nrow(SwampFluors) != nrow(RetainedFluors)){
+    warning("Mismatch between number of external panel and internal panel markers")
+  }
+    
   NewNames <- RetainedFluors$Marker
   colnames(SwampPuppy) <- NewNames
   }
@@ -50,15 +94,39 @@ returnType="All",CombinatorialArgs=NULL){
   return(MarkerExpressions)
 }
 
-
+#' Flattens Coereba_MarkerExpressions into averaged measurement for Heatmap
+#' 
+#' @param x The MarkerExpressions data.frame
+#' @param stats Default median, alternate is mean
+#' @param TheName Character value to give the Population
+#' 
+#' @importFrom dplyr select
+#' @importFrom tidyselect where
+#' @importFrom dplyr summarise
+#' @importFrom dplyr across
+#' @importFrom tidyselect everything
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' 
+#' @return A data.frame row of summarized data
+#' 
+#' @noRd
 MarkerExpressionSummary <- function(x, stats="median", TheName){
-  data <- x %>% select(where(is.numeric))
+  data <- x |> select(where(is.numeric))
 
-  if (stats == "median")
-  ReturnValues <- data |>
-    summarise(across(everything(), median, na.rm = TRUE)) |>
-    round(digits=2) %>% mutate(Population=TheName[[1]]) |>
-    relocate(Population, .before=1)
+  if (stats == "median"){
+    ReturnValues <- data |>
+      summarise(across(everything(), median, na.rm = TRUE)) |>
+      round(digits=2) |> mutate(Population=TheName[[1]]) |>
+      relocate(Population, .before=1)
+  } else if (stats == "mean"){
+    ReturnValues <- data |>
+      summarise(across(everything(), median, na.rm = TRUE)) |>
+      round(digits=2) |> mutate(Population=TheName[[1]]) |>
+      relocate(Population, .before=1)
+  } else {stop("Select for stats argument either mean or median")}
+
+  return(ReturnValues)
 }
 
 
@@ -160,23 +228,23 @@ CombinatorialAggregate <- function(x, data, binary, panel){
   Second <- x[2]
 
   SwampFluors <- rbind(First, Second)
-  SwampFluors <- data.frame(SwampFluors) %>% rename(Fluorophore = SwampFluors)
+  SwampFluors <- data.frame(SwampFluors) |> rename(Fluorophore = SwampFluors)
   RetainedFluors <- left_join(SwampFluors, panel, by = "Fluorophore")
   NewNames <- RetainedFluors$Marker
 
-  Q1 <- binary %>% dplyr::filter(.data[[First]] == 0 & .data[[Second]] == 1)
+  Q1 <- binary |> dplyr::filter(.data[[First]] == 0 & .data[[Second]] == 1)
   Q1_Label <- paste0(NewNames[1], "-", NewNames[2], "+")
   Q1_Assembly <- DataRetrieval(x=Q1, data=data, binary=binary, Column=Q1_Label)
 
-  Q2 <- binary %>% dplyr::filter(.data[[First]] == 1 & .data[[Second]] == 1)
+  Q2 <- binary |> dplyr::filter(.data[[First]] == 1 & .data[[Second]] == 1)
   Q2_Label <- paste0(NewNames[1], "+", NewNames[2], "+")
   Q2_Assembly <- DataRetrieval(x=Q2, data=data, binary=binary, Column=Q2_Label)
 
-  Q3 <- binary %>% dplyr::filter(.data[[First]] == 1 & .data[[Second]] == 0)
+  Q3 <- binary |> dplyr::filter(.data[[First]] == 1 & .data[[Second]] == 0)
   Q3_Label <- paste0(NewNames[1], "+", NewNames[2], "-")
   Q3_Assembly <- DataRetrieval(x=Q3, data=data, binary=binary, Column=Q3_Label)
 
-  Q4 <- binary %>% dplyr::filter(.data[[First]] == 0 & .data[[Second]] == 0)
+  Q4 <- binary |> dplyr::filter(.data[[First]] == 0 & .data[[Second]] == 0)
   Q4_Label <- paste0(NewNames[1], "-", NewNames[2], "-")
   Q4_Assembly <- DataRetrieval(x=Q4, data=data, binary=binary, Column=Q4_Label)
 
@@ -210,15 +278,15 @@ DataRetrieval <- function(x, data, binary, Column){
 
     if(nrow(Positive) >0){
       #Aggregate the Ratio Values
-      Subsetted <- InternalData %>% rowwise() %>% mutate(
+      Subsetted <- InternalData |> rowwise() |> mutate(
         aggregate = sum(c_across(everything()), na.rm = TRUE))
-      InternalFinal <- Subsetted %>% select(aggregate)
+      InternalFinal <- Subsetted |> select(aggregate)
 
     } else {
       #Aggregate the Ratio Values
-      Subsetted <- InternalData %>% rowwise() %>% mutate(
+      Subsetted <- InternalData |> rowwise() |> mutate(
         aggregate = sum(c_across(everything()), na.rm = TRUE))
-      InternalFinal <- Subsetted %>% select(aggregate) %>%
+      InternalFinal <- Subsetted |> select(aggregate) |>
         mutate_all(~0) # Since No Positive Columns
     }
 
@@ -243,10 +311,11 @@ DataRetrieval <- function(x, data, binary, Column){
 #'
 #' @noRd
 .Internal_Aggregate <- function(x, data, binary){
+  # x=AllMarkers[20]
   Column <- x
 
   # Retrieve Clusters that are Positive for Iterated Marker
-  Positive <- binary %>% dplyr::filter(.data[[Column]] == 1)
+  Positive <- binary |> dplyr::filter(.data[[Column]] == 1)
 
   #Retrieve corresponding Clusters from data
   TheInternalBypass <- Positive$Identity
@@ -257,15 +326,15 @@ DataRetrieval <- function(x, data, binary, Column){
 
   if(nrow(Positive) >0){
     #Aggregate the Ratio Values
-    Subsetted <- InternalData %>% rowwise() %>% mutate(
+    Subsetted <- InternalData |> rowwise() |> mutate(
       aggregate = sum(c_across(everything()), na.rm = TRUE))
-    InternalFinal <- Subsetted %>% select(aggregate)
+    InternalFinal <- Subsetted |> select(aggregate)
 
   } else {
     #Aggregate the Ratio Values
-    Subsetted <- InternalData %>% rowwise() %>% mutate(
+    Subsetted <- InternalData |> rowwise() |> mutate(
       aggregate = sum(c_across(everything()), na.rm = TRUE))
-    InternalFinal <- Subsetted %>% select(aggregate) %>%
+    InternalFinal <- Subsetted |> select(aggregate) |>
       mutate_all(~0) # Since No Positive Columns
   }
 

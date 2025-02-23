@@ -8,6 +8,7 @@
 #' @param Identity Column designating specimen in the metadata
 #' @param metadataTemplate When metadata is NULL, returns a template data.frame containing specimen list. 
 #' @param outpath Default NULL, alternate a file.path to send metadataTemplate output to. 
+#' @param panel A data.frame or file.path to a .csv containing Fluorophore and Marker columns
 #' 
 #' @importFrom flowWorkspace load_cytoframe_from_fcs
 #' @importFrom dplyr select
@@ -34,7 +35,7 @@
 #' library(Coereba)
 #' 
 Coereba_Processing <- function(x, metadata=NULL, metadata_columns=NULL,
-  Identity="specimen", metadataTemplate=FALSE, outpath=NULL){
+  Identity="specimen", metadataTemplate=FALSE, outpath=NULL, panel){
 
   if (class(x) == "character"){
     Coereba <- load_cytoframe_from_fcs(x, truncate_max_range = FALSE, 
@@ -98,9 +99,9 @@ Coereba_Processing <- function(x, metadata=NULL, metadata_columns=NULL,
   }
 
     # Assembling rowNames
-    TheDataset <- Data %>% group_by(Cluster) %>%
-      summarise(Total_Counts = sum(Count)) |> rename(Identity = Cluster) |> 
-      select(Identity)
+    TheDataset <- Data |> group_by(Cluster) |>
+      summarise(Total_Counts = sum(Count)) |>
+      dplyr::rename(Identity = Cluster) |> select(Identity)
     TheDataset$Identity <- gsub("pos", "pos_", TheDataset$Identity)
     TheDataset$Identity <- gsub("neg", "neg-", TheDataset$Identity)
     A <- TheDataset |> mutate(to = strsplit(Identity, "_")) |> unnest(to)
@@ -112,15 +113,19 @@ Coereba_Processing <- function(x, metadata=NULL, metadata_columns=NULL,
     C[C == "neg"] <- "0"
     ColsC <- ncol(C)
     C[,2:ColsC] <- lapply(C[,2:ColsC], as.numeric)
-    C <- C |> rename(Cluster=Identity)
+    #C <- C |> dplyr::rename(Cluster=Identity)
     
     #Assembling Summarized Experiment
     Ratio1 <- Ratio |> select(-Cluster)
     Counts1 <- Counts |> select(-Cluster)
+
+    if (!is.data.frame(panel)){panelData <- read.csv(panel, check.names=FALSE)
+    } else {panelData <- panel}
     
     MySE <- SummarizedExperiment(assays=list(ratios=Ratio1, count=Counts1),
      rowData = C,
-     colData=Metadata)
+     colData=Metadata,
+     metadata = list(panel=panelData))
 
     return(MySE)
 }
