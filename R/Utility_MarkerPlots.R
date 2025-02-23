@@ -38,6 +38,7 @@
 #' @importFrom ggplot2 theme
 #' @importFrom ggplot2 ggsave
 #' @importFrom dplyr filter
+#' @importFrom stats setNames
 #'
 #' @return Returns a ggplot object to R or designated Folder
 #' @export
@@ -73,8 +74,8 @@ Utility_MarkerPlots <- function(data, panel, myfactor, shape_palette,
 
   TheColumnNames <- colnames(data)
 
-  if(is.null(combinatorialStartsWith)) {DataColNames <- MyPanel %>% pull(Marker)
-  } else {DataColNames <- data %>% select(starts_with(combinatorialStartsWith)) %>% colnames()}
+  if(is.null(combinatorialStartsWith)) {DataColNames <- MyPanel |> pull(Marker)
+  } else {DataColNames <- data |> select(starts_with(combinatorialStartsWith)) |> colnames()}
 
   MetaColumns <- setdiff(TheColumnNames, DataColNames)
 
@@ -84,10 +85,29 @@ Utility_MarkerPlots <- function(data, panel, myfactor, shape_palette,
     values_to = "Value"
   )
 
-  if(!is.null(filterForThese))(MeltedData <- MeltedData %>% dplyr::filter(Marker %in% filterForThese))
+  if(!is.null(filterForThese))(MeltedData <- MeltedData |>
+    dplyr::filter(Marker %in% filterForThese))
 
   if(!is.null(XAxisLevels)){
     MeltedData$Marker <- factor(MeltedData$Marker, levels = XAxisLevels)}
+  
+  if (is.null(shape_palette)){
+    ShapeVector <- c(22, 21, 20)
+    FactorColumn <- data.frame(table(data[[myfactor]]))
+    colnames(FactorColumn)[1] <- "TheFactor"
+    FactorVector <- FactorColumn |> dplyr::pull(TheFactor)
+    TheShapes <- ShapeVector[seq_along(FactorVector)]
+    shape_palette <- setNames(TheShapes, FactorVector)
+  }
+
+  if (is.null(fill_palette)){
+    FillVector <- c("white", "darkgray", "black")
+    FactorColumn <- data.frame(table(data[[myfactor]]))
+    colnames(FactorColumn)[1] <- "TheFactor"
+    FactorVector <- FactorColumn |> dplyr::pull(TheFactor)
+    TheFills <- FillVector[seq_along(FactorVector)]
+    fill_palette <- setNames(TheFills, FactorVector)
+  }
 
   ThePlot <- ggplot(MeltedData, aes(x = Marker, y = Value)) +
     geom_boxplot(show.legend = FALSE) + stat_summary(fun = crossbar,
