@@ -18,7 +18,8 @@ Utility_Behemoth(
   size = 3,
   corral.width = 1,
   XAxisLevels = NULL,
-  statLines = TRUE
+  statLines = TRUE,
+  statsHeight = NULL
 )
 }
 \arguments{
@@ -50,6 +51,8 @@ Utility_Behemoth(
 \item{XAxisLevels}{Provide list marker names correct order for x-axis reordering, default NULL}
 
 \item{statLines}{Default is TRUE, otherwise skips plotting pvalue and brackets}
+
+\item{statsHeight}{Default is NULL, when provided, sets stat line y-axis height.}
 }
 \value{
 A ggplot2 object for the corresponding data of interest.

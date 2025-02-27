@@ -15,6 +15,7 @@
 #' @param corral.width width of corral bin argument for beeswarm.
 #' @param XAxisLevels Provide list marker names correct order for x-axis reordering, default NULL
 #' @param statLines Default is TRUE, otherwise skips plotting pvalue and brackets
+#' @param statsHeight Default is NULL, when provided, sets stat line y-axis height. 
 #'
 #' @importFrom dplyr select
 #' @importFrom stringr str_wrap
@@ -58,7 +59,7 @@
 #'
 Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNormality = NULL,
   correction = "none", override=0.05, shape_palette, fill_palette, cex=2, size=3, corral.width=1,
-  XAxisLevels=NULL, statLines=TRUE){
+  XAxisLevels=NULL, statLines=TRUE, statsHeight=NULL){
 
   TheStatsReturn <- Utility_Stats(data=data, var=var, myfactor=myfactor, normality=normality,
      specifiedNormality=specifiedNormality, correction=correction, override=override,
@@ -74,13 +75,13 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
 
   MyPval <- if(Method %in% c("Two Sample t-test",
             "Wilcoxon rank sum test with continuity correction", "Wilcoxon rank sum exact test")){
-    thepvalue <- pval_mold(TheTest$p.value)
+    thepvalue <- Coereba:::pval_mold(TheTest$p.value)
   } else if (Method %in% c("One-way Anova", "Kruskal-Wallis rank sum test")){
     Pval <- TheTest$p.value
     CleanedP <- Pval[!is.na(Pval)]
-    thepvalue <- pval_mold(CleanedP)
+    thepvalue <- Coereba:::pval_mold(CleanedP)
   } else if (Method %in% c("Pairwise t-test", "Pairwise Wilcox test")) {
-    map(TheTest$p.value, pval_mold)
+    map(TheTest$p.value, Coereba:::pval_mold)
   } else {"NA"}
 
   #MyPval
@@ -123,6 +124,8 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
           plot.title = element_text(hjust = 0.5, size = 8))
 
   if (statLines==TRUE){
+
+    if (!is.null(statsHeight)){SingleY <- statsHeight}
 
   if (Method %in% c("Two Sample t-test",
       "Wilcoxon rank sum test with continuity correction", "Wilcoxon rank sum exact test")){
