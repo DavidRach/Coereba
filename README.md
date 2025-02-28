@@ -40,6 +40,8 @@ library(Coereba)
 
 ### Get Started
 
+**Co-authors please note** 2-27-2025: Vignette rewrite is in progress after updates for Coereba from using individual data.frame intermediates to a single Summarized Experiment object. Please check the help files for updated arguments (vignette updating scheduled for this weekend)
+
 Please check out our how-to [vignettes](https://davidrach.github.io/Coereba/articles/GettingStarted.html)
 to get started
 

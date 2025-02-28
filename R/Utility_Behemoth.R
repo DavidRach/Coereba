@@ -126,9 +126,10 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
   if (statLines==TRUE){
 
     if (!is.null(statsHeight)){
+      FirstY <- statsHeight
       SingleY <- statsHeight
-      SecondY<- SingleY * 1.2
-      ThirdY <- SingleY * 1.1
+      SecondY<- statsHeight * 1.2
+      ThirdY <- statsHeight * 1.1
     }
 
   if (Method %in% c("Two Sample t-test",
