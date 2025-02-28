@@ -125,7 +125,11 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
 
   if (statLines==TRUE){
 
-    if (!is.null(statsHeight)){SingleY <- statsHeight}
+    if (!is.null(statsHeight)){
+      SingleY <- statsHeight
+      SecondY<- SingleY * 1.2
+      ThirdY <- SingleY * 1.1
+    }
 
   if (Method %in% c("Two Sample t-test",
       "Wilcoxon rank sum test with continuity correction", "Wilcoxon rank sum exact test")){
