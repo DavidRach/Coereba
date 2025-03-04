@@ -15,7 +15,9 @@
 #' @param corral.width width of corral bin argument for beeswarm.
 #' @param XAxisLevels Provide list marker names correct order for x-axis reordering, default NULL
 #' @param statLines Default is TRUE, otherwise skips plotting pvalue and brackets
-#' @param statsHeight Default is NULL, when provided, sets stat line y-axis height. 
+#' @param statsHeight Default is NULL, when provided, sets stat line y-axis height.
+#' @param showClose Default is TRUE, displays pvalues between 0.05 and 0.10 instead returning n.s
+#' @param scalePercent Default is FALSE, scales 0 to 1 to 0-100
 #'
 #' @importFrom dplyr select
 #' @importFrom stringr str_wrap
@@ -33,6 +35,8 @@
 #' @importFrom ggplot2 geom_line
 #' @importFrom tibble tibble
 #' @importFrom ggplot2 geom_text
+#' @importFrom ggplot2 scale_y_continuous
+#' @importFrom scales percent
 #'
 #' @return A ggplot2 object for the corresponding data of interest.
 #' @export
@@ -59,7 +63,7 @@
 #'
 Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNormality = NULL,
   correction = "none", override=0.05, shape_palette, fill_palette, cex=2, size=3, corral.width=1,
-  XAxisLevels=NULL, statLines=TRUE, statsHeight=NULL){
+  XAxisLevels=NULL, statLines=TRUE, statsHeight=NULL, showClose=TRUE, scalePercent=FALSE){
 
   TheStatsReturn <- Utility_Stats(data=data, var=var, myfactor=myfactor, normality=normality,
      specifiedNormality=specifiedNormality, correction=correction, override=override,
@@ -75,13 +79,13 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
 
   MyPval <- if(Method %in% c("Two Sample t-test",
             "Wilcoxon rank sum test with continuity correction", "Wilcoxon rank sum exact test")){
-    thepvalue <- Coereba:::pval_mold(TheTest$p.value)
+    thepvalue <- Coereba:::pval_mold(TheTest$p.value, showClose=showClose)
   } else if (Method %in% c("One-way Anova", "Kruskal-Wallis rank sum test")){
     Pval <- TheTest$p.value
     CleanedP <- Pval[!is.na(Pval)]
-    thepvalue <- Coereba:::pval_mold(CleanedP)
+    thepvalue <- Coereba:::pval_mold(CleanedP, showClose=showClose)
   } else if (Method %in% c("Pairwise t-test", "Pairwise Wilcox test")) {
-    map(TheTest$p.value, Coereba:::pval_mold)
+    map(.x=TheTest$p.value, .f=Coereba:::pval_mold, showClose=showClose)
   } else {"NA"}
 
   #MyPval
@@ -126,8 +130,8 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
   if (statLines==TRUE){
 
     if (!is.null(statsHeight)){
-      FirstY <- statsHeight
-      SingleY <- statsHeight
+      FirstY <- statsHeight * 1.1
+      SingleY <- statsHeight * 1.1
       SecondY<- statsHeight * 1.2
       ThirdY <- statsHeight * 1.1
     }
@@ -180,7 +184,10 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
                 size = 4, inherit.aes = FALSE) +
       labs(caption = Method)
   } else {message("Test type not recognized")}
+  }
 
+  if (scalePercent == TRUE){
+    plot <- plot + scale_y_continuous(labels = scales::percent)
   }
 
  return(plot)

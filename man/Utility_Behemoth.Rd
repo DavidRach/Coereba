@@ -19,7 +19,9 @@ Utility_Behemoth(
   corral.width = 1,
   XAxisLevels = NULL,
   statLines = TRUE,
-  statsHeight = NULL
+  statsHeight = NULL,
+  showClose = TRUE,
+  scalePercent = FALSE
 )
 }
 \arguments{
@@ -53,6 +55,10 @@ Utility_Behemoth(
 \item{statLines}{Default is TRUE, otherwise skips plotting pvalue and brackets}
 
 \item{statsHeight}{Default is NULL, when provided, sets stat line y-axis height.}
+
+\item{showClose}{Default is TRUE, displays pvalues between 0.05 and 0.10 instead returning n.s}
+
+\item{scalePercent}{Default is FALSE, scales 0 to 1 to 0-100}
 }
 \value{
 A ggplot2 object for the corresponding data of interest.
