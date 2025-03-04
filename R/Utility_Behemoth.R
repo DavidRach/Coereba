@@ -37,6 +37,7 @@
 #' @importFrom ggplot2 geom_text
 #' @importFrom ggplot2 scale_y_continuous
 #' @importFrom scales percent
+#' @importFrom ggplot2 lims
 #'
 #' @return A ggplot2 object for the corresponding data of interest.
 #' @export
@@ -184,6 +185,9 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
                 size = 4, inherit.aes = FALSE) +
       labs(caption = Method)
   } else {message("Test type not recognized")}
+  } else {
+    if(!is.null(statsHeight)){plot <- plot + lims(y=c(0,statsHeight))
+    }
   }
 
   if (scalePercent == TRUE){
