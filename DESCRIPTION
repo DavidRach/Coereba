@@ -59,4 +59,3 @@ Suggests:
 biocViews: Clustering, FlowCytometry, Preprocessing, Software
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Config/rextendr/version: 0.3.1
