@@ -191,8 +191,14 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
   }
 
   if (scalePercent == TRUE){
+    if (is.null(statsHeight)){
     plot <- plot + scale_y_continuous(labels = scales::percent)
-  }
+      } else if (is.null(statLines)){plot <- plot + 
+        scale_y_continuous(labels = scales::percent, limits=c(0, statsHeight))
+      } else{plot <- plot + 
+        scale_y_continuous(labels = scales::percent, limits=c(0, statsHeight * 1.3))
+      }
+    }
 
  return(plot)
 }
