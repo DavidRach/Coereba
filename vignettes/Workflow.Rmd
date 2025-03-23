@@ -1,5 +1,5 @@
 ---
-title: "Getting Started with Coereba"
+title: "Using Coereba"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
@@ -8,11 +8,9 @@ author:
 package: "`r BiocStyle::pkg_ver('Coereba')`"
 output:
   BiocStyle::html_document
-abstract: |
-  When working with high-dimensional cytometry data, whether from Spectral Flow Cytometry (SFC) or Mass Cytometry (MC), how many clusters of cells are present given certain markers is often a question that arises. "It depends" is the frequent non-commital answer. Coereba is an R package that attempts to provide tools to qualitatively and quantitatively assess the variation present for individual panels. It additionally leverages a semi-supervised analytical approach to enable working with datasets where batch effects limit current  unsupervised approaches that rely heavily on consistent MFI across individual experiments and files.
 bibliography: "`r file.path(system.file('extdata', package='Coereba'), 'refs.bib')`"
 vignette: |
-  %\VignetteIndexEntry{Getting Started}
+  %\VignetteIndexEntry{Workflow}
   %\VignettePackage{Coereba}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
@@ -25,21 +23,29 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Introduction
+# Background
 
-Historically, manual (supervised) gating has been widely used in cytometry, especially conventional flow cytometry (CFC) utilizing commercial software with graphical user interfaces, with hierarchical boolean gates drawn around cell populations of interest, sequentially filtering down to smaller subsets of cells that are of interest to the researcher. This approach has encountered limitations given the increase in resolvable markers (initially by mass cytometry (MC), more recently by spectral flow ctyometry (SFC)), and unsupervised methods utilizing algorithms to cluster cells based on median fluorescent intensity for individual markers have become increasingly widespread. By contrast, determining number of biological cell clusters present remains a concern for these methods, with individual methods outcomes dependent on the decisions driven by fully-algorithmic clusterings. Since these are dependent on the MFI values being consistent across individuals and experiments, they are susceptible to batch effects. 
+Manual (supervised) gating is widely used in cytometry (especially conventional flow cytometry (CFC)), whereby using graphical user interfaces of commercial software researchers draw hierarchial boolean gates around cell populations, switching markers to sequentially filtering down to smaller subsets of cells of interest. 
 
-This is particularly the case with SFC data, which although comparable marker coverage as MC datasets, can collect far large number of cellular events. It is susceptible to loss resolution when improper unmixing controls are used, or when fluorophores degrade, additional autofluorescences are present. The combination of these result in unique challenges that we have noted elsewher. Alternative approaches implementing boolean gating templates checked by algorithms are in active development but struggle from individual variation due to biological heterogeneity, instrumental and experimental artifact. 
+With the increase in markers (initially by mass cytometry (MC), recently by spectral flow cytometry (SFC)) and accompanying combinatorial combinations needing to be gated, algorithmic (unsupervised) methods have been developed to cluster cells on basis median fluorescent intensity (MFI) of individual markers. 
 
-Coereba is a collection of tools that takes a hybrid approach. Compared with traditional manual approaches that focus gating marker combinations at the single-individual before proceeding to the next, Coereba implements visualization across all specimens within a single view, and implements semi-supervised gating. It then allows for validation/correction at the individual level. The iteration is then over additional markers in the panel. From the sum of the gates across all markers on the basis of individual specimens, individual cells identities given markers of interest can be derrived and quantified using algorithmic tools. T
+While these handle more combinatorial data, how many identified clusters are present (and/or biologically meaningful) remains a point of concern. The additional dependence on MFI values being consistent across individuals and experiments increases these methods susceptibility to batch effects. 
 
-This extends the ability of manual gating to enable handling a greater number of markers, while allowing flexibility to handle batch effects and variation that algorithms dependent on normalized MFI would struggle to correctly classify. From this hybrid approach, we implement functions that showcase some novel uses in answering questions that neither fully supervised or unsupervised methods, both open-source or commercial, have been able to address. This package does not claim to be solution for all cytometry analysis, but we hope it can be a stepping stone to realizing the underlying problems that the current paradigms have, so that the next generation of developers can benefit from the knowledge base. 
+# Rationale
+
+SFC datasets in particular, collecting greater numbers of cells than MC and increased number of markers compared to CFC, require new tools to enable comprehensive profiling of phenotypes present within the acquired cells. These datasets loss resolution due to improper unmixing controls poses additional challenges. 
+  
+Coereba is a collection of tools that attempt to implement a semi-supervised analytical approach. Using automated gating, splitpoints between positive and negative cells for every marker are estimated on an individual basis. Through extensive visualization and a ShinyApp, failures in gate setting by algorithmic gating can be adjusted by the researcher. Individual cells are then classified on the basis of these marker splitpoints, and the identity and metadata information is appended to the .fcs file. 
+
+Following unsupervised analysis, this manually defined gating information can extracted and used both for analysis and verify the algorithm performed as predicted across specimens. Due to the researcher intervention, it is more resilient to batch effects than a pure MFI approach. 
+
+The author and maintainer in no part claims that Coereba is the solution to all cytometry analysis woes. It is a tool in the open-source toolbelt that can enable you to do useful things and figure out interesting quirks that you wouldn't be otherwise able to do. Go forth, gain better understanding underlying problems our current paradigms have, and may the next generation of researchers benefit from what we learn. 
 
 # Getting Started
 
 ## Installing Coereba
 
-We are in the process of preparing Coereba for submission to Bioconductor later this year, for the moment however, it is available to install via GitHub. 
+The Coereba R package is in preparation for submission to Bioconductor later this year. Until that time, it is available for install via GitHub. 
 
 ```{r Install Coereba, eval = FALSE}
 if(!require("remotes")) {install.packages("remotes")}
@@ -114,7 +120,7 @@ The folder contains three unmixed full-stained samples from a 29-color SFC panel
 Working with the unmixed full-stained samples mentioned above, we will proceed by bringing the .fcs files found within Coereba's extdata folder into a GatingSet object where we can interact with them.
 
 ```{r}
-UnmixedFCSFiles <- FCS_Files[c(1:3)]
+UnmixedFCSFiles <- FCS_Files[c(1:2)]
 UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles, truncate_max_range = FALSE,
                                         transformation = FALSE)
 UnmixedGatingSet <- GatingSet(UnmixedCytoSet)

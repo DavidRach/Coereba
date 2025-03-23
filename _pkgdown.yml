@@ -1,4 +1,6 @@
 url: https://davidrach.github.io/Coereba/
 template:
   bootstrap: 5
-
+website:
+  google-analytics: 
+    tracking-id: "G-QXHM0FGVSZ"
