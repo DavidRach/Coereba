@@ -33,6 +33,7 @@ Imports:
     shiny,
     stats,
     stringr,
+    SummarizedExperiment,
     tibble,
     tidyr,
     tidyselect,
