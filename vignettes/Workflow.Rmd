@@ -25,9 +25,9 @@ knitr::opts_chunk$set(
 
 # Background
 
-Manual (supervised) gating is widely used in cytometry (especially conventional flow cytometry (CFC)), whereby using graphical user interfaces of commercial software researchers draw hierarchial boolean gates around cell populations, switching markers to sequentially filtering down to smaller subsets of cells of interest. 
+Manual (supervised) analysis is widespread in cytometry (especially conventional flow cytometry (CFC)), wherein researchers will draw hierarchial boolean gates around cell populations using the graphical user interface provided by various commercial softwares. By sequentially switching between markers, you end up filtering down to smaller subsets of cells of potential interest. 
 
-With the increase in markers (initially by mass cytometry (MC), recently by spectral flow cytometry (SFC)) and accompanying combinatorial combinations needing to be gated, algorithmic (unsupervised) methods have been developed to cluster cells on basis median fluorescent intensity (MFI) of individual markers. 
+With the increase in markers (initially by mass cytometry (MC), recently by spectral flow cytometry (SFC)) and accompanying combinatorial combinations needing to be gated, algorithmic (unsupervised) analysis methods have been developed to cluster cells on basis median fluorescent intensity (MFI) of individual markers. 
 
 While these handle more combinatorial data, how many identified clusters are present (and/or biologically meaningful) remains a point of concern. The additional dependence on MFI values being consistent across individuals and experiments increases these methods susceptibility to batch effects. 
 

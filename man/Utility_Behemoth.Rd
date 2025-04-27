@@ -21,7 +21,8 @@ Utility_Behemoth(
   statLines = TRUE,
   statsHeight = NULL,
   showClose = TRUE,
-  scalePercent = FALSE
+  scalePercent = FALSE,
+  keepNS = TRUE
 )
 }
 \arguments{
@@ -59,6 +60,8 @@ Utility_Behemoth(
 \item{showClose}{Default is TRUE, displays pvalues between 0.05 and 0.10 instead returning n.s}
 
 \item{scalePercent}{Default is FALSE, scales 0 to 1 to 0-100}
+
+\item{keepNS}{Default is TRUE, when false, removes ns from the plots.}
 }
 \value{
 A ggplot2 object for the corresponding data of interest.
