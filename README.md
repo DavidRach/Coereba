@@ -13,15 +13,10 @@ status](https://github.com/DavidRach/Coereba/workflows/rworkflows/badge.svg)](ht
 [![codecov](https://codecov.io/gh/DavidRach/Coereba/graph/badge.svg?token=1SRXI13GOE)](https://codecov.io/gh/DavidRach/Coereba)
 <br> <!-- badges: end -->
 
-## `Coereba`: Dichotomized Boolean Clustering and Heatmaps for Spectral Flow Cytometry
+## `Coereba`: Dichotomized Clustering for Spectral Flow Cytometry
 
-Traditionally, supervised (manual) analysis involves drawing gates, drilling down with subsequent gates filtering for a desired cell
-population of interest. Combined with expert knowledge and few markers, it allows handling of batch effects. Unsupervised approaches 
-have become more frequent employed with increased markers employed by both Spectral Flow Cytometry (SFC) and mass cytometry. Their limitation
-has been in addressing what is a cluster and how many of them should be present for a given panel. 
+Coereba is a collection of tools allowing researchers to extend their understanding of their panels and datasets. 
 
-Coereba is a collection of tools that attempt to allow the researcher to better understand their panels and datasets,
-employing a semi-supervised approach between the two approaches. 
 
 ### Installation
 
@@ -39,8 +34,6 @@ library(Coereba)
 ```
 
 ### Get Started
-
-**Co-authors please note** 2-27-2025: Vignette rewrite is in progress after updates for Coereba from using individual data.frame intermediates to a single Summarized Experiment object. Please check the help files for updated arguments (vignette updating scheduled for this weekend)
 
 Please check out our how-to [vignettes](https://davidrach.github.io/Coereba/articles/GettingStarted.html)
 to get started

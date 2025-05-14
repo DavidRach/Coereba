@@ -96,8 +96,9 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
     ShownPvalues <- MyPval[Show]
     ShownPvalues <- unlist(ShownPvalues)
     ThePData <- data.frame(Index=Show, ThePvalues=ShownPvalues)
+    if (nrow(ThePData) == 0){ThePData <- NULL}
   } else {
-    Show <- seq_along( MyPval)
+    Show <- seq_along(MyPval)
     ShownPvalues <- MyPval
     ShownPvalues <- unlist(ShownPvalues)
     ThePData <- data.frame(Index=Show, ThePvalues=ShownPvalues)
@@ -133,11 +134,11 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
           plot.title = element_text(hjust = 0.5, size = 8))
 
   if (statLines==TRUE){
-    plot <- LineAddition(plot=plot, Method=Method, ThePData=ThePData, SingleY=SingleY)
-  } else {
-    if(!is.null(statsHeight)){plot <- plot + lims(y=c(0,statsHeight))
-    }
+    plot <- LineAddition(plot=plot, Method=Method, ThePData=ThePData,
+       SingleY=SingleY)
   }
+  
+  if(!is.null(statsHeight)){plot <- plot + lims(y=c(0,statsHeight))}
 
   if (scalePercent == TRUE){
     if (is.null(statsHeight)){
@@ -187,10 +188,13 @@ Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNorma
 #'
 #' @noRd
 LineAddition <- function(plot, Method, ThePData, SingleY){
-  if (nrow(ThePData) > 0){
-    IndexSlots <- ThePData |> pull(Index)
-  }
+  if (!is.null(ThePData)){
+    if (nrow(ThePData) > 0){
+      IndexSlots <- ThePData |> pull(Index)
+    } else {IndexSlots <- NULL} 
+  } else {IndexSlots <- NULL}
 
+  if (!is.null(IndexSlots)){
   if (length(IndexSlots) < 3 & Method %in% c("Pairwise t-test", "Pairwise Wilcox test")){
     Index1 <- ThePData |> filter(Index == 1)
     Index2 <- ThePData |> filter(Index == 2)
@@ -264,7 +268,8 @@ LineAddition <- function(plot, Method, ThePData, SingleY){
       geom_line(data=tibble(x=c(3,3), y=c(SingleY*0.98,SingleY*1.02)), aes(x=x, y=y), inherit.aes = FALSE) +
       geom_text(data=tibble(x=2, y=SingleY*1.04), aes(x=x, y=y, label = SingleP), size = 4, inherit.aes = FALSE) +
       labs(caption = Method)
-  }
+  } else {return(plot)}
+  } else {return(plot)}
 
   return(plot)
-}
+  }
