@@ -19,6 +19,7 @@
 #' @param filterForThese A list containing names of markers desire to include final plot, default NULL
 #' @param combinatorialStartsWith Default NULL, if aggregated data is combinatorial, starting string
 #' of characters (ex. CD45)
+#' @param style Default is "overlap", alternatively "separate" returns individual geom_boxplots
 #'
 #' @importFrom utils read.csv
 #' @importFrom dplyr pull
@@ -37,6 +38,7 @@
 #' @importFrom ggplot2 element_text
 #' @importFrom ggplot2 theme
 #' @importFrom ggplot2 ggsave
+#' @importFrom ggplot2 position_dodge
 #' @importFrom dplyr filter
 #' @importFrom stats setNames
 #'
@@ -67,7 +69,7 @@
 Utility_MarkerPlots <- function(data, panel, myfactor, shape_palette,
    fill_palette, cex=1, size=1.5, corral.width=1, crossbar="median", XAxisLevels=NULL,
    savePlot=FALSE, outpath=NULL, filename = NULL, dpi = 600, width=9, height=3,
-   filterForThese=NULL, combinatorialStartsWith=NULL){
+   filterForThese=NULL, combinatorialStartsWith=NULL, style="overlap"){
 
   if (!is.data.frame(panel)) {MyPanel <- read.csv(panel, check.names = FALSE)
   } else {MyPanel <- panel}
@@ -109,6 +111,7 @@ Utility_MarkerPlots <- function(data, panel, myfactor, shape_palette,
     fill_palette <- setNames(TheFills, FactorVector)
   }
 
+  if (style == "overlap"){
   ThePlot <- ggplot(MeltedData, aes(x = Marker, y = Value)) +
     geom_boxplot(show.legend = FALSE) + stat_summary(fun = crossbar,
        show.legend = FALSE, geom = "crossbar", width = 0.75) +
@@ -121,6 +124,25 @@ Utility_MarkerPlots <- function(data, panel, myfactor, shape_palette,
     theme_bw() + theme(panel.grid.major = element_blank(),
                         panel.grid.minor = element_blank(),
                         plot.title = element_text(hjust = 0.5, size = 8))
+  
+  } else {
+    ThePlot <- ggplot(MeltedData, aes(x = Marker, y = Value)) +
+      geom_boxplot(aes(group = interaction(Marker, .data[[myfactor]]), 
+      fill = .data[[myfactor]]), alpha = 0.5, show.legend = FALSE,
+      position = position_dodge(width = 0.8), width = 0.6, outlier.shape = NA) +
+      stat_summary(fun = median, geom = "crossbar", 
+      aes(group = interaction(Marker, .data[[myfactor]])), width = 0.5,
+      position = position_dodge(width = 0.8), show.legend = FALSE) +
+      geom_beeswarm(show.legend = FALSE, aes(shape = .data[[myfactor]],
+      fill = .data[[myfactor]]), method = "center", side = 0, priority = "density",
+      cex = cex, size = size, corral = "wrap", corral.width = corral.width,
+      dodge.width = 0.8) + scale_shape_manual(values = shape_palette) +
+      scale_fill_manual(values = fill_palette) + 
+      labs(title = NULL, x = NULL, y = NULL) + theme_bw() + 
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      plot.title = element_text(hjust = 0.5, size = 8)
+      )
+  }
 
   if (savePlot == TRUE){
     if(is.null(outpath)){StorageLocation <- getwd()
@@ -130,4 +152,4 @@ Utility_MarkerPlots <- function(data, panel, myfactor, shape_palette,
     ggsave(SendMeOnMyWay, ThePlot, dpi = dpi, units = "in",
      width = width, height = height)
     } else {return(ThePlot)}
-}
+  }

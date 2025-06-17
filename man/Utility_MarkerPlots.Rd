@@ -22,7 +22,8 @@ Utility_MarkerPlots(
   width = 9,
   height = 3,
   filterForThese = NULL,
-  combinatorialStartsWith = NULL
+  combinatorialStartsWith = NULL,
+  style = "overlap"
 )
 }
 \arguments{
@@ -62,6 +63,8 @@ Utility_MarkerPlots(
 
 \item{combinatorialStartsWith}{Default NULL, if aggregated data is combinatorial, starting string
 of characters (ex. CD45)}
+
+\item{style}{Default is "overlap", alternatively "separate" returns individual geom_boxplots}
 }
 \value{
 Returns a ggplot object to R or designated Folder
