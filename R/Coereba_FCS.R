@@ -6,19 +6,15 @@
 #' @param filename Desired name for fcs file
 #' @param returnType Whether to return "flowframe" or "fcs"
 #' @param nameAppend For flowframe and fcs returnType, what gets appended before .fcs 
+#' @param Aggregate Combine the items, finish your documentation. 
 #'
-#' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore parameters
-#' @importFrom flowWorkspace keyword
-#' @importFrom flowCore exprs
-#' @importFrom dplyr select
+#' @importFrom flowWorkspace gs_pop_get_data keyword 
+#' @importFrom flowCore parameters exprs write.FCS
+#' @importFrom dplyr select bind_cols
 #' @importFrom tidyselect all_of
-#' @importFrom purrr map
-#' @importFrom purrr flatten
-#' @importFrom dplyr bind_cols
+#' @importFrom purrr map flatten
 #' @importFrom Biobase pData
 #' @importFrom methods new
-#' @importFrom flowCore write.FCS
 #'
 #' @return A dictionary .csv file, and a .fcs file. 
 #'
@@ -38,15 +34,26 @@ Coereba_FCSExport <- function(data, gs, outpath, filename, fcsname,
   NovelColumns <- setdiff(NewColNames, OldColNames)
   Previously <- data |> select(!all_of(NovelColumns))
   AddThese <- data |> select(all_of(NovelColumns))
+
+  #Validating
+  #data.frame(table(AddThese$Cluster)) |> arrange(desc(Freq))
   
   # Adding to Descriptions
+  # x <- NovelColumns[3]
   Here <- map(.x=NovelColumns, .f=PinkPonyClub, dataset=AddThese)
+  
+  #Validating
+  #data.frame(table(Here[[1]][[1]])) |> arrange(desc(Freq))
+  #Values match
+
   Descriptions <- lapply(Here, function(x) x$Description)
   Descriptions <- flatten(Descriptions)
   NewDescriptions <- c(original_descr, Descriptions)
 
   Columns <- lapply(Here, function(x) x$Column)
   NewColumns <- bind_cols(Columns)
+  #Validating #Yup
+  #data.frame(table(NewColumns$Coereba_Cluster)) |> arrange(desc(Freq))
   NewColumns <- as.matrix(NewColumns)
   OldCols <- as.matrix(Previously)
   
@@ -129,18 +136,25 @@ Coereba_FCSExport <- function(data, gs, outpath, filename, fcsname,
 #' @importFrom dplyr mutate
 #' @importFrom dplyr row_number
 #' @importFrom dplyr left_join
+#' @importFrom tidyselect all_of
 #' 
 #' @return A list with Column and Description
 #' 
 #' @noRd
 PinkPonyClub <- function(x, dataset){
-  TheColumn <- dataset |> select(x)
+  TheColumn <- dataset |> select(all_of(x))
+  #str(TheColumn)
   Internal <- data.frame(table(TheColumn), check.names=FALSE)
   Internal <- Internal |> arrange(desc(Freq))
   KeywordName <- paste0("Coereba_", x)
   Internal <- Internal |> mutate(!!sym(KeywordName) := row_number()*1000)
   Internal <- Internal |> select(-Freq)
   Internal[[x]] <- as.character(Internal[[x]])
+
+  if (is.numeric(TheColumn[,1]) && is.character(Internal[[x]])){
+    TheColumn[,1] <- as.character(TheColumn[,1])
+  }
+
 
   Hmm <- left_join(TheColumn, Internal, by = x)
   Hmm <- Hmm |> select(-x)

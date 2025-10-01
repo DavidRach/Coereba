@@ -5,7 +5,7 @@
 \title{Function to guess the gate cutoff values}
 \usage{
 Coereba_GateCutoffs(
-  gs,
+  x,
   subset,
   sample.name,
   desiredCols = NULL,
@@ -17,7 +17,7 @@ Coereba_GateCutoffs(
 )
 }
 \arguments{
-\item{gs}{A GatingSet object}
+\item{x}{A GatingSet object}
 
 \item{subset}{Gate node of interest}
 

@@ -57,6 +57,7 @@ Utility_Coereba <- function(gs, subsets, sample.name, subsample = NULL, columns=
   notcolumns=NULL, reference, starter, inverse.transform = TRUE, returnType,
   Individual=FALSE, outpath=NULL, filename=NULL, nameAppend=NULL){
   
+  # x <- gs[1]
   Data <- map(.x=gs, .f=Internal_Coereba, subsets=subsets,
      sample.name=sample.name, subsample=subsample, columns=columns,
     notcolumns=notcolumns, reference=reference, starter=starter,
@@ -127,10 +128,10 @@ Utility_Coereba <- function(gs, subsets, sample.name, subsample = NULL, columns=
 #' @return Either data, flowframe or to the outfolder an .fcs
 #'
 #' @noRd
-Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=NULL,
-                            notcolumns=NULL, reference, starter,
-                            inverse.transform = TRUE, returnType, Individual,
-                            outpath=NULL, filename=NULL, nameAppend=NULL){
+Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL,
+   columns=NULL, notcolumns=NULL, reference, starter, 
+   inverse.transform = TRUE, returnType, Individual,
+   outpath=NULL, filename=NULL, nameAppend=NULL){
   
   if (!is.data.frame(reference)){
     ReferenceLines <- read.csv(reference, check.names = FALSE)
@@ -141,8 +142,6 @@ Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=
                                           removestrings = internalstrings)
   
   if (sample.name != colnames(ReferenceLines)[[1]]){
-    message("sample.name does not match the specimen identifier name found in reference,
-     converting over")
     colnames(ReferenceLines)[1] <- sample.name
   }
 
@@ -152,9 +151,10 @@ Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=
 
   Specimens <- ReferenceLines %>% pull(.data[[sample.name]])
 
-  if (!name[[1]] %in% Specimens){
-    message("sample.name ", name, " not recognized among identification names found in reference file,
-    returning NULL instead of a data.frame, if iterating with map use compact instead of bind_rows to remove")
+  if (!name[[1]] %in% Specimens){message(
+    "sample.name ", name, " not recognized among identification names
+     found in reference file, returning NULL instead of a data.frame,
+     if iterating with map use compact instead of bind_rows to remove")
     Reintegrated1 <- NULL
     return(Reintegrated1)
   }
@@ -181,10 +181,10 @@ Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=
     }
   }
 
-  if(!is.null(subsample)){DF <- slice_sample(OriginalDF, n = subsample,
-                                             replace = FALSE)
+  if(!is.null(subsample)){
+    DF <- slice_sample(OriginalDF, n = subsample, replace = FALSE)
     startingcells <- nrow(DF)
-  } else{DF <- OriginalDF}
+  } else {DF <- OriginalDF}
 
   TheBackups <- DF |> dplyr::select(Backups)
 
@@ -206,7 +206,9 @@ Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=
   }
 
   if (!is.null(notcolumns)){
-    if (starter %in% notcolumns){stop("The fluorophore ", starter, "shouldn't be included in the notcolumns list")}
+    if (starter %in% notcolumns){ stop(
+    "The fluorophore ", starter, "shouldn't be included in the notcolumns list"
+     )}
     dsf <- CleanedDF %>% select(-all_of(notcolumns))
   } else {dsf <- dsf
   }
@@ -224,12 +226,14 @@ Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=
 
   New1 <- New |> dplyr::filter(.data[[sample.name]] %in% name)
 
-  if (nrow(New1) != 1){
-    warning("Multiple rows being iterated on for ", name, ", check sample.name and reference to ensure 
-  that the naming convention matches only a single specimen")
+  if (nrow(New1) != 1){warning(
+    "Multiple rows being iterated on for ", name, ",
+     check sample.name and reference to ensure 
+     that the naming convention matches only a single specimen")
   }
 
   # Generating Coereba Cluster Name
+  #x <- Columns[2]
   MyDataPieces <- map(.x=Columns, .f=TheCoerebaIterator, data=MyData,
     reference=New1, sample.name=sample.name, name=name) |> bind_cols()
   
@@ -238,8 +242,10 @@ Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL, columns=
   MyNewestData <- cbind(MyData, Cluster)
 
   if (inverse.transform == FALSE && returnType %in% c("fcs", "flowframe")){
-    message("For flowframe or fcs export, we inverse.transform to avoid distorting the original
-    fcs files. We are now internally setting inverse.transform to TRUE")
+    message(
+    "For flowframe or fcs export, we inverse.transform to avoid
+     distorting the original fcs files. We are now internally 
+     setting inverse.transform to TRUE")
     inverse.transform <- TRUE
   }
 

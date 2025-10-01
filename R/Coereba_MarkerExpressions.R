@@ -35,7 +35,7 @@
 #'  CombinatorialArgs=c("BV510", "APC-Fire 750"))
 #'
 Coereba_MarkerExpressions2 <- function(x, theassay="ratios", 
-returnType="All",CombinatorialArgs=NULL){
+returnType="All", CombinatorialArgs=NULL){
   
   panel <- metadata(x)$panel
   internalstrings <- c(" ", "-", "_", ".")
@@ -52,6 +52,8 @@ returnType="All",CombinatorialArgs=NULL){
   AllMarkers <- binary |> select(!starts_with("Identity")) |> colnames()
 
   data <- assay(x, theassay)
+  #data %>% select(where(is.numeric)) %>% purrr::map_dbl(sum, na.rm = TRUE)
+
   tdata1 <- t(data)
   colnames(tdata1) <- TheCluster
   tdata1 <- data.frame(tdata1, check.names=FALSE)
@@ -71,7 +73,8 @@ returnType="All",CombinatorialArgs=NULL){
 
   if (returnType == "All"){
   # Return Marker Expressions for All Markers
-  SwampPuppy <- map(.x=AllMarkers, .f=.Internal_Aggregate, data=Dataset,
+  # x <- AllMarkers[6]
+  SwampPuppy <- map(.x=AllMarkers[c(6,1,9)], .f=.Internal_Aggregate, data=Dataset,
     binary=binary) |> bind_cols()
 
   # Swap out Fluorophore for Marker Names

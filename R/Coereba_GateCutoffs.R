@@ -1,6 +1,6 @@
 #' Function to guess the gate cutoff values
 #'
-#' @param gs A GatingSet object
+#' @param x A GatingSet object
 #' @param subset Gate node of interest
 #' @param sample.name The keyword where specimens name is stored
 #' @param desiredCols Column names of fluorophores you want to gate
@@ -56,10 +56,12 @@
 #' TheGateCutoffs <- Coereba_GateCutoffs(gs=UnmixedGatingSet[1],
 #'  subset="live", sample.name="GROUPNAME")
 #'
-Coereba_GateCutoffs <- function(gs, subset, sample.name, desiredCols=NULL,
+Coereba_GateCutoffs <- function(x, subset, sample.name, desiredCols=NULL,
                                 returnTemplate=FALSE, outpath=NULL,
                                 GatingTemplate=NULL, returnPlots=FALSE,
                                 InternalCheck=FALSE){
+    gs <- x
+  
     if (length(sample.name) == 2){
       first <- sample.name[[1]]
       second <- sample.name[[2]]
@@ -502,12 +504,14 @@ GateExecution <- function(x, data, gs){
   ExistingGates <- gs_get_pop_paths(gs, path="auto")
   #ExistingGates <- gs_get_leaf_nodes(gs)
 
+  # if (Data[[1,6]] == ""){message("No gating_args")}
+
   if(!any(str_detect(ExistingGates, x))){
 
     suppressMessages(
-      gs_add_gating_method(gs, parent = Data[[1,3]], pop = "+",
-                           alias = Data[[1,1]], gating_method = "gate_mindensity",
-                           dims = Data[[1,4]])
+      gs_add_gating_method(gs, alias = Data[[1,1]], pop = "+", parent = Data[[1,3]], 
+                           dims = Data[[1,4]], gating_method = "gate_mindensity",
+                           gating_args=Data[[1,6]])
     )
   } else {Harry <- "Youre a Wizard"}
 }
