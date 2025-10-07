@@ -188,6 +188,7 @@ Coereba_FCS_Reversal <- function(Coereba){
     Data <- data.frame(Data, check.names=FALSE)
     Data <- Data |> select(starts_with("Coereba"))
     Data <- Data |> mutate(across(everything(), as.character))
+    #data.frame(table(DataCheck$Coereba_Cluster)) |> arrange(desc(Freq))
     These <- gsub("Coereba_", "", colnames(Data))
     These <- c(These, colnames(Data))
 
@@ -225,6 +226,10 @@ Coereba_FCS_Reversal <- function(Coereba){
     Combined <- left_join(Data, ClusterDictionary, by="Coereba_Cluster")
     Combined <- left_join(Combined, SpecimenDictionary, by="Coereba_specimen")
     Retained <- Combined |> select(-starts_with("Coereba"))
+    #data.frame(table(Retained$Cluster)) |> arrange(desc(Freq)) |>
+    #  slice_head(n=3)
+
+
     return(Retained)
   } else {message("Handling Alternate Structure")}
 }

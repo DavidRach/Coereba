@@ -71,6 +71,8 @@ Utility_Coereba <- function(gs, subsets, sample.name, subsample = NULL, columns=
   if (length(Data) > 1){Data1 <- bind_rows(Data)
     } else {Data1 <- Data}
   
+  data.frame(table(Data1$Cluster)) |> arrange(desc(Freq)) |> slice_head(n=3)
+  
   if (returnType == "data" && Individual == FALSE){return(Data1)}
 
   if (returnType == "flowframe" && Individual == FALSE){
