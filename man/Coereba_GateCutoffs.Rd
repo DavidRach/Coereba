@@ -13,7 +13,8 @@ Coereba_GateCutoffs(
   outpath = NULL,
   GatingTemplate = NULL,
   returnPlots = FALSE,
-  InternalCheck = FALSE
+  InternalCheck = FALSE,
+  GateOverwrite = FALSE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ Template that can be modified and provisioned by the GatingTemplate argument}
 \item{returnPlots}{Development, when TRUE and Internal Check TRUE, returns troubleshooting plots}
 
 \item{InternalCheck}{Development, default is FALSE}
+
+\item{GateOverwrite}{Whether when an existing gate is present, to delete and recreate it. Default FALSE, set TRUE when updating gates}
 }
 \value{
 A data.frame with estimated gate cutoffs for every marker

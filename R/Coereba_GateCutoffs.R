@@ -10,6 +10,7 @@
 #' @param GatingTemplate A file.path to the GatingTemplate .csv you want to swap in
 #' @param InternalCheck Development, default is FALSE
 #' @param returnPlots Development, when TRUE and Internal Check TRUE, returns troubleshooting plots
+#' @param GateOverwrite Whether when an existing gate is present, to delete and recreate it. Default FALSE, set TRUE when updating gates
 #'
 #' @importFrom flowCore keyword
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -59,7 +60,7 @@
 Coereba_GateCutoffs <- function(x, subset, sample.name, desiredCols=NULL,
                                 returnTemplate=FALSE, outpath=NULL,
                                 GatingTemplate=NULL, returnPlots=FALSE,
-                                InternalCheck=FALSE){
+                                InternalCheck=FALSE, GateOverwrite=FALSE){
     gs <- x
   
     if (length(sample.name) == 2){
@@ -113,7 +114,7 @@ Coereba_GateCutoffs <- function(x, subset, sample.name, desiredCols=NULL,
     # x <- TheseOnes[1]
     # data <- Template
 
-    walk(.x=TheseOnes, .f=GateExecution, data=Template, gs=gs)
+    walk(.x=TheseOnes, .f=GateExecution, data=Template, gs=gs, GateOverwrite=GateOverwrite)
 
     Data <- map(.x=TheseOnes, .f=GateRetrieval, gs=gs) %>% bind_rows
     Data <- rownames_to_column(Data, var="Fluorophore")
@@ -490,14 +491,15 @@ GateRetrieval <- function(x, gs){
 #' @param x The particular Fluorophore to be gated
 #' @param data The data.frame containing the openCyto gating template
 #' @param gs The iterated on GatingSet object
+#' @param GateOverwrite Whether when an existing gate is present, to delete and recreate it. 
 #'
 #' @importFrom dplyr filter
-#' @importFrom flowWorkspace gs_get_pop_paths
+#' @importFrom flowWorkspace gs_get_pop_paths gs_pop_remove
 #' @importFrom stringr str_detect
 #' @importFrom openCyto gs_add_gating_method
 #'
 #' @noRd
-GateExecution <- function(x, data, gs){
+GateExecution <- function(x, data, gs, GateOverwrite){
   Data <- data %>% dplyr::filter(alias %in% x)
   if (nrow(Data) != 1){stop("Too many rows at GateFilter")}
 
@@ -513,7 +515,16 @@ GateExecution <- function(x, data, gs){
                            dims = Data[[1,4]], gating_method = "gate_mindensity",
                            gating_args=Data[[1,6]])
     )
-  } else {Harry <- "Youre a Wizard"}
+  } else {
+    if (GateOverwrite == TRUE){
+    gs_pop_remove(gs, x, recompute = TRUE, recursive = TRUE)      
+    suppressMessages(
+      gs_add_gating_method(gs, alias = Data[[1,1]], pop = "+", parent = Data[[1,3]], 
+                           dims = Data[[1,4]], gating_method = "gate_mindensity",
+                           gating_args=Data[[1,6]])
+    )      
+    } else { Harry <- "Youre a Wizard"}
+  }
 }
 
 #' Internal for Coereba_GateCutoffs
