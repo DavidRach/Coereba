@@ -18,7 +18,9 @@
 #'
 #' @return A dictionary .csv file, and a .fcs file. 
 #'
-#' @noRd
+#' @export
+#' 
+#' @examples A <- 2+2
 Coereba_FCSExport <- function(data, gs, outpath, filename, fcsname,
                               returnType, nameAppend, Aggregate=FALSE){
   # Retrieving param information
@@ -167,69 +169,78 @@ PinkPonyClub <- function(x, dataset){
 
 #' Handles Description Digging for Dictionary Reversal going FCS to data
 #' 
-#' @param Coereba A flowframe or cytoframe with embedded Coereba Keywords
+#' @param Coereba Either a flow/cytoframe with embedded Keywords. Alternately, the file.path to the .fcs file
+#'  with the same embedded keywords
 #' 
-#' @importFrom flowCore exprs
-#' @importFrom dplyr select
-#' @importFrom tidyselect starts_with
-#' @importFrom dplyr across
-#' @importFrom tidyselect everything
-#' @importFrom dplyr mutate
-#' @importFrom flowCore keyword
-#' @importFrom dplyr left_join
+#' @importFrom flowCore exprs keyword
+#' @importFrom dplyr select across mutate bind_cols
+#' @importFrom purrr map
+#' @importFrom tidyselect starts_with everything
 #' 
 #' @return The data columns to be passed to SummarizedExperiment
 #' 
-#' @noRd
+#' @export
+#' 
+#' @examples A <- 2 + 2
 Coereba_FCS_Reversal <- function(Coereba){
   
-  if (class(Coereba) %in% c("flowFrame", "cytoframe")){
+  if (!class(Coereba) %in% c("flowFrame", "cytoframe")){
+    if (class(Coereba) %in% "character"){
+      Coereba <- load_cytoframe_from_fcs(Coereba, transformation=FALSE, truncate_max_range = FALSE)
+    } else {stop("Please provide either a flowframe, cytoframe or the path to an .fcs file")}
+  }
+
     Data <- exprs(Coereba)
     Data <- data.frame(Data, check.names=FALSE)
+    Original <- Data |> select(!starts_with("Coereba"))
     Data <- Data |> select(starts_with("Coereba"))
     Data <- Data |> mutate(across(everything(), as.character))
-    #data.frame(table(DataCheck$Coereba_Cluster)) |> arrange(desc(Freq))
-    These <- gsub("Coereba_", "", colnames(Data))
-    These <- c(These, colnames(Data))
+    These <- colnames(Data)
 
+    # x <- These[2]
+    # data <- Data
+    Reverted <- map(.f=MetadataRetrieval, .x=These, data=Data, Coereba=Coereba) |> bind_cols()
+    Assembled <- cbind(Original, Reverted)
+  
+    return(Assembled)
+}
+
+#' Internal for Coereba_FCS_Reversal, handles reversal of the individual Coereba
+#'  metadata columns via the Dictionary keywords
+#' 
+#' @param x The iterated in Coereba_ column name for processing
+#' @param data The retrieved exprs data.frame object
+#' @param Coereba The flowframe/cytoframe object for referencing keyword data
+#' 
+#' @importFrom dplyr select left_join
+#' @importFrom flowCore keyword
+#' @importFrom tidyselect all_of
+#' 
+#' @return A reverted back data.frame column
+#' 
+#' @noRd
+MetadataRetrieval <- function(x, data, Coereba){
+    Internal <- data |> select(x)
+    Without <- gsub("Coereba_", "", colnames(Internal))
+    With <- paste0("Coereba_", Without)
+    TheColumns <- c(With, Without)
     Description <- keyword(Coereba)
+    Vaiya <- Description[TheColumns]
+    #str(Vaiya)
 
-    Vaiya <- Description[These]
+    WithoutFrame <- Vaiya[[Without]]
+    if (length(WithoutFrame) == 1){WithoutFrame <- strsplit(WithoutFrame, " ")}
+    WithoutFrame <- data.frame(WithoutFrame, check.names = FALSE)
+    colnames(WithoutFrame) <- Without
 
-    specimen <- Vaiya[["specimen"]]
-    if (length(specimen) == 1){specimen <- strsplit(specimen, " ")}
-    specimen <- data.frame(specimen, check.names = FALSE)
-    colnames(specimen) <- "specimen"
+    WithFrame <- Vaiya[[With]]
+    if (is.numeric(WithFrame)){WithFrame <- as.character(WithFrame)}
+    if (length(WithFrame) == 1){WithFrame <- strsplit(WithFrame, " ")}
+    WithFrame <- data.frame(WithFrame, check.names = FALSE)
+    colnames(WithFrame) <- With
 
-    Coereba_specimen <- Vaiya[["Coereba_specimen"]]
-    if (is.numeric(Coereba_specimen)){Coereba_specimen <- as.character(Coereba_specimen)}
-
-    if (length(Coereba_specimen) == 1){Coereba_specimen <- strsplit(Coereba_specimen, " ")}
-    Coereba_specimen <- data.frame(Coereba_specimen, check.names = FALSE)
-    colnames(Coereba_specimen) <- "Coereba_specimen"
-
-    SpecimenDictionary <- cbind(specimen, Coereba_specimen)
-    
-    Cluster <- Vaiya[["Cluster"]]
-    if (length(Cluster) == 1){Cluster <- strsplit(Cluster, " ")}
-    Cluster <- data.frame(Cluster, check.names = FALSE)
-      colnames(Cluster) <- "Cluster"
-
-    Coereba_Cluster <- Vaiya[["Coereba_Cluster"]]
-    if (is.numeric(Coereba_Cluster)){Coereba_Cluster <- as.character(Coereba_Cluster)}
-    if (length(Coereba_Cluster) == 1){Coereba_Cluster <- strsplit(Coereba_Cluster, " ")}
-    Coereba_Cluster <- data.frame(Coereba_Cluster, check.names=FALSE)
-    colnames(Coereba_Cluster) <- "Coereba_Cluster"
-
-    ClusterDictionary <- cbind(Cluster, Coereba_Cluster)
-
-    Combined <- left_join(Data, ClusterDictionary, by="Coereba_Cluster")
-    Combined <- left_join(Combined, SpecimenDictionary, by="Coereba_specimen")
-    Retained <- Combined |> select(-starts_with("Coereba"))
-    #data.frame(table(Retained$Cluster)) |> arrange(desc(Freq)) |>
-    #  slice_head(n=3)
-
-
+    SpecimenDictionary <- cbind(WithoutFrame, WithFrame)
+    Combined <- left_join(data, SpecimenDictionary, by=With)
+    Retained <- Combined |> select(all_of(Without))
     return(Retained)
-  } else {message("Handling Alternate Structure")}
 }
