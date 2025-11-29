@@ -55,7 +55,7 @@ returnType="All", CombinatorialArgs=NULL){
   #data %>% select(where(is.numeric)) %>% purrr::map_dbl(sum, na.rm = TRUE)
 
   tdata1 <- t(data)
-  colnames(tdata1) <- TheCluster
+  colnames(tdata1) <- TheCluster #Likely issue spot
   tdata1 <- data.frame(tdata1, check.names=FALSE)
   Dataset <- cbind(Metadata, tdata1)
   # Dataset |> mutate(RowSum = rowSums(across(where(is.numeric))))
@@ -75,7 +75,7 @@ returnType="All", CombinatorialArgs=NULL){
 
   if (returnType == "All"){
   # Return Marker Expressions for All Markers
-  # x <- AllMarkers[4]
+  # x <- AllMarkers[1]
   SwampPuppy <- map(.x=AllMarkers, .f=Internal_Aggregate, data=Dataset,
     binary=binary) |> bind_cols()
 
@@ -318,7 +318,7 @@ Internal_Aggregate <- function(x, data, binary){
   InternalData <- data |> select(all_of(Positive))
   if (length(Positive) != ncol(InternalData)){stop("We have a column number mismatch!")}
 
-  if(nrow(Positive) >0){
+  if(length(Positive) > 0){
     #Aggregate the Ratio Values
     Subsetted <- InternalData |> rowwise() |> mutate(
       aggregate = sum(c_across(everything()), na.rm = TRUE))

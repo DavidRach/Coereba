@@ -9,7 +9,7 @@
 #' @param Aggregate Combine the items, finish your documentation. 
 #'
 #' @importFrom flowWorkspace gs_pop_get_data keyword 
-#' @importFrom flowCore parameters exprs write.FCS
+#' @importFrom flowCore parameters exprs write.FCS parameters<-
 #' @importFrom dplyr select bind_cols
 #' @importFrom tidyselect all_of
 #' @importFrom purrr map flatten

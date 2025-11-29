@@ -56,15 +56,16 @@ Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
   Merging <- left_join(TheClusters, TheSpecimens, by = SpecimenVariable)
   Data <- Merging |> mutate(Ratio = Count / SpecimenCount)
 
-  Counts <- Data |> select(-all_of(c("Ratio", "SpecimenCount"))) |>
-    pivot_wider(names_from = SpecimenVariable, values_from = "Count")
+  Counts <- Data |> select(!all_of(c("Ratio", "SpecimenCount"))) |>
+    pivot_wider(names_from = all_of(SpecimenVariable), values_from = "Count")
   Counts[is.na(Counts)] <- 0
   Counts1 <- Counts |> select(-all_of(ClusterVariable))
 
-  Ratio <- Data |> select(-all_of(c("Count", "SpecimenCount"))) |>
-    pivot_wider(names_from = SpecimenVariable, values_from = Ratio)
+  Ratio <- Data |> select(!all_of(c("Count", "SpecimenCount"))) |>
+    pivot_wider(names_from = all_of(SpecimenVariable), values_from = "Ratio")
   Ratio[is.na(Ratio)] <- 0
   Ratio1 <- Ratio |> select(-all_of(ClusterVariable))
+  ClusterNameOrder <- Ratio |> pull(Cluster)
 
   # Returning a metadata template when none is provided
   Names <- colnames(Counts)
@@ -80,7 +81,7 @@ Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
 
   # Swapping in the provided metadata template
   if (!is.null(themetadata)){
-    if (!is.data.frame(metadata)){
+    if (!is.data.frame(themetadata)){
       Metadata <- read.csv(themetadata, check.names = FALSE)
     } else {Metadata <- themetadata}
   
@@ -91,14 +92,16 @@ Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
       Metadata <- Metadata |> select(all_of(TheseColumns))
     } else {#message("Keeping all provided metadata columns")
     }
-      Metadata <- Metadata %>% rename(specimen = .data[[SpecimenVariable]])
-      #Metadata <- Metadata %>% unique()
+      Metadata <- Metadata |> rename(specimen = all_of(SpecimenVariable))
+      Metadata <- Metadata %>% unique()  # Required to reduce duplicates from Coereba cell by cells
   } else {#message("Using default metadata for SpecimenVariable column")
   }
 
   # Reading in the panel
   if (!is.data.frame(panel)){panelData <- read.csv(panel, check.names=FALSE)
     } else {panelData <- panel}
+  
+  panelData$Fluorophore <- gsub("-", "", panelData$Fluorophore)
 
   # Assembling rowNames (Cluster by Marker Status)
   TheDataset <- Data |> group_by(.data[[ClusterVariable]]) |>
@@ -115,6 +118,11 @@ Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
   C[C == "neg"] <- "0"
   ColsC <- ncol(C)
   C[,2:ColsC] <- lapply(C[,2:ColsC], as.numeric)
+  C$Identity <- gsub("_", "", gsub("-", "", C$Identity))
+
+  # Rearranging to match Ratio order of clusters
+  C$Identity <- factor(C$Identity, levels = ClusterNameOrder)
+  C <- C[order(C$Identity), ]
   
   #Assembling Summarized Experiment 
   MySE <- SummarizedExperiment(assays=list(ratios=Ratio1, count=Counts1),
