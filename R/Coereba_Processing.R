@@ -56,15 +56,15 @@ Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
   Merging <- left_join(TheClusters, TheSpecimens, by = SpecimenVariable)
   Data <- Merging |> mutate(Ratio = Count / SpecimenCount)
 
-  Counts <- Data |> select(-"Ratio", -"SpecimenCount") |>
+  Counts <- Data |> select(-all_of(c("Ratio", "SpecimenCount"))) |>
     pivot_wider(names_from = SpecimenVariable, values_from = "Count")
   Counts[is.na(Counts)] <- 0
-  Counts1 <- Counts |> select(-.data[[ClusterVariable]])
+  Counts1 <- Counts |> select(-all_of(ClusterVariable))
 
-  Ratio <- Data |> select(-Count, -SpecimenCount) |>
+  Ratio <- Data |> select(-all_of(c("Count", "SpecimenCount"))) |>
     pivot_wider(names_from = SpecimenVariable, values_from = Ratio)
   Ratio[is.na(Ratio)] <- 0
-  Ratio1 <- Ratio |> select(-.data[[ClusterVariable]])
+  Ratio1 <- Ratio |> select(-all_of(ClusterVariable))
 
   # Returning a metadata template when none is provided
   Names <- colnames(Counts)

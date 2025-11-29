@@ -58,6 +58,8 @@ returnType="All", CombinatorialArgs=NULL){
   colnames(tdata1) <- TheCluster
   tdata1 <- data.frame(tdata1, check.names=FALSE)
   Dataset <- cbind(Metadata, tdata1)
+  # Dataset |> mutate(RowSum = rowSums(across(where(is.numeric))))
+
 
   if (returnType == "Combinatorial" && !is.null(CombinatorialArgs)){
     #CombinatorialArgs <- c("BV510", "APC-Fire 750")
@@ -73,8 +75,8 @@ returnType="All", CombinatorialArgs=NULL){
 
   if (returnType == "All"){
   # Return Marker Expressions for All Markers
-  # x <- AllMarkers[6]
-  SwampPuppy <- map(.x=AllMarkers[c(6,1,9)], .f=.Internal_Aggregate, data=Dataset,
+  # x <- AllMarkers[4]
+  SwampPuppy <- map(.x=AllMarkers, .f=Internal_Aggregate, data=Dataset,
     binary=binary) |> bind_cols()
 
   # Swap out Fluorophore for Marker Names
@@ -197,7 +199,7 @@ Coereba_MarkerExpressions <- function(data, binary, panel, starter, returnType="
 
   if (returnType == "All"){
   # Return Marker Expressions for All Markers
-  SwampPuppy <- map(.x=AllMarkers, .f=.Internal_Aggregate, data=data,
+  SwampPuppy <- map(.x=AllMarkers, .f=Internal_Aggregate, data=data,
     binary=binary) %>% bind_cols()
 
   # Swap out Fluorophore for Marker Names
@@ -261,7 +263,7 @@ CombinatorialAggregate <- function(x, data, binary, panel){
 #' @param binary The data.frame of markers vs clusters, with 0 and 1 values
 #' @param Column The label name for the respective quadrant
 #'
-#' @importFrom tidyr as_tibble
+#' @importFrom tibble as_tibble
 #' @importFrom dplyr rowwise
 #' @importFrom dplyr mutate
 #' @importFrom dplyr c_across
@@ -303,36 +305,24 @@ DataRetrieval <- function(x, data, binary, Column){
 #' @param data The data.frame of clusters vs individual specimens, with the ratio values
 #' @param binary The data.frame of markers vs clusters, with 0 and 1 values
 #'
-#' @importFrom dplyr filter
-#' @importFrom tidyr as_tibble
-#' @importFrom dplyr rowwise
-#' @importFrom dplyr mutate
-#' @importFrom dplyr c_across
+#' @importFrom dplyr filter pull select rowwise mutate c_across  mutate_all 
+#' @importFrom tidyselect all_of
+#' @importFrom tibble as_tibble
 #' @importFrom tidyselect everything
-#' @importFrom dplyr select
-#' @importFrom dplyr mutate_all
 #'
 #' @noRd
-.Internal_Aggregate <- function(x, data, binary){
-  # x=AllMarkers[20]
-  Column <- x
-
-  # Retrieve Clusters that are Positive for Iterated Marker
-  Positive <- binary |> dplyr::filter(.data[[Column]] == 1)
-
-  #Retrieve corresponding Clusters from data
-  TheInternalBypass <- Positive$Identity
-  #TheInternalBypass <- gsub("_", "", TheInternalBypass)
-  #TheInternalBypass <- gsub("-", "", TheInternalBypass)
-  InternalData <- data[, names(data) %in% TheInternalBypass]
-  InternalData <- as_tibble(InternalData)
+Internal_Aggregate <- function(x, data, binary){
+  Column <- x # The column fluorophore
+  Positive <- binary |> filter(.data[[Column]] == 1) |> pull(Identity)
+  TotalColumns <- length(Positive)
+  InternalData <- data |> select(all_of(Positive))
+  if (length(Positive) != ncol(InternalData)){stop("We have a column number mismatch!")}
 
   if(nrow(Positive) >0){
     #Aggregate the Ratio Values
     Subsetted <- InternalData |> rowwise() |> mutate(
       aggregate = sum(c_across(everything()), na.rm = TRUE))
     InternalFinal <- Subsetted |> select(aggregate)
-
   } else {
     #Aggregate the Ratio Values
     Subsetted <- InternalData |> rowwise() |> mutate(
