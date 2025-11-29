@@ -7,29 +7,32 @@
 \usage{
 Coereba_Processing(
   x,
-  metadata = NULL,
+  themetadata = NULL,
   metadata_columns = NULL,
-  Identity = "specimen",
   metadataTemplate = FALSE,
   outpath = NULL,
-  panel
+  panel,
+  SpecimenVariable = "specimen",
+  ClusterVariable = "Cluster"
 )
 }
 \arguments{
 \item{x}{An object with Coereba gating and metadata. Acccepted arguments
 include  a file.path to an .fcs, a flowFrame or cytoFrame, and a data.frame.}
 
-\item{metadata}{A data.frame or file.path to a metadata.csv file}
+\item{themetadata}{A data.frame or file.path to a metadata.csv file}
 
 \item{metadata_columns}{A vector of column names from the metadata want to incorporate.}
-
-\item{Identity}{Column designating specimen in the metadata}
 
 \item{metadataTemplate}{When metadata is NULL, returns a template data.frame containing specimen list.}
 
 \item{outpath}{Default NULL, alternate a file.path to send metadataTemplate output to.}
 
 \item{panel}{A data.frame or file.path to a .csv containing Fluorophore and Marker columns}
+
+\item{SpecimenVariable}{Column designating specimen in the metadata, default "specimen"}
+
+\item{ClusterVariable}{Column designating specimen in the metadata, default "Cluster"}
 }
 \value{
 A summarized experiment object

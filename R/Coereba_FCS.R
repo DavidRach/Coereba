@@ -177,7 +177,7 @@ PinkPonyClub <- function(x, dataset){
 #' @importFrom purrr map
 #' @importFrom tidyselect starts_with everything
 #' 
-#' @return The data columns to be passed to SummarizedExperiment
+#' @return A data.frame containing the reversed columns to be passed on to SummarizedExperiment
 #' 
 #' @export
 #' 

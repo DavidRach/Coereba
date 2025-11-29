@@ -11,7 +11,7 @@ Coereba_FCS_Reversal(Coereba)
 with the same embedded keywords}
 }
 \value{
-The data columns to be passed to SummarizedExperiment
+A data.frame containing the reversed columns to be passed on to SummarizedExperiment
 }
 \description{
 Handles Description Digging for Dictionary Reversal going FCS to data
