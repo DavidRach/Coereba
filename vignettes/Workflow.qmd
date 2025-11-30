@@ -187,11 +187,9 @@ MyPlot <- Utility_GatingPlots(x=UnmixedGatingSet[4], sample.name=c("GROUPNAME", 
 MyPlot
 ```
 
-Having set up a GatingSet with transformations and gates applied, we can proceed to test the `Coereba` workflow. 
-
 ### CytoML
 
-An alternative approach to creating a new GatingSet with openCyto, would to be to import an existing FlowJo workspace using CytoML. The workflow for this approach would look something as follows:
+An alternative approach to creating a new GatingSet with `r Biocpkg("openCyto")`, would to be to import an existing FlowJo workspace using `r Biocpkg("CytoML")`. The workflow for this approach would look something as follows:
 
 ```{r}
 #| label: "CytoML example"
@@ -228,10 +226,127 @@ MyPlot <- Utility_GatingPlots(x=CytoML_GS[27], sample.name=c("GROUPNAME", "TUBEN
 MyPlot
 ```
 
-
 # Coereba
 
-### Coereba_GateCutoffs
+Having set up a GatingSet with transformations and gates applied, we can now proceed to the main `Coereba` workflow. 
+
+For this example, we will focus on just 4 of the 32 markers, CD16 (BV570), CXCR5 (RB780), HLA-DR(PE-Vio770), and Vdelta2 (BUV661). Most cord DN T cells are negative for these markers, but 5-25% are positive, so they are good examples to showcase the gate adjustment mechanisms. The process when working with all 32-markers is similar. 
+
+```{r}
+MarkersForToday <- c("Comp-BV570-A", "Comp-RB780-A", "Comp-BUV661-A", "Comp-PE-Vio770-A")
+```
+
+
+## Return a Coereba Gate cutoff template
+
+Behind the scenes, Coereba is utilizing openCyto automated gating (primarily leveraging gate_mindensity) to determine the splitpoints between the negative and positive cells. 
+
+```{r}
+# Designate a location file.path to save the calculated splitpoints .csv to. 
+StorageLocationForSplitpoints <- "template"
+
+# We will use a temp() folder for this documentation example. 
+StorageLocationForSplitpoints <- tempdir()
+
+TheGateCutoffs <- purrr::map(.x=UnmixedGatingSet, .f=Coereba_GateCutoffs,
+  subset="root", sample.name=c("GROUPNAME"), desiredCols=MarkersForToday) %>% bind_rows()
+
+TheFileName <- file.path(StorageLocationForSplitpoints, "InitialGates.csv")
+
+write.csv(TheGateCutoffs, TheFileName, row.names=FALSE)
+```
+
+```{r}
+TheGateCutoffs
+```
+
+These in turn can be visualized with the Luciernaga packages NbyN and Unity plot functions, these can be returned to R or saved as a pdf. When a marker has distinct positive or negative markers, the initial estimated location works well. 
+
+```{r}
+#| label: NbyN plot check
+#| message: FALSE
+#| warning: FALSE
+
+StorageLocationForPlotPDF <- tempdir()
+
+Plot <- Utility_NbyNPlots(x=UnmixedGatingSet[4], sample.name=c("GROUPNAME"), experiment="ABs",
+condition="DNs", removestrings=".fcs", marginsubset="root", gatesubset="root", 
+ycolumn="Comp-BUV661-A", bins=150, clearance=0.1, 
+gatelines=TRUE, reference=TheGateCutoffs, outpath=StorageLocationForPlotPDF, returntype="patchwork")
+```
+
+```{r}
+Plot
+```
+
+However, when everything is uniformly positive or negative, or more subtle, these estimated locations can be quite off. In these cases, it can be useful to provide gate_range arguments to constrain the mindensity to assign a splitpoint in a particular area. 
+
+The simplest way to get this set up is the returnTemplate argument which will return a TemplateForGates.csv based off the openCyto template .csv.
+
+```{r}
+#| label: Return an openCyto template
+
+# Designate a location file.path to save the template to. 
+StorageLocationForTemplate <- "template"
+
+# We will use a temp() folder for this documentation example. 
+StorageLocationForTemplate <- tempdir()
+
+ReturnATemplate <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
+  subset="root", sample.name="GROUPNAME", desiredCols=MarkersForToday, 
+  returnTemplate=TRUE, outpath=StorageLocationForTemplate)   
+
+TheTemplate <- list.files(StorageLocationForTemplate,
+ pattern="TemplateForGates.csv", full.names=TRUE)
+
+TheTemplateCSV <- read.csv(TheTemplate, check.names=FALSE)
+```
+
+```{r}
+#| echo: FALSE
+TheTemplateCSV
+```
+
+This file in turn can be updated with the gate_range arguments. 
+
+```{r}
+#On your own workstation
+
+UpdatedTemplatePath <- file.path("C:", "Users", "JohnDoe", "Desktop".
+"UpdatedTemplateForGates.csv")
+
+# For our documentation's example
+
+folder <- system.file("extdata", package = "Coereba")
+
+UpdatedTemplatePath <- list.files(folder, patten="UpdatedTemplateForGates.csv", full.names=TRUE)
+
+UpdatedTemplate <- read.csv(TheTemplateCSV, UpdatedTemplatePath, check.names=FALSE)
+```
+
+```{r}
+UpdatedTemplate
+```
+
+With this done, we can provide it back to Coereba_GateCutoffs with the GateOverwrite argument set to TRUE to repeat the process of calculating the splitpoints. 
+
+```{r}
+TheGateCutoffs <- purrr::map(.x=UnmixedGatingSet, .f=Coereba_GateCutoffs,
+  subset="root", sample.name="GROUPNAME", desiredCols=MarkersForToday,
+  GatingTemplate=UpdatedTemplate, GateOverwrite=TRUE) %>% bind_rows()
+
+#SecondGates <- file.path("template", "SecondGates.csv")
+#write.csv(TheGateCutoffs, SecondGates, row.names=FALSE)
+#UpdatedGates <- read.csv(SecondGates, check.names=FALSE)
+#UpdatedGates <- TheGateCutoffs
+```
+
+This ultimately allows the splitpoint gate estimates to be closer to the true positive/negative split, resulting in less total adjustments that need to be done via the Coereba Shiny app. 
+
+## Coereba_App
+
+
+
 
 The first step is to create a .csv file, containing the individual specimens, and the individual markers of interest. Each cell within the .csv file will correspond to the MFI for a given marker for a given individual where positive expression of a marker transitions to becoming a negative (referred here to as a splitpoint). 
 

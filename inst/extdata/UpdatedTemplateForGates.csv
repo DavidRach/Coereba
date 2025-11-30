@@ -1,0 +1,5 @@
+alias,pop,parent,dims,gating_method,gating_args,collapseDataForGating,groupBy,preprocessing_method,preprocessing_args
+Comp-BV570-A,-,root,Comp-BV570-A,gate_mindensity,"gate_range=c(100,115)",FALSE,NA,NA,NA
+Comp-RB780-A,-,root,Comp-RB780-A,gate_mindensity,"gate_range=c(100,115)",FALSE,NA,NA,NA
+Comp-BUV661-A,-,root,Comp-BUV661-A,gate_mindensity,"gate_range=c(100,115)",FALSE,NA,NA,NA
+Comp-PE-Vio770-A,-,root,Comp-PE-Vio770-A,gate_mindensity,"gate_range=c(120,135)",FALSE,NA,NA,NA
