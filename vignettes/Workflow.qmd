@@ -38,6 +38,7 @@ library(Coereba)
 library(BiocStyle)
 library(flowCore)
 library(flowWorkspace)
+library(CytoML)
 library(openCyto)
 library(ggcyto)  
 library(data.table)
@@ -193,10 +194,42 @@ Having set up a GatingSet with transformations and gates applied, we can proceed
 An alternative approach to creating a new GatingSet with openCyto, would to be to import an existing FlowJo workspace using CytoML. The workflow for this approach would look something as follows:
 
 ```{r}
+#| label: "CytoML example"
+#| eval: FALSE
 
+# For Windows Operating Systems
+folder <- file.path("C:", "Users", "JohnDoe", "Desktop", "TodaysExperiment")
+wsp <- list.files(pattern=".wsp", full.names=TRUE)
 ```
 
-# Coerebea
+```{r}
+#| echo: FALSE
+#| warning: FALSE
+#| results: "hide"
+folder <- system.file("extdata", package = "Coereba")
+wsp <- list.files(folder, pattern=".wsp", full.names=TRUE)
+```
+
+```{r}
+library(CytoML)
+ws <- open_flowjo_xml(wsp[1])
+CytoML_GS <- flowjo_to_gatingset(ws, name=1, path = folder, additional.keys="GROUPNAME")
+CytoML_GS
+```
+
+```{r}
+library(Luciernaga)
+
+MyPlot <- Utility_GatingPlots(x=CytoML_GS[27], sample.name=c("GROUPNAME", "TUBENAME"),
+                              removestrings=".fcs", subset="root", gtFile=UnmixedGates,
+                              DesiredGates=NULL, returnType="plots", outpath = getwd(),
+                              therows=1, thecolumns=2)
+
+MyPlot
+```
+
+
+# Coereba
 
 ### Coereba_GateCutoffs
 
@@ -243,7 +276,8 @@ Next, make sure to remember the name of your GatingSet ("UnmixedGatingSet" for t
 
 Then, run the following command in your console:
 
-```{r, eval = FALSE}
+```{r}
+#| eval: FALSE
 Coereba_App()
 ```
 
