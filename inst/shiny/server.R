@@ -3,26 +3,31 @@
 #' @param input Shiny input
 #' @param output Shiny output
 #' @param session Shiny session
+#' 
+#' @importFrom shiny runApp tags tagList fileInput tableOutput sidebarLayout
+#' @importFrom shiny sidebarPanel mainPanel textInput selectInput numericInput
+#' @importFrom shiny checkboxInput actionButton uiOutput fluidRow column icon
+#' @importFrom shiny reactive reactiveValues req renderTable observe observeEvent
+#' @importFrom shiny updateSelectInput renderUI isolate showModal modalDialog
+#' @importFrom shiny removeModal 
+#' 
+#' @importFrom shinydashboard dashboardPage dashboardHeader dashboardSidebar
+#' @importFrom shinydashboard dashboardBody sidebarMenu menuItem tabItems tabItem
 #'
-#' @importFrom DT datable
-#' @importFrom DT renderDT
+#' @importFrom shinyjs useShinyjs
+#' 
+#' @importFrom plotly plotlyOutput renderPlotly ggplotly style
+#'
 #' @importFrom htmltools div
+#' 
 #' @importFrom htmlwidgets onRender
-#' @importFrom Luciernaga Utility_UnityPlot
-#' @importFrom plotly plotlyOutput
-#' @importFrom plotly renderPlotly
-#' @importFrom plotly ggplotly
-#' @importFrom shiny observe
-#' @importFrom shiny observeEvent
-#' @importFrom shiny reactive
-#' @importFrom shiny reactiveValues
-#' @importFrom shiny renderTable
-#' @importFrom shiny renderUI
-#' @importFrom shiny req
-#' @importFrom shiny showModal
-#' @importFrom shiny updateSelectInput
-#' @importFrom utils read.csv
-#' @importFrom utils write.csv
+#'
+#' @importFrom DT DTOutput renderDT datatable
+#' 
+#' @importFrom utils read.csv write.csv
+#'
+#' @return Shiny App server side logic
+#' @noRd
 server <- function(input, output, session) {
 
   # What information from a recorded click

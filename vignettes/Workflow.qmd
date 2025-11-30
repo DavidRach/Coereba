@@ -295,7 +295,9 @@ StorageLocationForTemplate <- tempdir()
 ReturnATemplate <- Coereba_GateCutoffs(x=UnmixedGatingSet[1],
   subset="root", sample.name="GROUPNAME", desiredCols=MarkersForToday, 
   returnTemplate=TRUE, outpath=StorageLocationForTemplate)   
+```
 
+```{r}
 TheTemplate <- list.files(StorageLocationForTemplate,
  pattern="TemplateForGates.csv", full.names=TRUE)
 
@@ -312,16 +314,16 @@ This file in turn can be updated with the gate_range arguments.
 ```{r}
 #On your own workstation
 
-UpdatedTemplatePath <- file.path("C:", "Users", "JohnDoe", "Desktop".
+UpdatedTemplatePath <- file.path("C:", "Users", "JohnDoe", "Desktop",
 "UpdatedTemplateForGates.csv")
 
 # For our documentation's example
 
 folder <- system.file("extdata", package = "Coereba")
 
-UpdatedTemplatePath <- list.files(folder, patten="UpdatedTemplateForGates.csv", full.names=TRUE)
+UpdatedTemplatePath <- list.files(folder, pattern="UpdatedTemplateForGates.csv", full.names=TRUE)
 
-UpdatedTemplate <- read.csv(TheTemplateCSV, UpdatedTemplatePath, check.names=FALSE)
+UpdatedTemplate <- read.csv(UpdatedTemplatePath, check.names=FALSE)
 ```
 
 ```{r}
@@ -331,22 +333,55 @@ UpdatedTemplate
 With this done, we can provide it back to Coereba_GateCutoffs with the GateOverwrite argument set to TRUE to repeat the process of calculating the splitpoints. 
 
 ```{r}
-TheGateCutoffs <- purrr::map(.x=UnmixedGatingSet, .f=Coereba_GateCutoffs,
+TheUpdatedGateCutoffs <- purrr::map(.x=UnmixedGatingSet, .f=Coereba_GateCutoffs,
   subset="root", sample.name="GROUPNAME", desiredCols=MarkersForToday,
-  GatingTemplate=UpdatedTemplate, GateOverwrite=TRUE) %>% bind_rows()
+  GatingTemplate=UpdatedTemplatePath, GateOverwrite=TRUE) %>% bind_rows()
 
-#SecondGates <- file.path("template", "SecondGates.csv")
-#write.csv(TheGateCutoffs, SecondGates, row.names=FALSE)
-#UpdatedGates <- read.csv(SecondGates, check.names=FALSE)
-#UpdatedGates <- TheGateCutoffs
+# Designate a location file.path to save the template to. 
+StorageLocationForUpdatedSplitpoints <- "template"
+
+# We will use a temp() folder for this documentation example. 
+StorageLocationForUpdatedSplitpoints <- tempdir()
+
+SecondGates <- file.path(StorageLocationForUpdatedSplitpoints, "SecondGates.csv")
+write.csv(TheUpdatedGateCutoffs, SecondGates, row.names=FALSE)
 ```
 
-This ultimately allows the splitpoint gate estimates to be closer to the true positive/negative split, resulting in less total adjustments that need to be done via the Coereba Shiny app. 
+```{r}
+TheUpdatedGateCutoffs
+```
+
+This ultimately allows the splitpoint gate estimates to be closer to the true positive/negative split, resulting in less total adjustments that need to be done via the Coereba Shiny app.
+
+```{r}
+#| label: NbyN plot check
+#| message: FALSE
+#| warning: FALSE
+
+StorageLocationForPlotPDF <- tempdir()
+
+UpdatedPlot <- Utility_NbyNPlots(x=UnmixedGatingSet[4], sample.name=c("GROUPNAME"), experiment="ABs",
+condition="DNs", removestrings=".fcs", marginsubset="root", gatesubset="root", 
+ycolumn="Comp-BUV661-A", bins=150, clearance=0.1, 
+gatelines=TRUE, reference=TheUpdatedGateCutoffs, outpath=StorageLocationForPlotPDF, returntype="patchwork")
+```
+
+```{r}
+UpdatedPlot
+```
 
 ## Coereba_App
 
+```{r}
+#| eval: false
 
+#library(DT)
+#library(plotly)
+#library(shiny)
+#library(shinydashboard)
 
+Coereba_App()
+```
 
 The first step is to create a .csv file, containing the individual specimens, and the individual markers of interest. Each cell within the .csv file will correspond to the MFI for a given marker for a given individual where positive expression of a marker transitions to becoming a negative (referred here to as a splitpoint). 
 

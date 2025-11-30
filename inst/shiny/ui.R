@@ -1,3 +1,33 @@
+#' Behind the Scenes UI for CoerebaApp
+#'
+#' @param input Shiny input
+#' @param output Shiny output
+#' @param session Shiny session
+#' 
+#' @importFrom shiny runApp tags tagList fileInput tableOutput sidebarLayout
+#' @importFrom shiny sidebarPanel mainPanel textInput selectInput numericInput
+#' @importFrom shiny checkboxInput actionButton uiOutput fluidRow column icon
+#' @importFrom shiny reactive reactiveValues req renderTable observe observeEvent
+#' @importFrom shiny updateSelectInput renderUI isolate showModal modalDialog
+#' @importFrom shiny removeModal 
+#' 
+#' @importFrom shinydashboard dashboardPage dashboardHeader dashboardSidebar
+#' @importFrom shinydashboard dashboardBody sidebarMenu menuItem tabItems tabItem
+#'
+#' @importFrom shinyjs useShinyjs
+#' 
+#' @importFrom plotly plotlyOutput renderPlotly ggplotly style
+#'
+#' @importFrom htmltools div
+#' 
+#' @importFrom htmlwidgets onRender
+#'
+#' @importFrom DT DTOutput renderDT datatable
+#' 
+#' @importFrom utils read.csv write.csv
+#'
+#' @return Shiny App UI side logic
+#' @noRd
 ui <- shinydashboard::dashboardPage(
   shinydashboard::dashboardHeader(title = "Coereba"),
 

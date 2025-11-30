@@ -3,7 +3,7 @@
 \name{Coereba_Processing}
 \alias{Coereba_Processing}
 \title{Takes Utility_Coereba output, plus additional metadata,and returns as a
- Bioconductor Summarized Experiment object}
+Bioconductor Summarized Experiment object}
 \usage{
 Coereba_Processing(
   x,
@@ -39,7 +39,7 @@ A summarized experiment object
 }
 \description{
 Takes Utility_Coereba output, plus additional metadata,and returns as a
- Bioconductor Summarized Experiment object
+Bioconductor Summarized Experiment object
 }
 \examples{
 

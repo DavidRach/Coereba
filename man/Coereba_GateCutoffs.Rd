@@ -41,7 +41,7 @@ Template that can be modified and provisioned by the GatingTemplate argument}
 }
 \value{
 A data.frame with estimated gate cutoffs for every marker
- for every specimen
+for every specimen
 }
 \description{
 Function to guess the gate cutoff values

@@ -1,6 +1,26 @@
 #' Deploy a Shiny app to modify the estimated gate cutoff placement.
+#' 
+#' @importFrom shiny runApp tags tagList fileInput tableOutput sidebarLayout
+#' @importFrom shiny sidebarPanel mainPanel textInput selectInput numericInput
+#' @importFrom shiny checkboxInput actionButton uiOutput fluidRow column icon
+#' @importFrom shiny reactive reactiveValues req renderTable observe observeEvent
+#' @importFrom shiny updateSelectInput renderUI isolate showModal modalDialog
+#' @importFrom shiny removeModal 
+#' 
+#' @importFrom shinydashboard dashboardPage dashboardHeader dashboardSidebar
+#' @importFrom shinydashboard dashboardBody sidebarMenu menuItem tabItems tabItem
 #'
-#' @importFrom shiny runApp
+#' @importFrom shinyjs useShinyjs
+#' 
+#' @importFrom plotly plotlyOutput renderPlotly ggplotly style
+#'
+#' @importFrom htmltools div
+#' 
+#' @importFrom htmlwidgets onRender
+#'
+#' @importFrom DT DTOutput renderDT datatable
+#' 
+#' @importFrom utils read.csv write.csv
 #'
 #' @return Launches the Shiny app
 #' @export
