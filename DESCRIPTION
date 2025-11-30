@@ -1,17 +1,11 @@
 Package: Coereba
 Type: Package
 Title: Dichotomized Clustering for Spectral Flow Cytometry (SFC)
-Version: 0.99.2
+Version: 0.99.3
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
 Description: This package allows for the implementation of a semi-supervised analysis of cytometry data. You can validate location dichotomized gates for every marker, generate terminal clusters and enumerate number of cells present in these clusters. These can then be used in several useful ways as detailed in the vignette. Because of this, it improves on manual gating by enabling further investigation, and more robust to batch effects than a full unsupervised analysis. 
-License: AGPL (>= 3)
-Encoding: UTF-8
-LazyData: FALSE
-URL: https://github.com/DavidRach/Coereba, https://davidrach.github.io/Coereba/
-BugReports: https://github.com/DavidRach/Coereba/issues
-RoxygenNote: 7.3.2
 Imports: 
     Biobase,
     broom,
@@ -57,6 +51,16 @@ Suggests:
     shinytest2,
     testthat (>= 3.0.0),
     withr
+License: AGPL (>= 3)
+URL: https://github.com/DavidRach/Coereba, https://davidrach.github.io/Coereba/
+BugReports: https://github.com/DavidRach/Coereba/issues
 biocViews: Clustering, FlowCytometry, Preprocessing, Software
+Encoding: UTF-8
+SystemRequirements:
+    pandoc,
+    quarto
+VignetteBuilder: quarto
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+LazyData: FALSE
 Config/testthat/edition: 3
-VignetteBuilder: knitr
