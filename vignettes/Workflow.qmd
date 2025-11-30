@@ -354,7 +354,7 @@ TheUpdatedGateCutoffs
 This ultimately allows the splitpoint gate estimates to be closer to the true positive/negative split, resulting in less total adjustments that need to be done via the Coereba Shiny app.
 
 ```{r}
-#| label: NbyN plot check
+#| label: NbyN plot check 2
 #| message: FALSE
 #| warning: FALSE
 
@@ -383,6 +383,45 @@ UpdatedPlot
 Coereba_App()
 ```
 
+Upon launch, you are within the Upload CSV File tab on the upper left. 
+
+![](`r system.file("extdata", "ShinyLanding.png", package = "Coereba")`){width="75%"}
+
+Proceed to find and upload the .csv containing the updated splitpoints based on the gate_range constraints
+
+![](`r system.file("extdata", "ShinySplitpointsLoaded.png", package = "Coereba")`){width="75%"}
+
+Once this is done, navigate to the Upload a Gating set tab on the upper left
+
+Proceed to fill in the details, using same name for the GatingSets and associated gates as you have currently in your environment. 
+
+![](`r system.file("extdata", "ShinyDetailsLoaded.png", package = "Coereba")`){width="75%"}
+
+Once this is done, click Generate Plots. If you view the console of the main R session, you will see the Utility_NbyNplot messages running as the plots are generated. 
+
+![](`r system.file("extdata", "ShinyVisuals.png", package = "Coereba")`){width="75%"}
+
+Scroll down to see how the splitpoints were assigned to the individual samples. When you find one that was incorrectly set, hover just above the x-axis for the correct location, and click on the spot with your mouse (see blue arrow)
+
+![](`r system.file("extdata", "ShinyUpdating.png", package = "Coereba")`){width="75%"}
+
+When you click just above the axis for the corrected splitpoint, you should see a click event captured message pop up in the console window of the Main R environment. 
+
+![](`r system.file("extdata", "ConsoleClicks.png", package = "Coereba")`){width="75%"}
+
+The process continues as you switch the x-axis marker, regenerate the plots, and then correct the splitpoints for each subsequent marker. 
+
+![](`r system.file("extdata", "CorrectSplitpoints.png", package = "Coereba")`){width="75%"}
+
+Once this is complete, navigate to the Click Data tab on the upper left. You will see the click events in their totality. 
+
+![](`r system.file("extdata", "ClickDataExport.png", package = "Coereba")`){width="75%"}
+
+Once you have entered the desired file name and the correct file path to the storage location, click Export Click Data. If this was done successfully, you should see the following notice appear. 
+
+![](`r system.file("extdata", "CheckoutNotice.png", package = "Coereba")`){width="75%"}
+
+
 The first step is to create a .csv file, containing the individual specimens, and the individual markers of interest. Each cell within the .csv file will correspond to the MFI for a given marker for a given individual where positive expression of a marker transitions to becoming a negative (referred here to as a splitpoint). 
 
 These could be written out individually, or based on automated calculations. To simplify the process, in Coereba, we have implemented two approaches to estimating these splitpoints. One function is the in-house `Coereba_GateCutoffs()`, which does an "okay-ish but work-in progress". The flip approach is leveraging the `r Biocpkg("openCyto")` pipeline (in development) and retrieving the values. 
@@ -390,6 +429,7 @@ These could be written out individually, or based on automated calculations. To 
 Both approaches can be computationally heavy, but still faster than eye-balling everything and typing in the values one-by-one. Save the eyestrain for subsequent validation steps.
 
 ```{r}
+#| eval: FALSE
 TheGateCutoff <- Coereba_GateCutoffs(gs=UnmixedGatingSet[1],
   subset="live", sample.name="GROUPNAME", desiredCols =c("BUV805-A"))
 
@@ -398,6 +438,7 @@ TheGateCutoffs <- map(.x=UnmixedGatingSet[1:3], .f=Coereba_GateCutoffs,
 ```
 
 ```{r}
+#| eval: FALSE
 TheGateCutoffs
 ```
 
@@ -406,7 +447,8 @@ TheGateCutoffs
 Once we have generated a GateCutoffs.csv file, we can visualize how well the splitpoints were by plotting them as red-lines using the `Luciernaga` packages `Utility_NbyNPlots()` to visualize the markers for a given individual and `Utility_UnityPlots()` to visualize the markers across individuals. This a good way of understanding how well the competing gating-algorithms did in the context of your individual panel, and how much effort will be required for the next step in correcting the gates individually. 
 
 ```{r}
-
+#| eval: FALSE
+print("Hello")
 ```
 
 # Coereba_App
@@ -416,6 +458,7 @@ Previously, all adjustments to the above splitpoints had to eye-balled in the pd
 To get started, first make sure you know where the `Coereba_GateCutoffs()` .csv output is saved at, as you will need to select the file within the App. 
 
 ```{r}
+#| eval: FALSE
 File_Location <- system.file("extdata", package = "Coereba")
 TheCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
 TheCSVData <- read.csv(TheCSV, check.names=FALSE)
@@ -450,6 +493,7 @@ Once you have completed validating the GateCutoffs with `Coereba_App()`, it is t
 For this example, we will use ClickDataExamples.csv stored within `Coereba`'s extdata folder:
 
 ```{r}
+#| eval: FALSE
 File_Location <- system.file("extdata", package = "Coereba")
 TheOldCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
 TheClickInfo <- file.path(File_Location, "ClickDataExample.csv")
@@ -459,12 +503,14 @@ TheClickData
 
 The old data:
 ```{r}
+#| eval: FALSE
 TheOldData <- read.csv(TheOldCSV, check.names=FALSE)
 TheOldData
 ```
 
 We can then run `Coereba_UpdateGates()` and watch the values for BUV469-A are updated.
 ```{r}
+#| eval: FALSE
 UpdatedCSV <- Coereba_UpdateGates(Clicks=TheClickInfo, Old=TheOldCSV,
   export=FALSE, outpath=NULL, fileName="UpdatedCSV")
 
@@ -484,6 +530,7 @@ During development, we have noticed that for SFC data, the splitpoint location c
 Both functions are currently waiting on the ILT paper to be sent to collaborators so that David can implement his 5-subject binder worth of notes to implement a S4 OOP class to make manipulating the final outputs easier than the current .qmd files full of tidyverse data tidying. 
 
 ```{r}
+#| eval: FALSE
 #| warning: false
 
 CoerebaIDs <- Utility_Coereba(x=UnmixedGatingSet[1], subsets="live",
@@ -491,6 +538,7 @@ CoerebaIDs <- Utility_Coereba(x=UnmixedGatingSet[1], subsets="live",
 ```
 
 ```{r}
+#| eval: FALSE
 head(CoerebaIDs, 5)
 ```
 
@@ -500,7 +548,8 @@ head(CoerebaIDs, 5)
 Some things are literally poisson noise. Others are cell clusters with varying abundance across heteregenous human patients. Others are individually unique terminal nodes that can be the result of individual biology.... or unmixing errors ... or your lab tech messing up the staining panel. You can leverage the filter functions to identify all of these quickly. 
 
 ```{r}
-
+#| eval: FALSE
+print("Hello")
 ```
 
 # Coereba_MarkerExpressions
@@ -510,6 +559,7 @@ Having generated a Marker by Cluster data.frame (binaryData) and a Cluster by Sp
 For this demonstration, we will focus on NKTs, using stored .csv files for their binary and data outputs stored within the Coereba extdata folder.
 
 ```{r}
+#| eval: FALSE
 File_Location <- system.file("extdata", package = "Coereba")
 
 panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
@@ -524,6 +574,7 @@ dataData <- read.csv(dataPath, check.names=FALSE)
 
 We will first just return the marker expressions for all markers: 
 ```{r}
+#| eval: FALSE
 library(Coereba)
 
 AllMarkers <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
@@ -536,6 +587,7 @@ We can additionally by specifying returnType = "Combinatorial" derrive proportio
 two markers of interest. To do so, we specify the fluorophores corresponding to the markers as a list in the CombinatorialArgs.
 
 ```{r}
+#| eval: FALSE
 MemoryQuadrants <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
   panel=panelData, starter="SparkBlue550", returnType = "Combinatorial", 
   CombinatorialArgs = c("BV510", "BUV395"))
@@ -550,6 +602,7 @@ Having returned aggregated data above with `Coereba_MarkerExpressions`, we can p
 To do so for your own individual spots, you will need to specify a metadata column by which to factor by, and provide a list of shape and fill values corresponding to each factor level. 
 
 ```{r}
+#| eval: FALSE
 shape_ptype <- c("HU" = 22, "HEU-lo" = 21, "HEU-hi" = 21)
 fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
 ```
@@ -557,6 +610,7 @@ fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
 We can start by viewing all markers:
 
 ```{r}
+#| eval: FALSE
 #| warning: FALSE
 
 ThePlot <- Utility_MarkerPlots(data=AllMarkers, panel=panelData,
@@ -568,6 +622,7 @@ ThePlot
 Let's abbreviate the number of columns by specifying the marker names to include (filterForThese), and rearrange them in desired X-axis order
 
 ```{r}
+#| eval: FALSE
 ThePlot <- Utility_MarkerPlots(data=AllMarkers, panel=panelData,
   myfactor="ptype", shape_palette = shape_ptype, fill_palette = fill_ptype,
   filterForThese=c("CD7", "CD4", "CD8"), XAxisLevels = c("CD7", "CD4", "CD8"))
@@ -578,7 +633,8 @@ ThePlot
 And to ggsave directly to a desired folder:
 
 ```{r}
-
+#| eval: FALSE
+print("Hello")
 ```
 
 # Utility_Stats
@@ -592,6 +648,7 @@ Does this workflow rapidly profile all the columns in your data.frame. Yes it do
 To begin, we will use the `Coereba_MarkerExpressions` data we generated above to test out `Utility_Stats()`. 
 
 ```{r}
+#| eval: FALSE
 Result <- Utility_Stats(data=AllMarkers, var="CD62L",
   myfactor="ptype", normality="dagostino", correction="none")
 
@@ -601,6 +658,7 @@ Result
 In combination with `r CRANpkg("purrr")` we can rapidly iterate over all the markers, but will need to skip over the metadata columns that are present at the begining of the dataframe. 
 
 ```{r}
+#| eval: FALSE
 library(purrr)
 library(dplyr)
 # colnames(AllMarkers)
@@ -614,6 +672,7 @@ TheData <- map(names(AllMarkers)[c(9:TheLength)], ~ Utility_Stats(
 The results can be filtered using regular `r CRANpkg("dplyr")` functions.
 
 ```{r}
+#| eval: FALSE
 MaybeSignificant <- TheData %>% dplyr::filter(pvalue < 0.05)
 
 MaybeSignificant
@@ -626,11 +685,13 @@ MaybeSignificant
 To do so for your own individual spots, you will need to specify a metadata column by which to factor by, and provide a list of shape and fill values corresponding to each factor level. 
 
 ```{r}
+#| eval: FALSE
 shape_ptype <- c("HU" = 22, "HEU-lo" = 21, "HEU-hi" = 21)
 fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
 ```
 
 ```{r}
+#| eval: FALSE
 SinglePlot <- Utility_Behemoth(data=AllMarkers, var="CD62L",
   myfactor="ptype", normality="dagostino", correction="none",
   shape_palette=shape_ptype, fill_palette=fill_ptype,
@@ -638,12 +699,14 @@ SinglePlot <- Utility_Behemoth(data=AllMarkers, var="CD62L",
 ```
 
 ```{r}
+#| eval: FALSE
 SinglePlot
 ```
 
 In combination with `r CRANpkg("purrr")` we can rapidly iterate over all the markers (skipping the initial metadata colums) and generate all the plots. These can then be passed to `Luciernaga` `Utility_Patchwork()` to rearrange into patchwork objects with our desired layout, and passed to a .pdf file. 
 
 ```{r}
+#| eval: FALSE
 # colnames(AllMarkers)
 TheLength <- length(AllMarkers)
 
@@ -656,6 +719,7 @@ AllPlots <- map(names(AllMarkers)[c(9:TheLength)], ~ Utility_Behemoth(data=AllMa
 These in turn can be passed to `Luciernaga` `Utility_Patchwork() function to arrange desired layout and output to a .pdf file for late reference. 
 
 ```{r}
+#| eval: FALSE
 library(Luciernaga)
 
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
@@ -666,6 +730,7 @@ TheAssembledPlot <- Utility_Patchwork(x=AllPlots, filename="NKT_Markers",
 ```
 
 ```{r}
+#| eval: FALSE
 TheAssembledPlot[1]
 ```
 
@@ -675,11 +740,13 @@ TheAssembledPlot[1]
 The original visualization for the Coereba clusters, in a Bananaquit color-scheme. Next time someone insist there are just 5 clusters in their FlowSOM, point them here. 
 
 ```{r}
+#| eval: FALSE
 ThePlot <- Utility_Heatmap(binary=binaryData, panel=panelPath,
   export=FALSE, outpath=NULL, filename=NULL)
 ```
 
 ```{r}
+#| eval: FALSE
 ThePlot
 ```
 
@@ -713,6 +780,7 @@ But when we scale to all the events collected within a typical sample, we get fa
 
 Consequently, we can iteratively leverage the number of markers included to target questions of interest, broad or narrow scope, in context of our individual panels, and rely on methods described below to gain insight into biological systems. 
 
-```{r sessionInfo, echo = FALSE}
+```{r sessionInfo}
+#| echo: FALSE
 sessionInfo()
 ```
