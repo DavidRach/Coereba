@@ -47,8 +47,8 @@ library(purrr)
 library(stringr)
 library(ggplot2)
 library(gt)
-library(plotly)
-library(htmltools)
+#library(plotly)
+#library(htmltools)
 })
 ```
 
@@ -99,7 +99,7 @@ library(Coereba)
 
 ## Locate your files
 
-You will next need to provide to your computer the location where your .fcs files of interest are stored. An example of how the author for various operating systems can be seen below, and should be modified to account for your own username and folder location.  
+You will next need to provide to your computer the location where your .fcs files of interest are stored. An example of how the author does this for the various computer operating systems is shown below. Please modify the file.paths accordingly to match your own username and folder location.
 
 ```{r}
 #| label: "File Paths"
@@ -118,7 +118,7 @@ FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
 # File_Location <- file.path("/home", "JohnDoe", "Desktop", "TodaysExperiment")
 ```
 
-For this vignette, we will be utilizing several downsized .fcs files that are stored within Coereba's extdata folder. 
+For this vignette, we will be utilizing several .fcs files that are stored within Coereba's extdata folder. These consist of unmixed .fcs files from a 32 fluorophore Spectral Flow Cytometry panel. We manually gated down to CD4-CD8- (DN) T cells, from which we downsampled up to 1000 cells to create a sufficiently small dataset to use for the R package documentation. 
 
 ```{r}
 #| label: "Accessing Coereba's FCS files"
@@ -129,7 +129,7 @@ FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
 head(FCS_Files, 3)
 ```
 
-Within this folder, we have stored unmixed .fcs files from a 32 fluorophore Spectral Flow Cytometry panel. We had manually gated down to CD4-CD8- (DN) T cells, from which we downsampled up to 1000 cells to be small enough size wise for use in this documentation example.  
+ 
 
 ## Creating a GatingSet
 
@@ -173,7 +173,7 @@ gt_gating(UnmixedGating, UnmixedGatingSet)
 plot(UnmixedGatingSet)
 ```
 
-We can additionally verify that the gating of the cell populations of interest was correct, by visualizing the gates using `r Biocpkg("ggcyto")` or the Luciernaga package. 
+We can additionally verify that the gating of the cell populations of interest was correct, by visualizing the gates using `r Biocpkg("ggcyto")` or the `Luciernaga::Utility_GatingPlots` function from the `Luciernaga` package. 
 
 ```{r}
 #| label: "Checking the openCyto gate"
@@ -230,14 +230,22 @@ MyPlot
 
 Having set up a GatingSet with transformations and gates applied, we can now proceed to the main `Coereba` workflow. 
 
-For this example, we will focus on just 4 of the 32 markers, CD16 (BV570), CXCR5 (RB780), HLA-DR(PE-Vio770), and Vdelta2 (BUV661). Most cord DN T cells are negative for these markers, but 5-25% are positive, so they are good examples to showcase the gate adjustment mechanisms. The process when working with all 32-markers is similar. 
+For this example, we will focus on just 4 of the 32 markers, CD16 (BV570), CXCR5 (RB780), HLA-DR(PE-Vio770), and Vdelta2 (BUV661). Most cord DN T cells are negative for these markers, but 5-25% are positive, so they are good examples to showcase the gate adjustment mechanisms. The process when working with all 32-markers is similar, but will take a little more compute time. 
 
 ```{r}
+# BV570=CD16, RB780=CXCR5, BUV661=Vd2, PE-Vio770=HLA-DR
+
 MarkersForToday <- c("Comp-BV570-A", "Comp-RB780-A", "Comp-BUV661-A", "Comp-PE-Vio770-A")
 ```
 
 
 ## Return a Coereba Gate cutoff template
+
+The first step is to create a .csv file, containing the individual specimens, and the individual markers of interest. Each cell within the .csv file will correspond to the MFI for a given marker for a given individual where positive expression of a marker transitions to becoming a negative (referred here to as a splitpoint). 
+
+These could be written out individually, or based on automated calculations. To simplify the process, in Coereba, we have implemented two approaches to estimating these splitpoints. One function is the in-house `Coereba_GateCutoffs()`, which does an "okay-ish but work-in progress". The flip approach is leveraging the `r Biocpkg("openCyto")` pipeline (in development) and retrieving the values. 
+
+Both approaches can be computationally heavy, but still faster than eye-balling everything and typing in the values one-by-one. Save the eyestrain for subsequent validation steps.
 
 Behind the scenes, Coereba is utilizing openCyto automated gating (primarily leveraging gate_mindensity) to determine the splitpoints between the negative and positive cells. 
 
@@ -278,6 +286,8 @@ gatelines=TRUE, reference=TheGateCutoffs, outpath=StorageLocationForPlotPDF, ret
 ```{r}
 Plot
 ```
+
+Once we have generated a GateCutoffs.csv file, we can visualize how well the splitpoints were by plotting them as red-lines using the `Luciernaga` packages `Utility_NbyNPlots()` to visualize the markers for a given individual and `Utility_UnityPlots()` to visualize the markers across individuals. This a good way of understanding how well the competing gating-algorithms did in the context of your individual panel, and how much effort will be required for the next step in correcting the gates individually. 
 
 However, when everything is uniformly positive or negative, or more subtle, these estimated locations can be quite off. In these cases, it can be useful to provide gate_range arguments to constrain the mindensity to assign a splitpoint in a particular area. 
 
@@ -421,38 +431,9 @@ Once you have entered the desired file name and the correct file path to the sto
 
 ![](`r system.file("extdata", "CheckoutNotice.png", package = "Coereba")`){width="75%"}
 
+Finally, close out of the Shiny window, and hit the red stop button on the right-hand of the console to return back to Positron. 
 
-The first step is to create a .csv file, containing the individual specimens, and the individual markers of interest. Each cell within the .csv file will correspond to the MFI for a given marker for a given individual where positive expression of a marker transitions to becoming a negative (referred here to as a splitpoint). 
-
-These could be written out individually, or based on automated calculations. To simplify the process, in Coereba, we have implemented two approaches to estimating these splitpoints. One function is the in-house `Coereba_GateCutoffs()`, which does an "okay-ish but work-in progress". The flip approach is leveraging the `r Biocpkg("openCyto")` pipeline (in development) and retrieving the values. 
-
-Both approaches can be computationally heavy, but still faster than eye-balling everything and typing in the values one-by-one. Save the eyestrain for subsequent validation steps.
-
-```{r}
-#| eval: FALSE
-TheGateCutoff <- Coereba_GateCutoffs(gs=UnmixedGatingSet[1],
-  subset="live", sample.name="GROUPNAME", desiredCols =c("BUV805-A"))
-
-TheGateCutoffs <- map(.x=UnmixedGatingSet[1:3], .f=Coereba_GateCutoffs,
-  subset="live", sample.name="GROUPNAME", desiredCols =c("BUV805-A")) %>% bind_rows()
-```
-
-```{r}
-#| eval: FALSE
-TheGateCutoffs
-```
-
-# Visualizing Gate Cutoffs
-
-Once we have generated a GateCutoffs.csv file, we can visualize how well the splitpoints were by plotting them as red-lines using the `Luciernaga` packages `Utility_NbyNPlots()` to visualize the markers for a given individual and `Utility_UnityPlots()` to visualize the markers across individuals. This a good way of understanding how well the competing gating-algorithms did in the context of your individual panel, and how much effort will be required for the next step in correcting the gates individually. 
-
-```{r}
-#| eval: FALSE
-print("Hello")
-```
-
-# Coereba_App
-
+Older version:
 Previously, all adjustments to the above splitpoints had to eye-balled in the pdf, and then adjusted in the .csv file, and repeated ad nauseum. This obviously did not scale well. We have subsequently created a ShinyApp that will bring in the GatingSet object, and plot an interactive version of `Utility_UnityPlot()` from the `Luciernaga` package, visualizing the splitpoint for a given marker across all individuals as red vertical lines. 
 
 To get started, first make sure you know where the `Coereba_GateCutoffs()` .csv output is saved at, as you will need to select the file within the App. 
@@ -486,7 +467,9 @@ And repeat until the markers you are interested have been validated and you have
 
 Since the code is within a ShinyApp running in R, it has both the advantages and disadvantages of a R Shiny App. It scales reasonably well, but can take a while to load the next iterated marker. During testing, loading a new marker to inspect took anywhere from 3-10 additional minutes. This area is a active work in progress to speed up, but the author/maintainer hasn't had the time to finish reading Mastering Shiny by Hadley Wickham yet or implement it in Rust, if you have, feel free to assist!
 
-# Coereba_UpdateGates
+# Updating the Splitpoints
+
+Having gone through and corrected the splitpoints, it is now time to update the SecondGates.csv to reflect the changes. To facilitate this, we will use the Coereba_UpdateGates function.
 
 Once you have completed validating the GateCutoffs with `Coereba_App()`, it is time to convert your validated click-data and update the GateCutoff.csv. To fascilitate this, provide the location of the folder containing just the clickpoint .csv's to  `Coereba_UpdateGates()` and fill out the required arguments. It will proceed to update the GateCutoffs. 
 
@@ -519,11 +502,10 @@ UpdatedCSV
 
 We can further validate this by re-running `Luciernaga` `Utility_UnityPlots()` using the updated GateCutoff.csv and seeing if the previous issues have been corrected. 
 
-# Note on Cell Populations and Splitpoint
 
-During development, we have noticed that for SFC data, the splitpoint location can vary substantially for individual cell populations (B cells, NK cells, T cells, etc), even in the abscence of biology. We believe this is due to uncertainty in the unmixing, as we have observed a correlation of negative splitpoint MFI in relation to the individual cells kappa value (matrix complexity essentially). Try your best to have the gate reflect what you are interested in, reduce the amount of error as much as you can, and in numbers veritas. Keep track of the exceptions (more later) and write up a Cyto paper. 
+# Coereba
 
-# Utility_Coereba
+With the gate locations now determined, it's time to run Coereba and classify each individual cell within  a specimen by it's marker expression. We will use Utility_Coereba for this process. 
 
 `Utility_Coereba()` is the function that implements the above approach, labelling for each individual specimen the individual cells on the basis of their splitpoint identity, and then returning the enumeration of the resulting clusters. It iterates over the different specimens in the GatingSet, returning information for every individual that can be used in subsequent steps. `MultiReach()` is the older version of the proccess.
 
@@ -543,16 +525,19 @@ head(CoerebaIDs, 5)
 ```
 
 
-# Filtering Coereba Clusters 
+# Save to FCS file (optional)
 
-Some things are literally poisson noise. Others are cell clusters with varying abundance across heteregenous human patients. Others are individually unique terminal nodes that can be the result of individual biology.... or unmixing errors ... or your lab tech messing up the staining panel. You can leverage the filter functions to identify all of these quickly. 
+We can optionally save this output to an .fcs file. This can allow for later referece, as well as permit us to run dimensionality visualization algorithms, gate the islands, and then retrieve Coereba data for the respective islands. 
 
-```{r}
-#| eval: FALSE
-print("Hello")
-```
+Likewise, we can retrieve the same data back to R through the Coereba_FCS_Reversal function. 
 
-# Coereba_MarkerExpressions
+# Generating a Summarized Experiment File
+
+For long-term handling, we can save the Coereba output, alongside metadata and panel information, into a Summarized Experiment file. This will permit us to use a lot of the existing Bioconductor package infrastructure for analysis. We do this through the Coereba_Processing function. 
+
+# Retrieving Marker Expressions
+
+From the SE object, we are working with the individual Coereba cluster counts. For some analyses, we may want to know what proportion of cells for a particular donor or island expressed a particular marker, so we may not want as fine-grained separation in clusters. We can reaggregate the populations present and retrieve the proportions in this manner. 
 
 Having generated a Marker by Cluster data.frame (binaryData) and a Cluster by Specimen data.frame (dataData), we can leverage the combination of the two data.frames to aggregate the clusters on the basis of marker presence, returning the proportion of of cells that are positive for a given marker. 
 
@@ -595,8 +580,9 @@ MemoryQuadrants <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
 head(MemoryQuadrants, 5)
 ```
 
-# Utility_MarkerPlots
+# Marker Expression Beeswarm plots
 
+Having retrieved the Marker expression data, we can visualize all the markers at one against a factor of interest in the form of a beeswarm-box plot. 
 Having returned aggregated data above with `Coereba_MarkerExpressions`, we can plot this data using `Utility_MarkerPlots()`. These are combination of `r CRANpkg("ggplot2")` geom_boxplot() and `r CRANpkg("ggbeeswarm")` geom_beeswarm plots. We provide some arguments that allow for filtering and reordering the markers shown in these plots, some basic customizations to the plots, and the ability to save as a .png file to a designated folder. 
 
 To do so for your own individual spots, you will need to specify a metadata column by which to factor by, and provide a list of shape and fill values corresponding to each factor level. 
@@ -637,7 +623,14 @@ And to ggsave directly to a desired folder:
 print("Hello")
 ```
 
-# Utility_Stats
+
+# Marker Expression Heatmap
+
+Another way to summarize the data from the Marker expression plots is in the form of a heatmap. To do this, we can take the retrieved marker expression data and pass it along to the function. 
+
+# Utility Statistics
+
+We can leverage functional programming, and retrieve back results of a t-test or one-way anove for all our columns. 
 
 The `Utility_Stats()` and the `Utility_Behemoth()` functions are either: "Great!!!", or guaranteed to make your friendly-local statistician cry (Opinions vary). 
 
@@ -678,7 +671,10 @@ MaybeSignificant <- TheData %>% dplyr::filter(pvalue < 0.05)
 MaybeSignificant
 ```
 
+
 # Utility_Behemoth
+
+We can take Utility_Statistics one step further and similarly send the outputted plots to a pdf for quick scanning
 
 `Utility_Behemoth()` continues from where `Utility_Stats()` left-off, appending the resulting p-value information onto a ggplot2 plot. The plot is a combination of `r CRANpkg("ggplot2")` geom_boxplot() and `r CRANpkg("ggbeeswarm")` geom_beeswarm plots, and accepts arguments to customize these and rearrange the group order. As with most `Coereba` plots, we need to provide the shape and fill for our respective factors levels.
 
@@ -734,6 +730,27 @@ TheAssembledPlot <- Utility_Patchwork(x=AllPlots, filename="NKT_Markers",
 TheAssembledPlot[1]
 ```
 
+# Utility_LongitudinalBehemoth
+
+We can take Utility_Behemoth and cluster the x-axis on the basis of two factors. 
+
+# Coereba_Comparison
+
+Once we have the regular workflow, we can leverage existing Coereba metadata to determine what is different between two gated population of cells. 
+
+
+
+
+
+# Soapbox
+
+## Note on Cell Populations and Splitpoint
+
+During development, we have noticed that for SFC data, the splitpoint location can vary substantially for individual cell populations (B cells, NK cells, T cells, etc), even in the abscence of biology. We believe this is due to uncertainty in the unmixing, as we have observed a correlation of negative splitpoint MFI in relation to the individual cells kappa value (matrix complexity essentially). Try your best to have the gate reflect what you are interested in, reduce the amount of error as much as you can, and in numbers veritas. Keep track of the exceptions (more later) and write up a Cyto paper. 
+
+# Filtering Coereba Clusters 
+
+Some things are literally poisson noise. Others are cell clusters with varying abundance across heteregenous human patients. Others are individually unique terminal nodes that can be the result of individual biology.... or unmixing errors ... or your lab tech messing up the staining panel. You can leverage the filter functions to identify all of these quickly. 
 
 # Utility_Heatmap
 
