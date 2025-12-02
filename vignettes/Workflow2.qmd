@@ -1,0 +1,72 @@
+---
+title: "Workflow2"
+format: html
+---
+
+# Utility_LongitudinalBehemoth
+
+We can take Utility_Behemoth and cluster the x-axis on the basis of two factors. 
+
+# Coereba_Comparison
+
+Once we have the regular workflow, we can leverage existing Coereba metadata to determine what is different between two gated population of cells. 
+
+# Marker Expression Heatmap
+
+Another way to summarize the data from the Marker expression plots is in the form of a heatmap. To do this, we can take the retrieved marker expression data and pass it along to the function. 
+
+# Soapbox
+
+## Note on Cell Populations and Splitpoint
+
+During development, we have noticed that for SFC data, the splitpoint location can vary substantially for individual cell populations (B cells, NK cells, T cells, etc), even in the abscence of biology. We believe this is due to uncertainty in the unmixing, as we have observed a correlation of negative splitpoint MFI in relation to the individual cells kappa value (matrix complexity essentially). Try your best to have the gate reflect what you are interested in, reduce the amount of error as much as you can, and in numbers veritas. Keep track of the exceptions (more later) and write up a Cyto paper. 
+
+# Filtering Coereba Clusters 
+
+Some things are literally poisson noise. Others are cell clusters with varying abundance across heteregenous human patients. Others are individually unique terminal nodes that can be the result of individual biology.... or unmixing errors ... or your lab tech messing up the staining panel. You can leverage the filter functions to identify all of these quickly. 
+
+# Utility_Heatmap
+
+The original visualization for the Coereba clusters, in a Bananaquit color-scheme. Next time someone insist there are just 5 clusters in their FlowSOM, point them here. 
+
+```{r}
+#| eval: FALSE
+ThePlot <- Utility_Heatmap(binary=binaryData, panel=panelPath,
+  export=FALSE, outpath=NULL, filename=NULL)
+```
+
+```{r}
+#| eval: FALSE
+ThePlot
+```
+
+# Background
+
+Use of supervised (manual) analysis is widespread in flow cytometry, wherein researchers via  graphical user interface (GUI) display the acquired data for two markers, and draw gates around a cell population of potential interest. Cells within the gate are selected/filtered for, and can subsequently be gated for comparison against a different combination of markers. As additional gates are drawn, a hierarchial gating tree is assembled, allowing examination of smaller cell subsets. This approach was particularly suited to Conventional Flow Cytometry (CFC), where fast acquisition speed and relatively few markers limited presented smaller search area. In theory, if every marker was split into positive and negative gates, for a 9-color panel, 2^9 would result in 512 potential "clusters" of cells that expressed the same markers as each other, and at-least one different marker from another cluster. 
+
+With increase in markers (both for mass cytometry (MC), and more recently by spectral flow cytometry (SFC)), the resulting combinatorial marker combinations that would need to be gated quickly exceed the capacity for supervised analysis to examine (2^39=550 billion). Consequently, unsupervised (algortihmic) methods are being employed to address this challenge. Many of these rely on clustering cells on the basis of their median fluorescent intensity (MFI) of their respective markers. One of the many unresolved questions for many of these approaches remains "How many clusters are present?" and whether the identified cell clusters are biologically meaninful. Similarly, for SFC, issues with panel unmixing can cause significant variance that in turn can contribute to batch effects. 
+
+Additionally, for SFC datasets, the faster acquisition speed typically results in a greater number of cells being acquired compared to MC, which alongside the increased number of markers compared to CFC, requires new tools if the goal is to enable comprehensive profiling of all phenotypes present within the acquired cells. That individual cell populations may be differentially affected by improper unmixing controls presents additional challenges that may require customized gatings. 
+  
+Coereba is a collection of tools that attempt to implement a semi-supervised analytical approach. Using automated gating, splitpoints between positive and negative cells for every marker are estimated on an individual basis. Through extensive visualization and a ShinyApp, failures in gate setting by algorithmic gating can be adjusted by the researcher. Individual cells are then classified on the basis of these marker splitpoints, and the identity and metadata information is appended to the .fcs file. Following unsupervised analysis, this manually defined gating information can extracted and used both for analysis and verify the algorithm performed as predicted across specimens. 
+
+The author and maintainer make no claims that Coereba is the solution to all cytometry analysis woes. It is solely a tool in the open-source toolbelt to enable you do quirky and useful things that you wouldn't be otherwise able to do with either main current approaches. Go forth, gain better understanding underlying problems our current paradigms inhabit, and may the next generation of researchers benefit from what we learn. 
+
+Wrote the function to send the outputs to diffcyt for the edgeR/limma/GLMM modeling of the results (vs the above t-test approach). It works, but does it mean it's less p-hacky? TBD. Also, given diffcyt's current maintenance status , may not be best approach vs a new implementation. 
+
+# How Coereba works
+
+Having a GateCutoff.csv containing the splitpoint information for each marker validated for each individual is immensely useful, allowing you to do many things you wouldn't be capable of otherwise. Namely, we can for an individual anotate each cell within their .fcs file. 
+
+What do I mean? Let's first think about all the cells circulating in an individuals bloostream. We don't have any prior information in this example, but we want to profile these cells into clusters of similar cells. On one end of the spectra, there is a single cluster that contains every single cell from the sample, regardless of their marker expression. At the opposite end of the spectrum, every single cell clusters in an it's own cluster with just itself. In between these two extremes, depending on our question, lies a meaningful cluster number that will match the underlying biology to reduce the amount of variance that lies in clumping/splitting populations needlessly. 
+
+`Coereba` takes the approacch by individually annotating an individuals cells one by one, on the basis of where their MFI value lands related to the validated splitpoint. So if the splitpoint for FITC is at 50, and the individual cell MFI  for FITC is 80, it returns as FITC_pos. If the splitpoint for APC is at 70, and the individual cell MFI is 30, it returns as APC_Neg. 
+
+When you iterate over the splitpoints for each marker, each cell derrives an identity. FITC_pos-APC_Neg-BV421_Pos.... etc. We can then group cells with matching identies and derrive information from these terminal nodes. 
+
+Individually, this may not mean much. After all, dichotomous splitting of a 30-marker panel is around half-a billion potential terminal nodes or clusters. Similarly, cytometers have instrumental, batch, experimental noise, etc. 
+
+But when we scale to all the events collected within a typical sample, we get far fewer terminal nodes, in the hundred to lower thousand range for a 30-color panel. The reason is cells (and the panels by which we investigate them) are not uniformely distributed by markers across high-dimensional space, cells fall within specific phenotypes (cell types) that undergo division of similar clones. 
+
+Consequently, we can iteratively leverage the number of markers included to target questions of interest, broad or narrow scope, in context of our individual panels, and rely on methods described below to gain insight into biological systems. 
+

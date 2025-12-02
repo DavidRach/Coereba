@@ -1,9 +1,10 @@
-pandoc: 2.17.1.1
-pkgdown: 2.1.2
+pandoc: 3.6.3
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   Workflow: Workflow.html
-last_built: 2025-06-01T14:36Z
+  Workflow2: Workflow2.html
+last_built: 2025-12-02T17:58Z
 urls:
   reference: https://davidrach.github.io/Coereba/reference
   article: https://davidrach.github.io/Coereba/articles

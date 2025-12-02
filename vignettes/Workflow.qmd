@@ -588,7 +588,7 @@ RetrievedData <- Coereba::Coereba_FCS_Reversal(Coereba=FCSPath)
 ```
 
 ```{r}
-RetrievedData
+head(RetrievedData, 5)
 ```
 
 # Generating a Summarized Experiment File
@@ -684,7 +684,7 @@ Now that our data is within the SummarizedExperiment, we can carry out different
 
 Data <- Coereba_MarkerExpressions(x=TheBioconductor, returnType="All", theassay="ratios")
   
-Data
+head(Data, 5)
 ```
 
 We can alternatively by setting returnType = "Combinatorial" derrive proportions that fall within quadrant gates for two markers of interest.To do this, we provide the fluorophores corresponding to the markers to the CombinatorialArgs.
@@ -694,21 +694,21 @@ We can alternatively by setting returnType = "Combinatorial" derrive proportions
 MemoryQuadrants <- Coereba_MarkerExpressions(x=TheBioconductor, theassay="ratios",
  returnType="Combinatorial", CombinatorialArgs = c("BUV661", "RB780"))
 
-MemoryQuadrants
+head(MemoryQuadrants, 5)
 ```
 
 From this, we can see that within cord DN T cells, CXCR5 and Vd2 expression do not overlap for the most part. 
 
-# Marker Expression Beeswarm plots
+# Visualizing Marker Expression with Beeswarm-Boxplots
 
-Having retrieved the Marker expression data, we can visualize all the markers at one against a factor of interest in the form of a beeswarm-box plot. 
-Having returned aggregated data above with `Coereba_MarkerExpressions`, we can plot this data using `Utility_MarkerPlots()`. These are combination of `r CRANpkg("ggplot2")` geom_boxplot() and `r CRANpkg("ggbeeswarm")` geom_beeswarm plots. We provide some arguments that allow for filtering and reordering the markers shown in these plots, some basic customizations to the plots, and the ability to save as a .png file to a designated folder. 
+Having retrieve the marker expression data from the SummarizedExperiment, we can visualize the individual expression of the various markers across all individuals in the form of a beeswarm boxplot, using the `Utility_MarkerPlots()`. These combine both the `r CRANpkg("ggplot2")` geom_boxplot() and `r CRANpkg("ggbeeswarm")` geom_beeswarm plots, with individual dots corresponding to individual specimen. 
 
-To do so for your own individual spots, you will need to specify a metadata column by which to factor by, and provide a list of shape and fill values corresponding to each factor level. 
+To help customize these plots for your particular use case, we provide some arguments to allow for the filtering and reordering of the markers shown in these plots, as well as some basic customizations and the ability to save as a .png. If you want to customize these further, the benefit of open-source software is our code is available, and you are welcome to make as many ggplot2 theme changes as you have time to tinker. 
+
+First thing's first, you will need to specify which metadata column in your data.frame you want to use as factor, and provide the values a desired shape and fill value for each factor level. In the context of our data, we are using factors based on HIV viral and ART exposure, so for our example dataset we would set the values as follows: 
 
 ```{r}
 #| label: DefiningShapeAndFill 
-#| eval: FALSE
 shape_ptype <- c("HU" = 22, "HEU-lo" = 21, "HEU-hi" = 21)
 fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
 ```
@@ -717,12 +717,15 @@ We can start by viewing all markers:
 
 ```{r}
 #| label: MarkerPlots
-#| eval: FALSE
+#| warning: FALSE
+
+CordOnly <- Data |> filter(ptype %in% c("HU", "HEU-lo", "HEU-hi"))
 
 
-ThePlot <- Utility_MarkerPlots(data=AllMarkers, panel=panelData,
-  myfactor="ptype", shape_palette = shape_ptype, fill_palette = fill_ptype)
+ThePlot <- Utility_MarkerPlots(data=CordOnly, myfactor="ptype", shape_palette = shape_ptype, fill_palette = fill_ptype, panel=ThePanel, XAxisLevels=c("Vd2", "CD16", "CXCR5", "HLA-DR"), cex=3, size =3)
+```
 
+```{r}
 ThePlot
 ```
 
@@ -730,65 +733,55 @@ Let's abbreviate the number of columns by specifying the marker names to include
 
 ```{r}
 #| label: AbbreviatedMarkerPlots
-#| eval: FALSE
-ThePlot <- Utility_MarkerPlots(data=AllMarkers, panel=panelData,
-  myfactor="ptype", shape_palette = shape_ptype, fill_palette = fill_ptype,
-  filterForThese=c("CD7", "CD4", "CD8"), XAxisLevels = c("CD7", "CD4", "CD8"))
+ThePlot <- Utility_MarkerPlots(data=CordOnly, myfactor="ptype", shape_palette = shape_ptype, fill_palette = fill_ptype, panel=ThePanel, cex=4, size =3, filterForThese=c("Vd2", "HLA-DR"), XAxisLevels = c("Vd2", "HLA-DR"))
+```
 
+```{r}
+#| width: 50%
 ThePlot
 ```
 
-And to ggsave directly to a desired folder:
+# Statistics
 
-```{r}
-#| eval: FALSE
-print("Hello")
-```
+The `Utility_Stats()` and the `Utility_Behemoth()` functions are a a coding-attempt to replicate the typical immunologist workflow, removing the need to copy-paste data from a .csv file to GraphPad Prism or similar software. Behind the scenes, it runs a normaly test, determines number of groups, and follows up with the corresponding t-test/anova/ based on whether parametric or non-parametric. `Utility_Stats()` returns just a data.frame with the statistics, while `Utility_Behemoth()` will return a beeswarm box-plot and display any statistical significant comparisons. Used in combination with `r CRANpkg("purrr")` and `Luciernaga` `Utility_Patchwork()`, we can quickly pipe our data through to a .pdf file that we can quickly scroll through. 
 
-
-# Marker Expression Heatmap
-
-Another way to summarize the data from the Marker expression plots is in the form of a heatmap. To do this, we can take the retrieved marker expression data and pass it along to the function. 
+Does this approach save a lot of time? Yes. Are there caveats? Absolutely. With the ability to rapidly screen thousands of differential comparisons, we are essentially mining our haystacks for needles. Not every hit will actually be a needle, and the caveats that are associated with each test become meaningful to understand. Please use these functions responsibly, and check out the Statistical Rethinking series by Richard McElreath on YouTube.
 
 # Utility Statistics
 
-We can leverage functional programming, and retrieve back results of a t-test or one-way anove for all our columns. 
-
-The `Utility_Stats()` and the `Utility_Behemoth()` functions are either: "Great!!!", or guaranteed to make your friendly-local statistician cry (Opinions vary). 
-
-Basically, `Utility_Stats()` is a coding-attempt to replicate the typical immunologist workflow, cutting out the need to copy-paste data from a .csv file into GraphPad Prism (trademark), run a normality test, determine number of groups, and follow up with the corresponding t-test/anova/non-parametric equivalents. `Utility_Behemoth()` then takes these outputs, and adds the p-value results to a ggbeeswarm/ggplot2 boxplot of the underlying data. In combination with `r CRANpkg("purrr")` and `Luciernaga` `Utility_Patchwork()`, these can be quickly formatted into a .pdf. 
-
-Does this workflow rapidly profile all the columns in your data.frame. Yes it does. Is it emblematic of potential issues arising from basing science entirely on null-hypothesis statistical testing? Also yes, seeing how many plots return "significant" due to a couple outliers. In the end, it mimics the current workflow of many researchers, just speeding it up. Google Statistical Rethinking on YouTube for food-for-thought.
-
-To begin, we will use the `Coereba_MarkerExpressions` data we generated above to test out `Utility_Stats()`. 
+Having retrieved a now tidyed data.frame using `Coereba_MarkerExpressions`, let's switch from visualization to runnning statistical test with `Utility_Stats()` for each of the markers. 
 
 ```{r}
-#| eval: FALSE
-Result <- Utility_Stats(data=AllMarkers, var="CD62L",
-  myfactor="ptype", normality="dagostino", correction="none")
+#| label: Utility_Stats
+Result <- Utility_Stats(data=CordOnly, var="HLA-DR",
+  myfactor="infant_sex", normality="dagostino", correction="none")
 
 Result
 ```
 
-In combination with `r CRANpkg("purrr")` we can rapidly iterate over all the markers, but will need to skip over the metadata columns that are present at the begining of the dataframe. 
+Rather than specifying each marker, we can leverage functional programming functions within the `r CRANpkg("purrr")` to quickly check all markers using common statistical tests. We will need to skip over the metadata columns that are present at the begining of the dataframe, so let's identify where these end. 
 
 ```{r}
-#| eval: FALSE
-library(purrr)
-library(dplyr)
-# colnames(AllMarkers)
-TheLength <- ncol(AllMarkers)
-
-TheData <- map(names(AllMarkers)[c(9:TheLength)], ~ Utility_Stats(
-  data = AllMarkers, var = .x, myfactor = "ptype", 
-  normality = "dagostino")) %>% bind_rows()
+TheLength <- ncol(CordOnly)
+colnames(CordOnly)
 ```
 
-The results can be filtered using regular `r CRANpkg("dplyr")` functions.
+With that done, we can now run provide the index to our factor of interest and all other non-metadata columns.
 
 ```{r}
-#| eval: FALSE
-MaybeSignificant <- TheData %>% dplyr::filter(pvalue < 0.05)
+#| label: Utility_Stats purrr map
+
+TheData <- map(names(CordOnly)[c(4:TheLength)], ~ Utility_Stats(
+  data = CordOnly, var = .x, myfactor = "infant_sex", 
+  normality = "dagostino")) |> bind_rows()
+```
+
+The results can be filtered using regular `r CRANpkg("dplyr")` functions. Nothing was statistically significant for this particular example, so I will set the pvalue at 0.3 to demonstrate the filtering
+
+```{r}
+#| label: Filtering Statistically Significant Hits
+
+MaybeSignificant <- TheData |> dplyr::filter(pvalue < 0.3)
 
 MaybeSignificant
 ```
@@ -796,128 +789,72 @@ MaybeSignificant
 
 # Utility_Behemoth
 
-We can take Utility_Statistics one step further and similarly send the outputted plots to a pdf for quick scanning
+An extension to `Utility_Stats()`, the `Utility_Behemoth()` function will append the resulting p-value information onto a ggplot2 plot to allow us to visualize the underlying data. It's plots are a combination of  `r CRANpkg("ggplot2")` `geom_boxplot()` and `r CRANpkg("ggbeeswarm")` `geom_beeswarm()` plots. We have also provisioned the function to accept arguments to customize these and rearrange the group order. As with most `Coereba` plots, we will need to provide the shape and fill for our respective factors levels. If you miss a listing a level, these will not appear in the plot (but still impact the axis scaling, resulting in a warning)
 
-`Utility_Behemoth()` continues from where `Utility_Stats()` left-off, appending the resulting p-value information onto a ggplot2 plot. The plot is a combination of `r CRANpkg("ggplot2")` geom_boxplot() and `r CRANpkg("ggbeeswarm")` geom_beeswarm plots, and accepts arguments to customize these and rearrange the group order. As with most `Coereba` plots, we need to provide the shape and fill for our respective factors levels.
+```{r}
+#| label: Shape Fill Sex
+shape_sex <- c("Female" = 22, "Male" = 21)
+fill_sex <- c("Female" = "white", "Male" = "black")
+```
 
 To do so for your own individual spots, you will need to specify a metadata column by which to factor by, and provide a list of shape and fill values corresponding to each factor level. 
 
 ```{r}
-#| eval: FALSE
-shape_ptype <- c("HU" = 22, "HEU-lo" = 21, "HEU-hi" = 21)
-fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
+#| label: Utility_Behemoth
+SinglePlot <- Utility_Behemoth(data=CordOnly, var="HLA-DR",
+  myfactor="infant_sex", normality="dagostino", correction="none",
+  shape_palette=shape_sex, fill_palette=fill_sex,
+  XAxisLevels = c("Female", "Male"))
 ```
 
 ```{r}
-#| eval: FALSE
-SinglePlot <- Utility_Behemoth(data=AllMarkers, var="CD62L",
-  myfactor="ptype", normality="dagostino", correction="none",
-  shape_palette=shape_ptype, fill_palette=fill_ptype,
-  XAxisLevels = c("HU", "HEU-lo", "HEU-hi"))
-```
-
-```{r}
-#| eval: FALSE
 SinglePlot
 ```
 
-In combination with `r CRANpkg("purrr")` we can rapidly iterate over all the markers (skipping the initial metadata colums) and generate all the plots. These can then be passed to `Luciernaga` `Utility_Patchwork()` to rearrange into patchwork objects with our desired layout, and passed to a .pdf file. 
+As was the case with `Utility_Stats()`, when combined with the `r CRANpkg("purrr")` package we can rapidly iterate over all the markers (skipping the initial metadata colums) and generate all the plots. 
 
 ```{r}
-#| eval: FALSE
-# colnames(AllMarkers)
-TheLength <- length(AllMarkers)
+#| label: purrring behemoth
+#| warning: FALSE
 
-AllPlots <- map(names(AllMarkers)[c(9:TheLength)], ~ Utility_Behemoth(data=AllMarkers, var=.x,
-  myfactor="ptype", normality="dagostino", correction="none",
-  shape_palette=shape_ptype, fill_palette=fill_ptype, corral.width=0.7,
-  XAxisLevels = c("HU", "HEU-lo", "HEU-hi")))
+
+# colnames(AllMarkers)
+TheLength <- length(CordOnly)
+
+AllPlots <- map(names(CordOnly)[c(4:TheLength)], ~ Utility_Behemoth(data=CordOnly, var=.x,
+  myfactor="infant_sex", normality="dagostino", correction="none",
+  shape_palette=shape_sex, fill_palette=fill_sex, corral.width=0.7,
+  XAxisLevels = c("Female", "Male")))
 ```
 
-These in turn can be passed to `Luciernaga` `Utility_Patchwork() function to arrange desired layout and output to a .pdf file for late reference. 
+```{r}
+#| width: 50%
+AllPlots
+```
+
+These plots in turn can then be passed to `Luciernaga` `Utility_Patchwork()` to our desired layout, and subsequently exported out as a .pdf file for analysis. 
 
 ```{r}
-#| eval: FALSE
-library(Luciernaga)
-
-StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
-
-TheAssembledPlot <- Utility_Patchwork(x=AllPlots, filename="NKT_Markers",
- outfolder=NULL, thecolumns=2, therows=3, width=7, height=9,
+#| label: Utility_Patchwork
+TheAssembledPlot <- Utility_Patchwork(x=AllPlots, filename="CordBloodDNTcells",
+ outfolder=StorageLocation, thecolumns=2, therows=2, width=7, height=9,
  returntype="patchwork")
 ```
 
 ```{r}
-#| eval: FALSE
 TheAssembledPlot[1]
 ```
 
-# Utility_LongitudinalBehemoth
-
-We can take Utility_Behemoth and cluster the x-axis on the basis of two factors. 
-
-# Coereba_Comparison
-
-Once we have the regular workflow, we can leverage existing Coereba metadata to determine what is different between two gated population of cells. 
-
-
-
-
-
-# Soapbox
-
-## Note on Cell Populations and Splitpoint
-
-During development, we have noticed that for SFC data, the splitpoint location can vary substantially for individual cell populations (B cells, NK cells, T cells, etc), even in the abscence of biology. We believe this is due to uncertainty in the unmixing, as we have observed a correlation of negative splitpoint MFI in relation to the individual cells kappa value (matrix complexity essentially). Try your best to have the gate reflect what you are interested in, reduce the amount of error as much as you can, and in numbers veritas. Keep track of the exceptions (more later) and write up a Cyto paper. 
-
-# Filtering Coereba Clusters 
-
-Some things are literally poisson noise. Others are cell clusters with varying abundance across heteregenous human patients. Others are individually unique terminal nodes that can be the result of individual biology.... or unmixing errors ... or your lab tech messing up the staining panel. You can leverage the filter functions to identify all of these quickly. 
-
-# Utility_Heatmap
-
-The original visualization for the Coereba clusters, in a Bananaquit color-scheme. Next time someone insist there are just 5 clusters in their FlowSOM, point them here. 
-
 ```{r}
-#| eval: FALSE
-ThePlot <- Utility_Heatmap(binary=binaryData, panel=panelPath,
-  export=FALSE, outpath=NULL, filename=NULL)
+StorePDFHere <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+StorePDFHere <- tempdir()
+
+TheAssembledPlot <- Utility_Patchwork(x=AllPlots, filename="CordBloodDNTcells",
+ outfolder=StorePDFHere, thecolumns=2, therows=2, width=7, height=9,
+ returntype="pdf")
 ```
 
-```{r}
-#| eval: FALSE
-ThePlot
-```
-
-# Background
-
-Use of supervised (manual) analysis is widespread in flow cytometry, wherein researchers via  graphical user interface (GUI) display the acquired data for two markers, and draw gates around a cell population of potential interest. Cells within the gate are selected/filtered for, and can subsequently be gated for comparison against a different combination of markers. As additional gates are drawn, a hierarchial gating tree is assembled, allowing examination of smaller cell subsets. This approach was particularly suited to Conventional Flow Cytometry (CFC), where fast acquisition speed and relatively few markers limited presented smaller search area. In theory, if every marker was split into positive and negative gates, for a 9-color panel, 2^9 would result in 512 potential "clusters" of cells that expressed the same markers as each other, and at-least one different marker from another cluster. 
-
-With increase in markers (both for mass cytometry (MC), and more recently by spectral flow cytometry (SFC)), the resulting combinatorial marker combinations that would need to be gated quickly exceed the capacity for supervised analysis to examine (2^39=550 billion). Consequently, unsupervised (algortihmic) methods are being employed to address this challenge. Many of these rely on clustering cells on the basis of their median fluorescent intensity (MFI) of their respective markers. One of the many unresolved questions for many of these approaches remains "How many clusters are present?" and whether the identified cell clusters are biologically meaninful. Similarly, for SFC, issues with panel unmixing can cause significant variance that in turn can contribute to batch effects. 
-
-Additionally, for SFC datasets, the faster acquisition speed typically results in a greater number of cells being acquired compared to MC, which alongside the increased number of markers compared to CFC, requires new tools if the goal is to enable comprehensive profiling of all phenotypes present within the acquired cells. That individual cell populations may be differentially affected by improper unmixing controls presents additional challenges that may require customized gatings. 
-  
-Coereba is a collection of tools that attempt to implement a semi-supervised analytical approach. Using automated gating, splitpoints between positive and negative cells for every marker are estimated on an individual basis. Through extensive visualization and a ShinyApp, failures in gate setting by algorithmic gating can be adjusted by the researcher. Individual cells are then classified on the basis of these marker splitpoints, and the identity and metadata information is appended to the .fcs file. Following unsupervised analysis, this manually defined gating information can extracted and used both for analysis and verify the algorithm performed as predicted across specimens. 
-
-The author and maintainer make no claims that Coereba is the solution to all cytometry analysis woes. It is solely a tool in the open-source toolbelt to enable you do quirky and useful things that you wouldn't be otherwise able to do with either main current approaches. Go forth, gain better understanding underlying problems our current paradigms inhabit, and may the next generation of researchers benefit from what we learn. 
-
-Wrote the function to send the outputs to diffcyt for the edgeR/limma/GLMM modeling of the results (vs the above t-test approach). It works, but does it mean it's less p-hacky? TBD. Also, given diffcyt's current maintenance status , may not be best approach vs a new implementation. 
-
-# How Coereba works
-
-Having a GateCutoff.csv containing the splitpoint information for each marker validated for each individual is immensely useful, allowing you to do many things you wouldn't be capable of otherwise. Namely, we can for an individual anotate each cell within their .fcs file. 
-
-What do I mean? Let's first think about all the cells circulating in an individuals bloostream. We don't have any prior information in this example, but we want to profile these cells into clusters of similar cells. On one end of the spectra, there is a single cluster that contains every single cell from the sample, regardless of their marker expression. At the opposite end of the spectrum, every single cell clusters in an it's own cluster with just itself. In between these two extremes, depending on our question, lies a meaningful cluster number that will match the underlying biology to reduce the amount of variance that lies in clumping/splitting populations needlessly. 
-
-`Coereba` takes the approacch by individually annotating an individuals cells one by one, on the basis of where their MFI value lands related to the validated splitpoint. So if the splitpoint for FITC is at 50, and the individual cell MFI  for FITC is 80, it returns as FITC_pos. If the splitpoint for APC is at 70, and the individual cell MFI is 30, it returns as APC_Neg. 
-
-When you iterate over the splitpoints for each marker, each cell derrives an identity. FITC_pos-APC_Neg-BV421_Pos.... etc. We can then group cells with matching identies and derrive information from these terminal nodes. 
-
-Individually, this may not mean much. After all, dichotomous splitting of a 30-marker panel is around half-a billion potential terminal nodes or clusters. Similarly, cytometers have instrumental, batch, experimental noise, etc. 
-
-But when we scale to all the events collected within a typical sample, we get far fewer terminal nodes, in the hundred to lower thousand range for a 30-color panel. The reason is cells (and the panels by which we investigate them) are not uniformely distributed by markers across high-dimensional space, cells fall within specific phenotypes (cell types) that undergo division of similar clones. 
-
-Consequently, we can iteratively leverage the number of markers included to target questions of interest, broad or narrow scope, in context of our individual panels, and rely on methods described below to gain insight into biological systems. 
 
 ```{r sessionInfo}
 #| echo: FALSE

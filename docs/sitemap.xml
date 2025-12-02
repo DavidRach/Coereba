@@ -1,23 +1,28 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://davidrach.github.io/Coereba/404.html</loc></url>
-<url><loc>https://davidrach.github.io/Coereba/LICENSE.html</loc></url>
-<url><loc>https://davidrach.github.io/Coereba/articles/Workflow.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/articles/index.html</loc></url>
+<url><loc>https://davidrach.github.io/Coereba/articles/Part2.html</loc></url>
+<url><loc>https://davidrach.github.io/Coereba/articles/Workflow.html</loc></url>
+<url><loc>https://davidrach.github.io/Coereba/articles/Workflow2.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/authors.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/index.html</loc></url>
+<url><loc>https://davidrach.github.io/Coereba/LICENSE.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Coereba-package.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Coereba_App.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Coereba_Comparison.html</loc></url>
+<url><loc>https://davidrach.github.io/Coereba/reference/Coereba_FCSExport.html</loc></url>
+<url><loc>https://davidrach.github.io/Coereba/reference/Coereba_FCS_Reversal.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Coereba_GateCutoffs.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Coereba_MarkerExpressions.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Coereba_MarkerExpressions2.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Coereba_Processing.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Coereba_UpdateGates.html</loc></url>
+<url><loc>https://davidrach.github.io/Coereba/reference/index.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Utility_Behemoth.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Utility_Coereba.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Utility_Heatmap.html</loc></url>
+<url><loc>https://davidrach.github.io/Coereba/reference/Utility_LongitudinalBehemoth.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Utility_MarkerPlots.html</loc></url>
 <url><loc>https://davidrach.github.io/Coereba/reference/Utility_Stats.html</loc></url>
-<url><loc>https://davidrach.github.io/Coereba/reference/index.html</loc></url>
 </urlset>
 
