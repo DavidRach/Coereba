@@ -537,6 +537,8 @@ UpdatedPlotAfterShiny
 With the gate locations now finalized, it's time to run Coereba and classify each individual cell within  a specimen by it's marker expression relative to their respective splitpoint location. Cells that share marker expressions ultimately end up in the same clusters. We will use the `Utility_Coereba()` function for this process, providing both the validated ShinyGates and our GatingSet.  
 
 ```{r}
+#| label: Utility_Coereba
+
 # Wherever you stored it
 File_Location <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
@@ -563,6 +565,8 @@ In the above case, we set returnType = "data", and Individual = "FALSE", resulti
 Once `Utility_Coereba()` has been run, we can send the output to an .fcs file. In this process, any metadata present will be converted over to numeric keyword format, with the actual information stored away as keywords for later retrieval. Exporting as an .fcs can can be useful when we are planning to export to an .fcs file for downstream unsupervised analysis, as it allows us to run dimensionality visualization algorithms, gate the islands, and then retrieve Coereba data as far as gating and metadata from cells within those respective islands. 
 
 ```{r}
+#| label: Coereva_FCSExport
+
 # Designate a location file.path to save the Shiny Updated Splitpoints to
 StorageLocationForFCS <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
@@ -577,6 +581,7 @@ FCSFile <- Coereba::Coereba_FCSExport(data=CoerebaData, gs=UnmixedGatingSet[1],
 Likewise, once we are done with the unsupervised analysis, we can retrieve the same data back to R through the `Coereba_FCS_Reversal()` function. 
 
 ```{r}
+#| label: Coereba_FCS_Reversal
 FCSPath <- file.path(StorageLocationForFCS, "CoerebaTest.fcs")
 RetrievedData <- Coereba::Coereba_FCS_Reversal(Coereba=FCSPath)
 # View(RetrievedData)
@@ -590,41 +595,109 @@ RetrievedData
 
 Taking the `Utility_Coereba()` output, we can combine it with metadata and panel information into a SummarizedExperiment object. This will permit us in turn to tie in to a lot of the existing Bioconductor project analysis infrastructure. We do this through the `Coereba_Processing()` function.
 
+We will need to provide a data.frame or a file.path to a csv file containing the panel information. The first column should be called Fluorophore, with the second column the marker name. For our example since we are working with only four markers, we will create and pass this from R. 
+
 ```{r}
+#| label: Panel Information
+
 ThePanel <- data.frame(Fluorophore=c("BUV661", "BV570", "RB780", "PE-Vio770"),
   Marker=c("Vd2", "CD16", "CXCR5", "HLA-DR"))
+```
 
-TheBioconductor <- Coereba_Processing(x=FCSPath, panel=ThePanel)
+Similar to what we did for `Coereba_GateCutoffs()`, we can have return a csv template containing the specimen names present.
+
+```{r}
+MetadataOutpath <- tempdir()
+
+MetadataTemplate <- Coereba_Processing(x=FCSPath, metadataTemplate=TRUE, outpath=MetadataOutpath, panel=ThePanel)
+
+MetadataLocation <- file.path(MetadataOutpath, "Coereba_metadataTemplate.csv")
+InitialMetadata <- read.csv(MetadataLocation, check.names=FALSE)
+
+head(InitialMetadata, 5)
+```
+
+Now that we have the specimen identifiers, we can append additional metadata utilizing the `left_join()` function from the `dplyr` package, before returning the updated metadata to `Coereba_Processing()`
+
+```{r}
+File_Location <- system.file("extdata", package = "Coereba")
+StudyMetadataPath <- file.path(File_Location, "SDY3080.csv")
+StudyMetadata <- read.csv(StudyMetadataPath, check.names=FALSE)
+
+Specimens <- InitialMetadata |> pull(specimen) |> unique()
+
+# Adding Adult Normalization Controls Not Present in Study Metadata
+Specimens <- c(Specimens, "NY068_02", "NY068_03", "NY068_03", "NY068_4",
+ "NY068_5", "NY068_6", "NY068_7", "NY068_8")
+StudyMetadata <- StudyMetadata |> filter(bid %in% Specimens)
+StudyMetadata <- StudyMetadata |> rename(specimen=bid)
+CoerebaMetadata <- left_join(InitialMetadata, StudyMetadata, by="specimen")
+```
+
+```{r}
+head(CoerebaMetadata, 5)
+```
+
+With the pieces now assembled, we can combine everything into a SummarizedExperiment
+
+```{r}
+#| label: Coereba_Processing
+TheBioconductor <- Coereba_Processing(x=FCSPath, panel=ThePanel, themetadata=CoerebaMetadata)
 ```
 
 ```{r}
 TheBioconductor
 ```
 
+Using the various Bioconductor accessors, we can see the respective contents. We can see the counts for the individual clusters by specimen. 
+
+```{r}
+TheBioconductor@assays@data$count
+```
+
+Similar case for the proportions
+```{r}
+TheBioconductor@assays@data$ratios
+```
+
+The expression for each cluster
+```{r}
+TheBioconductor@elementMetadata
+```
+
+The panel
+```{r}
+TheBioconductor@metadata
+```
+
+And the metadata
+```{r}
+TheBioconductor@colData
+```
 
 # Retrieving Marker Expressions
 
-From the SE object, we are working with the individual Coereba cluster counts. For some analyses, we may want to know what proportion of cells for a particular donor or island expressed a particular marker, so we may not want as fine-grained separation in clusters. We can reaggregate the populations present and retrieve the proportions in this manner. 
-
-Having generated a Marker by Cluster data.frame (binaryData) and a Cluster by Specimen data.frame (dataData), we can leverage the combination of the two data.frames to aggregate the clusters on the basis of marker presence, returning the proportion of of cells that are positive for a given marker. 
-
-For this demonstration, we will focus on NKTs, using stored .csv files for their binary and data outputs stored within the Coereba extdata folder.
+Now that our data is within the SummarizedExperiment, we can carry out different statistical analyses on the individual clusters, or reaggregate them to return summary statistics for the respective markers. For example: 
 
 ```{r}
+#| label: MarkerExpressions
+
 Data <- Coereba_MarkerExpressions(x=TheBioconductor, returnType="All", theassay="ratios")
   
 Data
 ```
 
-We can additionally by specifying returnType = "Combinatorial" derrive proportions within quadrant gates for
-two markers of interest. To do so, we specify the fluorophores corresponding to the markers as a list in the CombinatorialArgs.
+We can alternatively by setting returnType = "Combinatorial" derrive proportions that fall within quadrant gates for two markers of interest.To do this, we provide the fluorophores corresponding to the markers to the CombinatorialArgs.
 
 ```{r}
-MemoryQuadrants <- Coereba_MarkerExpressions(x=TheBioconductor, returnType="All", theassay="ratios",
+#| label: QuadrantMarkerExpressions
+MemoryQuadrants <- Coereba_MarkerExpressions(x=TheBioconductor, theassay="ratios",
  returnType="Combinatorial", CombinatorialArgs = c("BUV661", "RB780"))
 
 MemoryQuadrants
 ```
+
+From this, we can see that within cord DN T cells, CXCR5 and Vd2 expression do not overlap for the most part. 
 
 # Marker Expression Beeswarm plots
 
@@ -634,6 +707,7 @@ Having returned aggregated data above with `Coereba_MarkerExpressions`, we can p
 To do so for your own individual spots, you will need to specify a metadata column by which to factor by, and provide a list of shape and fill values corresponding to each factor level. 
 
 ```{r}
+#| label: DefiningShapeAndFill 
 #| eval: FALSE
 shape_ptype <- c("HU" = 22, "HEU-lo" = 21, "HEU-hi" = 21)
 fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
@@ -642,8 +716,9 @@ fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
 We can start by viewing all markers:
 
 ```{r}
+#| label: MarkerPlots
 #| eval: FALSE
-#| warning: FALSE
+
 
 ThePlot <- Utility_MarkerPlots(data=AllMarkers, panel=panelData,
   myfactor="ptype", shape_palette = shape_ptype, fill_palette = fill_ptype)
@@ -654,6 +729,7 @@ ThePlot
 Let's abbreviate the number of columns by specifying the marker names to include (filterForThese), and rearrange them in desired X-axis order
 
 ```{r}
+#| label: AbbreviatedMarkerPlots
 #| eval: FALSE
 ThePlot <- Utility_MarkerPlots(data=AllMarkers, panel=panelData,
   myfactor="ptype", shape_palette = shape_ptype, fill_palette = fill_ptype,
