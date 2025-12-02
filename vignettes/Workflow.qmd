@@ -29,6 +29,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r}
+#| label: BackgroundLibraryLoadForVignette
 #| echo: FALSE
 #| warning: FALSE
 #| results: "hide"
@@ -201,6 +202,7 @@ wsp <- list.files(pattern=".wsp", full.names=TRUE)
 ```
 
 ```{r}
+#| label: BackgroupWspLoadForVignette
 #| echo: FALSE
 #| warning: FALSE
 #| results: "hide"
@@ -209,6 +211,7 @@ wsp <- list.files(folder, pattern=".wsp", full.names=TRUE)
 ```
 
 ```{r}
+#| label: CytoML workflow
 library(CytoML)
 ws <- open_flowjo_xml(wsp[1])
 CytoML_GS <- flowjo_to_gatingset(ws, name=1, path = folder, additional.keys="GROUPNAME")
@@ -216,6 +219,7 @@ CytoML_GS
 ```
 
 ```{r}
+#| label: Checking CytoML output
 library(Luciernaga)
 
 MyPlot <- Utility_GatingPlots(x=CytoML_GS[27], sample.name=c("GROUPNAME", "TUBENAME"),
@@ -228,11 +232,13 @@ MyPlot
 
 # Coereba
 
-Having set up a GatingSet with transformations and gates applied, we can now proceed to the main `Coereba` workflow. 
+Having set up a GatingSet and applied the transformations and gates, we can now proceed to the main `Coereba` workflow. 
 
 For this example, we will focus on just 4 of the 32 markers, CD16 (BV570), CXCR5 (RB780), HLA-DR(PE-Vio770), and Vdelta2 (BUV661). Most cord DN T cells are negative for these markers, but 5-25% are positive, so they are good examples to showcase the gate adjustment mechanisms. The process when working with all 32-markers is similar, but will take a little more compute time. 
 
 ```{r}
+#| label: Designating markers
+
 # BV570=CD16, RB780=CXCR5, BUV661=Vd2, PE-Vio770=HLA-DR
 
 MarkersForToday <- c("Comp-BV570-A", "Comp-RB780-A", "Comp-BUV661-A", "Comp-PE-Vio770-A")
@@ -243,21 +249,17 @@ MarkersForToday <- c("Comp-BV570-A", "Comp-RB780-A", "Comp-BUV661-A", "Comp-PE-V
 
 The first step is to create a .csv file, containing the individual specimens, and the individual markers of interest. Each cell within the .csv file will correspond to the MFI for a given marker for a given individual where positive expression of a marker transitions to becoming a negative (referred here to as a splitpoint). 
 
-These could be written out individually, or based on automated calculations. To simplify the process, in Coereba, we have implemented two approaches to estimating these splitpoints. One function is the in-house `Coereba_GateCutoffs()`, which does an "okay-ish but work-in progress". The flip approach is leveraging the `r Biocpkg("openCyto")` pipeline (in development) and retrieving the values. 
-
-Both approaches can be computationally heavy, but still faster than eye-balling everything and typing in the values one-by-one. Save the eyestrain for subsequent validation steps.
-
-Behind the scenes, Coereba is utilizing openCyto automated gating (primarily leveraging gate_mindensity) to determine the splitpoints between the negative and positive cells. 
+These could be specified out individually, or derrived in an automated fashion. In Coereba, we leverage the `r Biocpkg("openCyto")` automated gating functions (primarily the gate_mindensity option) to save us from the eye-strain of typing everything out. We will run the `Coereba_GateCutoffs()` function on each specimen in the GatingSet, and use the `r CRANpkg("dplyr")` packages `bind_rows()`to gather the rows into a data.frame object. We in turn can save this as a .csv for later use (or minor hand editing). 
 
 ```{r}
 # Designate a location file.path to save the calculated splitpoints .csv to. 
-StorageLocationForSplitpoints <- "template"
+StorageLocationForSplitpoints <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 # We will use a temp() folder for this documentation example. 
 StorageLocationForSplitpoints <- tempdir()
 
 TheGateCutoffs <- purrr::map(.x=UnmixedGatingSet, .f=Coereba_GateCutoffs,
-  subset="root", sample.name=c("GROUPNAME"), desiredCols=MarkersForToday) %>% bind_rows()
+  subset="root", sample.name=c("GROUPNAME"), desiredCols=MarkersForToday) |> bind_rows()
 
 TheFileName <- file.path(StorageLocationForSplitpoints, "InitialGates.csv")
 
@@ -268,36 +270,40 @@ write.csv(TheGateCutoffs, TheFileName, row.names=FALSE)
 TheGateCutoffs
 ```
 
-These in turn can be visualized with the Luciernaga packages NbyN and Unity plot functions, these can be returned to R or saved as a pdf. When a marker has distinct positive or negative markers, the initial estimated location works well. 
+With these intial split points calculated, we can visualize how well the splitpoints were calculated by plotting them as red-lines using the `Luciernaga` packages `Utility_NbyNPlots()` (visualizing all marker combinations for an individual specimen) and `Utility_UnityPlots()` (visualizing a marker combination across all specimens) functions. The resulting plots can be returned to R using either the returntype= "plots" or "patchwork" arguments, or saved to the directory by providing the "pdf" argument instead. 
 
 ```{r}
 #| label: NbyN plot check
 #| message: FALSE
 #| warning: FALSE
 
+# Designate a location
+StorageLocationForPlotPDF <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+# We will use a temp() folder for this documentation example. 
 StorageLocationForPlotPDF <- tempdir()
 
 Plot <- Utility_NbyNPlots(x=UnmixedGatingSet[4], sample.name=c("GROUPNAME"), experiment="ABs",
 condition="DNs", removestrings=".fcs", marginsubset="root", gatesubset="root", 
-ycolumn="Comp-BUV661-A", bins=150, clearance=0.1, 
+ycolumn="Comp-PE-Vio770-A", bins=150, clearance=0.1, 
 gatelines=TRUE, reference=TheGateCutoffs, outpath=StorageLocationForPlotPDF, returntype="patchwork")
 ```
+
+When a marker has distinct positive or negative markers, the initial estimated location works well. 
 
 ```{r}
 Plot
 ```
 
-Once we have generated a GateCutoffs.csv file, we can visualize how well the splitpoints were by plotting them as red-lines using the `Luciernaga` packages `Utility_NbyNPlots()` to visualize the markers for a given individual and `Utility_UnityPlots()` to visualize the markers across individuals. This a good way of understanding how well the competing gating-algorithms did in the context of your individual panel, and how much effort will be required for the next step in correcting the gates individually. 
+However, when everything is uniformly positive or negative, or more subtle shift, these estimated locations can be quite off, and the respective splitpoints will need to be corrected. If a particular marker(s) is consistently off, we can redo the splitpoints for individual markers by providing gate_range arguments to constrain the mindensity to searching within a particular area. 
 
-However, when everything is uniformly positive or negative, or more subtle, these estimated locations can be quite off. In these cases, it can be useful to provide gate_range arguments to constrain the mindensity to assign a splitpoint in a particular area. 
-
-The simplest way to get this set up is the returnTemplate argument which will return a TemplateForGates.csv based off the openCyto template .csv.
+The simplest way to do this is to set the `Coereba_GateCutoffs()` returnTemplate argument to TRUE, which will return a TemplateForGates.csv based off the openCyto template .csv.
 
 ```{r}
 #| label: Return an openCyto template
 
 # Designate a location file.path to save the template to. 
-StorageLocationForTemplate <- "template"
+StorageLocationForTemplate <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 # We will use a temp() folder for this documentation example. 
 StorageLocationForTemplate <- tempdir()
@@ -319,7 +325,7 @@ TheTemplateCSV <- read.csv(TheTemplate, check.names=FALSE)
 TheTemplateCSV
 ```
 
-This file in turn can be updated with the gate_range arguments. 
+We can then manually update with the gate_range arguments. 
 
 ```{r}
 #On your own workstation
@@ -340,7 +346,7 @@ UpdatedTemplate <- read.csv(UpdatedTemplatePath, check.names=FALSE)
 UpdatedTemplate
 ```
 
-With this done, we can provide it back to Coereba_GateCutoffs with the GateOverwrite argument set to TRUE to repeat the process of calculating the splitpoints. 
+With this done, we can provide it back to `Coereba_GateCutoffs()` with the GateOverwrite argument set to TRUE. This will restart the calculation of the splitpoints.
 
 ```{r}
 TheUpdatedGateCutoffs <- purrr::map(.x=UnmixedGatingSet, .f=Coereba_GateCutoffs,
@@ -348,7 +354,7 @@ TheUpdatedGateCutoffs <- purrr::map(.x=UnmixedGatingSet, .f=Coereba_GateCutoffs,
   GatingTemplate=UpdatedTemplatePath, GateOverwrite=TRUE) %>% bind_rows()
 
 # Designate a location file.path to save the template to. 
-StorageLocationForUpdatedSplitpoints <- "template"
+StorageLocationForUpdatedSplitpoints <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 # We will use a temp() folder for this documentation example. 
 StorageLocationForUpdatedSplitpoints <- tempdir()
@@ -372,7 +378,7 @@ StorageLocationForPlotPDF <- tempdir()
 
 UpdatedPlot <- Utility_NbyNPlots(x=UnmixedGatingSet[4], sample.name=c("GROUPNAME"), experiment="ABs",
 condition="DNs", removestrings=".fcs", marginsubset="root", gatesubset="root", 
-ycolumn="Comp-BUV661-A", bins=150, clearance=0.1, 
+ycolumn="Comp-PE-Vio770-A", bins=150, clearance=0.1, 
 gatelines=TRUE, reference=TheUpdatedGateCutoffs, outpath=StorageLocationForPlotPDF, returntype="patchwork")
 ```
 
@@ -382,7 +388,29 @@ UpdatedPlot
 
 ## Coereba_App
 
+With the estimated splitpoints having been calculated, we still need to make sure to correct the location for the odd specimen that is of. We have created a R Shiny App to facilitate this process. When provided with the .csv of splitpoints, it will load in the GatingSet object, and plot an interactive version of `Utility_UnityPlot()` from the `Luciernaga` package, visualizing the splitpoint for a given marker across all individuals as red vertical lines. These can then be updated via the graphical user interface (GUI) by clicking just above the axis. 
+
+First off, remember the location you saved the splitpoints .csv, as the Shiny App will ask you to find it later:
+
 ```{r}
+#| label: Remembering Storage Location
+
+# Wherever you stored it
+File_Location <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+# For our example documentation
+File_Location <- system.file("extdata", package = "Coereba")
+TheCSV <- file.path(File_Location, "SecondGates.csv")
+TheCSVData <- read.csv(TheCSV, check.names=FALSE)
+head(TheCSVData)
+```
+
+Similarly, make sure to remember what you called your GatingSet ("UnmixedGatingSet" for our example), and the sample.name keyword used to identify individual specimens, as you will need to also provide these values to the app.
+
+We will now launch the Shiny App by calling the `Coereba_App()` function
+
+```{r}
+#| label: Coereba_App
 #| eval: false
 
 #library(DT)
@@ -393,147 +421,186 @@ UpdatedPlot
 Coereba_App()
 ```
 
-Upon launch, you are within the Upload CSV File tab on the upper left. 
+Upon launch, you land inside the Upload CSV File tab (located on the upper left). Go ahead and click on the Import .csv button.   
 
 ![](`r system.file("extdata", "ShinyLanding.png", package = "Coereba")`){width="75%"}
 
-Proceed to find and upload the .csv containing the updated splitpoints based on the gate_range constraints
+Proceed to find and upload your SecondGates.csv equivalent (containing the updated splitpoints based on the gate_range constraints) by navigating to the storage folder location and select it. Once done, the contents will appear in the space on the right.
 
 ![](`r system.file("extdata", "ShinySplitpointsLoaded.png", package = "Coereba")`){width="75%"}
 
-Once this is done, navigate to the Upload a Gating set tab on the upper left
+Next, you will select the "Upload a Gating Set" tab on the upper left.
 
-Proceed to fill in the details, using same name for the GatingSets and associated gates as you have currently in your environment. 
+What we now see is a way to provide arguments to the interactive version of `Utility_UnityPlots()`
+
+Enter the information about your GatingSet ("UnmixedGatingSet" for this example), select your desired x and y parameters ("Comp-BUV661-A", etc), and the Sample.Name keyword that designates the respective specimens. The bins argument will adjust how th cells are visualized, with higher numbers being finer detail. Clearance is a proportion used to create additional space around the edge of the plot, which is set based on the values for the respective subset provided by the margin argument. The cells being plotted come from the "gate" subset box.  Finally, click Display Estimated Gate Cutoffs to visualize the splitpoints as vertical red lines.  
 
 ![](`r system.file("extdata", "ShinyDetailsLoaded.png", package = "Coereba")`){width="75%"}
 
-Once this is done, click Generate Plots. If you view the console of the main R session, you will see the Utility_NbyNplot messages running as the plots are generated. 
+Once this is done, click Generate Plots. If you view the console of the main R session, you will see the Utility_NbyNplot messages running as the plots are generated. How long it will take to load in the plots depends on the number of specimens, and the size of the files. Once the plots are loaded, wait a couple of seconds until you can hover with your mouse over the plots before clicking to avoid having the App freeze up. 
 
 ![](`r system.file("extdata", "ShinyVisuals.png", package = "Coereba")`){width="75%"}
 
-Scroll down to see how the splitpoints were assigned to the individual samples. When you find one that was incorrectly set, hover just above the x-axis for the correct location, and click on the spot with your mouse (see blue arrow)
+For standard workflow, scroll examining how the splitpoints were assigned for the individual samples. When you encounter a splitpoint line that was incorrectly set, hover just above the just above the x-axis for the correct location, and click on the spot with your mouse (see blue arrow for an example). 
 
 ![](`r system.file("extdata", "ShinyUpdating.png", package = "Coereba")`){width="75%"}
 
-When you click just above the axis for the corrected splitpoint, you should see a click event captured message pop up in the console window of the Main R environment. 
+When you click just above the axis for the corrected splitpoint, you should see a click event captured message pop up in the console window of the Main R environment. If you click to far above the axis, you will not see this message displayed. Similarly, this message can be used to remember at what sample you left off when scrolling. All these clicks will save the coordinate as a splitpoint for that given marker and individual to a data.frame we will see on the next tab. 
+
+In terms of accidentally clicking the wrong location, only the last click for a respective sample will be used, so in case of a misclick, reclick on the correct location. 
 
 ![](`r system.file("extdata", "ConsoleClicks.png", package = "Coereba")`){width="75%"}
 
-The process continues as you switch the x-axis marker, regenerate the plots, and then correct the splitpoints for each subsequent marker. 
+Once you have corrected everything for a particular marker, switch down to the next x-axis marker, and regenerate the plots. Once they are loaded, proceed to correct the splitpoints for each additional marker.
 
 ![](`r system.file("extdata", "CorrectSplitpoints.png", package = "Coereba")`){width="75%"}
 
-Once this is complete, navigate to the Click Data tab on the upper left. You will see the click events in their totality. 
+Once this is complete, navigate to the Click Data tab on the upper left. You will see the click events in their totality. You will next need to export this data. 
 
 ![](`r system.file("extdata", "ClickDataExport.png", package = "Coereba")`){width="75%"}
 
-Once you have entered the desired file name and the correct file path to the storage location, click Export Click Data. If this was done successfully, you should see the following notice appear. 
+Due to computer safety reasons, Shiny Apps are not allowed to write directly to your computer file system. So you will need to manually type in the file name and the file.path to a storage location. Once this is done, click "Export Click Data". If this was done successfully, you should see the following notice appear. 
 
 ![](`r system.file("extdata", "CheckoutNotice.png", package = "Coereba")`){width="75%"}
 
 Finally, close out of the Shiny window, and hit the red stop button on the right-hand of the console to return back to Positron. 
 
-Older version:
-Previously, all adjustments to the above splitpoints had to eye-balled in the pdf, and then adjusted in the .csv file, and repeated ad nauseum. This obviously did not scale well. We have subsequently created a ShinyApp that will bring in the GatingSet object, and plot an interactive version of `Utility_UnityPlot()` from the `Luciernaga` package, visualizing the splitpoint for a given marker across all individuals as red vertical lines. 
+When working with a large dataset, we have observed the ShinyApp start to slow after a couple markers. When this occurs, save the click file to your destination folder, close the ShinyApp, and relaunch. Correct a couple additional markers, and save the Export Click Data again with a different name. After everything is gated, the same function used to update the Splitpoint.csv can be used to grab all .csv files from within a folder in a single go. 
+ 
+(Note for developers: Shiny relies heavily on reactive R, which is not the maintainer's coding forte, so some additional work to speed things up behind the scenes is likely required. If this is your area of expertise, feel free to contribute!)
 
-To get started, first make sure you know where the `Coereba_GateCutoffs()` .csv output is saved at, as you will need to select the file within the App. 
-
-```{r}
-#| eval: FALSE
-File_Location <- system.file("extdata", package = "Coereba")
-TheCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
-TheCSVData <- read.csv(TheCSV, check.names=FALSE)
-head(TheCSVData)
-```
-
-Next, make sure to remember the name of your GatingSet ("UnmixedGatingSet" for this case), and the sample.name keyword to identify individual specimens, as you will need to input these values within the app. 
-
-Then, run the following command in your console:
-
-```{r}
-#| eval: FALSE
-Coereba_App()
-```
-
-The first tab view will let you upload the GateCutoff.csv file generated by the previous function, by letting you navigate to the storage folder and clicking on it. 
-
-Once this is done, navigate to the Upload a GatingSet tab. Enter the information about your GatingSet ("UnmixedGatingSet" for this example), select your x and y parameters, enter the SampleName keyword. Desired bins allows adjustments to the visualization given the number of cells present, clearance multiplier adjust the margins wiggle-room, removestrings arguments. You specify margin and gate subsets like you would for `Utility_UnityPlots()` and click Display Estimated Gate Cutoffs. Finally, you click on Generate Plots and go retrieve your coffee/tea/beverage-of-choice.  
-
-Upon loading of the plots, scroll until you encounter a splitpoint line that was placed incorrectly, you can simply click on the correct location of the axis, which will save the coordinate as a splitpoint for that given marker and individual to a data.frame. This will later be ported to update the corresponding splitpoint value for a given marker and individual in the exisiting GateCutoff .csv. By just clicking, you can therefore quickly correct cases where the algorithm failed to gate properly due to batch effects, bad staining, or algorithmic incompetence (sorry, the coders are still learning as well).
-
-Once you have corrected some/all the markers, navigate to the Click Data tab. You can then export the click-data information by specifying a filename and providing an outpath to the folder you want to save at. Unfortunately, due to security issues in ShinyApps, you will need to type out the designated outpath manually.
-
-And repeat until the markers you are interested have been validated and you have a folder of clickpoint .csvs awaiting conversion into the existing GateCutoff folder. 
-
-Since the code is within a ShinyApp running in R, it has both the advantages and disadvantages of a R Shiny App. It scales reasonably well, but can take a while to load the next iterated marker. During testing, loading a new marker to inspect took anywhere from 3-10 additional minutes. This area is a active work in progress to speed up, but the author/maintainer hasn't had the time to finish reading Mastering Shiny by Hadley Wickham yet or implement it in Rust, if you have, feel free to assist!
 
 # Updating the Splitpoints
 
-Having gone through and corrected the splitpoints, it is now time to update the SecondGates.csv to reflect the changes. To facilitate this, we will use the Coereba_UpdateGates function.
+Having gone through and corrected the splitpoints with `Coereba_App()`, it is time to convert your validated click-data and update the SecondGates.csv to reflect the changes. To facilitate this, we will use the `Coereba_UpdateGates()` function. This can be used to update for either a single click-data .csv, or the file.path to the folder containing all the click-data .csv files in one go.
 
-Once you have completed validating the GateCutoffs with `Coereba_App()`, it is time to convert your validated click-data and update the GateCutoff.csv. To fascilitate this, provide the location of the folder containing just the clickpoint .csv's to  `Coereba_UpdateGates()` and fill out the required arguments. It will proceed to update the GateCutoffs. 
-
-For this example, we will use ClickDataExamples.csv stored within `Coereba`'s extdata folder:
-
+In our case, we will update using the saved click-data from above stored inside the extdata folder. 
 ```{r}
-#| eval: FALSE
+# Wherever you stored it
+File_Location <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+# For our example documentation
 File_Location <- system.file("extdata", package = "Coereba")
-TheOldCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
-TheClickInfo <- file.path(File_Location, "ClickDataExample.csv")
+TheOldCSV <- file.path(File_Location, "SecondGates.csv")
+TheClickInfo <- file.path(File_Location, "CorrectSplitpointLocations.csv")
 TheClickData <- read.csv(TheClickInfo, check.names=FALSE)
 TheClickData
 ```
 
-The old data:
+By comparison, the data from SecondGates that will be updated
 ```{r}
-#| eval: FALSE
 TheOldData <- read.csv(TheOldCSV, check.names=FALSE)
 TheOldData
 ```
 
-We can then run `Coereba_UpdateGates()` and watch the values for BUV469-A are updated.
+We can then run `Coereba_UpdateGates()` and examine how the PE-Vio770 values are correspondingly updated.
+
 ```{r}
-#| eval: FALSE
-UpdatedCSV <- Coereba_UpdateGates(Clicks=TheClickInfo, Old=TheOldCSV,
+ShinyGatesSplitpoints <- Coereba_UpdateGates(Clicks=TheClickInfo, Old=TheOldCSV,
   export=FALSE, outpath=NULL, fileName="UpdatedCSV")
 
-UpdatedCSV
+ShinyGatesSplitpoints
 ```
 
-We can further validate this by re-running `Luciernaga` `Utility_UnityPlots()` using the updated GateCutoff.csv and seeing if the previous issues have been corrected. 
+```{r}
+# Designate a location file.path to save the Shiny Updated Splitpoints to
+StorageLocationForShinyUpdatedSplitpoints <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
+# We will use a temp() folder for this documentation example. 
+StorageLocationForShinyUpdatedSplitpoints <- tempdir()
+
+ShinyGatesPath <- file.path(StorageLocationForShinyUpdatedSplitpoints, "ShinyGates.csv")
+write.csv(ShinyGatesSplitpoints, ShinyGatesPath, row.names=FALSE)
+```
+
+We in turn can validate this further by  by re-running `Luciernaga` `Utility_NbyNPlots()` or `Utility_UnityPlots()` using the updated GateCutoff.csv and see how things look now following our intervention. 
+
+```{r}
+#| label: NbyN plot check 3
+#| message: FALSE
+#| warning: FALSE
+
+StorageLocationForPlotPDF <- tempdir()
+
+UpdatedPlotAfterShiny <- Utility_NbyNPlots(x=UnmixedGatingSet[4], sample.name=c("GROUPNAME"), experiment="ABs",
+condition="DNs", removestrings=".fcs", marginsubset="root", gatesubset="root", 
+ycolumn="Comp-PE-Vio770-A", bins=150, clearance=0.1, 
+gatelines=TRUE, reference=ShinyGatesSplitpoints, outpath=StorageLocationForPlotPDF, returntype="patchwork")
+```
+
+```{r}
+UpdatedPlotAfterShiny
+```
 
 # Coereba
 
-With the gate locations now determined, it's time to run Coereba and classify each individual cell within  a specimen by it's marker expression. We will use Utility_Coereba for this process. 
-
-`Utility_Coereba()` is the function that implements the above approach, labelling for each individual specimen the individual cells on the basis of their splitpoint identity, and then returning the enumeration of the resulting clusters. It iterates over the different specimens in the GatingSet, returning information for every individual that can be used in subsequent steps. `MultiReach()` is the older version of the proccess.
-
-Both functions are currently waiting on the ILT paper to be sent to collaborators so that David can implement his 5-subject binder worth of notes to implement a S4 OOP class to make manipulating the final outputs easier than the current .qmd files full of tidyverse data tidying. 
+With the gate locations now finalized, it's time to run Coereba and classify each individual cell within  a specimen by it's marker expression relative to their respective splitpoint location. Cells that share marker expressions ultimately end up in the same clusters. We will use the `Utility_Coereba()` function for this process, providing both the validated ShinyGates and our GatingSet.  
 
 ```{r}
-#| eval: FALSE
-#| warning: false
+# Wherever you stored it
+File_Location <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
-CoerebaIDs <- Utility_Coereba(x=UnmixedGatingSet[1], subsets="live",
-  sample.name="GROUPNAME", reference=TheCSV, starter="Spark Blue 550-A")
+# For our example documentation
+File_Location <- system.file("extdata", package = "Coereba")
+
+CheckedGates <- file.path(File_Location, "ShinyGates.csv")
+
+CoerebaData <- Utility_Coereba(gs=UnmixedGatingSet, subsets="root",
+ sample.name="GROUPNAME", reference=CheckedGates, starter="Comp-PE-Vio770-A",
+ inverse.transform = TRUE, returnType="data", Individual=FALSE, outpath=NULL,
+ columns = MarkersForToday)
 ```
 
 ```{r}
-#| eval: FALSE
-head(CoerebaIDs, 5)
+head(CoerebaData)
 ```
+
+In the above case, we set returnType = "data", and Individual = "FALSE", resulting in a single data.frame containing the content for all specimens.  Please refer to the documentation for `Utility_Coereba()` for additional options. 
 
 
 # Save to FCS file (optional)
 
-We can optionally save this output to an .fcs file. This can allow for later referece, as well as permit us to run dimensionality visualization algorithms, gate the islands, and then retrieve Coereba data for the respective islands. 
+Once `Utility_Coereba()` has been run, we can send the output to an .fcs file. In this process, any metadata present will be converted over to numeric keyword format, with the actual information stored away as keywords for later retrieval. Exporting as an .fcs can can be useful when we are planning to export to an .fcs file for downstream unsupervised analysis, as it allows us to run dimensionality visualization algorithms, gate the islands, and then retrieve Coereba data as far as gating and metadata from cells within those respective islands. 
 
-Likewise, we can retrieve the same data back to R through the Coereba_FCS_Reversal function. 
+```{r}
+# Designate a location file.path to save the Shiny Updated Splitpoints to
+StorageLocationForFCS <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+# We will use a temp() folder for this documentation example. 
+StorageLocationForFCS <- tempdir()
+
+FCSFile <- Coereba::Coereba_FCSExport(data=CoerebaData, gs=UnmixedGatingSet[1],
+      returnType="fcs", outpath=StorageLocationForFCS, filename="CoerebaTest",
+      nameAppend="", Aggregate=FALSE)
+```
+
+Likewise, once we are done with the unsupervised analysis, we can retrieve the same data back to R through the `Coereba_FCS_Reversal()` function. 
+
+```{r}
+FCSPath <- file.path(StorageLocationForFCS, "CoerebaTest.fcs")
+RetrievedData <- Coereba::Coereba_FCS_Reversal(Coereba=FCSPath)
+# View(RetrievedData)
+```
+
+```{r}
+RetrievedData
+```
 
 # Generating a Summarized Experiment File
 
-For long-term handling, we can save the Coereba output, alongside metadata and panel information, into a Summarized Experiment file. This will permit us to use a lot of the existing Bioconductor package infrastructure for analysis. We do this through the Coereba_Processing function. 
+Taking the `Utility_Coereba()` output, we can combine it with metadata and panel information into a SummarizedExperiment object. This will permit us in turn to tie in to a lot of the existing Bioconductor project analysis infrastructure. We do this through the `Coereba_Processing()` function.
+
+```{r}
+ThePanel <- data.frame(Fluorophore=c("BUV661", "BV570", "RB780", "PE-Vio770"),
+  Marker=c("Vd2", "CD16", "CXCR5", "HLA-DR"))
+
+TheBioconductor <- Coereba_Processing(x=FCSPath, panel=ThePanel)
+```
+
+```{r}
+TheBioconductor
+```
+
 
 # Retrieving Marker Expressions
 
@@ -544,40 +611,19 @@ Having generated a Marker by Cluster data.frame (binaryData) and a Cluster by Sp
 For this demonstration, we will focus on NKTs, using stored .csv files for their binary and data outputs stored within the Coereba extdata folder.
 
 ```{r}
-#| eval: FALSE
-File_Location <- system.file("extdata", package = "Coereba")
-
-panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
-panelData <- read.csv(panelPath, check.names=FALSE)
-
-binaryPath <- file.path(File_Location, "HeatmapExample.csv")
-binaryData <- read.csv(binaryPath, check.names=FALSE)
-
-dataPath <- file.path(File_Location, "ReadyFileExample.csv")
-dataData <- read.csv(dataPath, check.names=FALSE)
-```
-
-We will first just return the marker expressions for all markers: 
-```{r}
-#| eval: FALSE
-library(Coereba)
-
-AllMarkers <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
-  panel=panelData, starter="SparkBlue550")
+Data <- Coereba_MarkerExpressions(x=TheBioconductor, returnType="All", theassay="ratios")
   
-head(AllMarkers, 5)
+Data
 ```
 
 We can additionally by specifying returnType = "Combinatorial" derrive proportions within quadrant gates for
 two markers of interest. To do so, we specify the fluorophores corresponding to the markers as a list in the CombinatorialArgs.
 
 ```{r}
-#| eval: FALSE
-MemoryQuadrants <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
-  panel=panelData, starter="SparkBlue550", returnType = "Combinatorial", 
-  CombinatorialArgs = c("BV510", "BUV395"))
+MemoryQuadrants <- Coereba_MarkerExpressions(x=TheBioconductor, returnType="All", theassay="ratios",
+ returnType="Combinatorial", CombinatorialArgs = c("BUV661", "RB780"))
 
-head(MemoryQuadrants, 5)
+MemoryQuadrants
 ```
 
 # Marker Expression Beeswarm plots

@@ -34,7 +34,7 @@
 #' Memory <- Coereba_MarkerExpressions2(x=MySE, returnType = "Combinatorial",
 #'  CombinatorialArgs=c("BV510", "APC-Fire 750"))
 #'
-Coereba_MarkerExpressions2 <- function(x, theassay="ratios", 
+Coereba_MarkerExpressions <- function(x, theassay="ratios", 
 returnType="All", CombinatorialArgs=NULL){
   
   panel <- metadata(x)$panel
@@ -156,7 +156,7 @@ MarkerExpressionSummary <- function(x, stats="median", TheName){
 #' @importFrom Luciernaga NameCleanUp
 #'
 #' @return returns a data.frame
-#' @export
+#' @noRd
 #'
 #' @examples
 #'
@@ -175,7 +175,7 @@ MarkerExpressionSummary <- function(x, stats="median", TheName){
 #'  panel=panelData, starter="SparkBlue550", returnType = "Combinatorial",
 #'  CombinatorialArgs=c("BV510", "APC-Fire 750"))
 #'
-Coereba_MarkerExpressions <- function(data, binary, panel, starter, returnType="All",
+Coereba_MarkerExpressionsDeprecated <- function(data, binary, panel, starter, returnType="All",
   CombinatorialArgs=NULL){
 
   if (!is.data.frame(panel)) {MyPanel <- read.csv(panel, check.names = FALSE)

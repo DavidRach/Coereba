@@ -5,26 +5,20 @@
 \title{Generate overall marker expressions across Coereba clusters,}
 \usage{
 Coereba_MarkerExpressions(
-  data,
-  binary,
-  panel,
-  starter,
+  x,
+  theassay = "ratios",
   returnType = "All",
   CombinatorialArgs = NULL
 )
 }
 \arguments{
-\item{data}{The data.frame of clusters vs individual specimens, with the ratio values}
-
-\item{binary}{The data.frame of markers vs clusters, with 0 and 1 values}
-
-\item{panel}{A .csv or data.frame containing Fluorophore and Marker columns of your panel markers.}
-
-\item{starter}{A string containing the starting characters for all Coereba cluster names}
+\item{x}{The Coereba Summarized Experiment object from Coereba_Processing}
 
 \item{returnType}{Either "All" or "Combinatorial". Default is ALL.}
 
 \item{CombinatorialArgs}{When returnType Combinatorial, the two fluorophores to create quadrants for.}
+
+\item{TheAssay}{Default is "ratios"}
 }
 \value{
 returns a data.frame
@@ -36,17 +30,13 @@ Generate overall marker expressions across Coereba clusters,
 
 File_Location <- system.file("extdata", package = "Coereba")
 panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
-panelData <- read.csv(panelPath, check.names=FALSE)
-binaryPath <- file.path(File_Location, "HeatmapExample.csv")
-binaryData <- read.csv(binaryPath, check.names=FALSE)
-dataPath <- file.path(File_Location, "ReadyFileExample.csv")
-dataData <- read.csv(dataPath, check.names=FALSE)
 
-All <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
- panel=panelData, starter="SparkBlue550")
+files <- gs_pop_get_data(gs, "CD4")
+MySE <- Coereba_Processing(x=files[[1]], panel=panelPath)
 
-Memory <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
- panel=panelData, starter="SparkBlue550", returnType = "Combinatorial",
+All <- Coereba_MarkerExpressions2(x=MySE)
+
+Memory <- Coereba_MarkerExpressions2(x=MySE, returnType = "Combinatorial",
  CombinatorialArgs=c("BV510", "APC-Fire 750"))
 
 }
