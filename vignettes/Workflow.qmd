@@ -785,10 +785,39 @@ filename <- paste0(Population, "_Norm_ND006")
 Utility_RidgePlots(gs=NormedND, subset="root", TheY="Specimen", TheFill="Experiment", outpath=NormPath, returntype="pdf", filename = filename, therows = 1)
 ```
 
-### Reverse Biexponential
+### Reverse Biexponential?
+```{r}
+CS2 <- flowSet_to_cytoset(NormalizeAttempt)
+CS2 <- GatingSet(CS2)
+
+PostCytoNorm <- Utility_NbyNPlots(x=CS2[4], sample.name=c("GROUPNAME"), experiment="ABs",
+condition="DNs", removestrings=".fcs", marginsubset="root", gatesubset="root", 
+ycolumn="PE-Vio770-A", bins=150, clearance=0.1, 
+gatelines=FALSE, reference=ShinyGatesSplitpoints2, outpath=StorageLocationForPlotPDF, returntype="patchwork")
+
+PostCytoNorm
+```
+
 ```{r}
 ReversedGS <- transform(NormalizeAttempt, ReverseBiexponential)
-ThisWork <- GatingSet(ReversedGS)
+```
+
+
+```{r}
+CS3 <- flowSet_to_cytoset(ReversedGS)
+CS3 <- GatingSet(CS3)
+
+PostCytoNorm <- Utility_NbyNPlots(x=CS3[4], sample.name=c("GROUPNAME"), experiment="ABs",
+condition="DNs", removestrings=".fcs", marginsubset="root", gatesubset="root", 
+ycolumn="PE-Vio770-A", bins=150, clearance=0.1, 
+gatelines=FALSE, reference=ShinyGatesSplitpoints2, outpath=StorageLocationForPlotPDF, returntype="patchwork")
+
+PostCytoNorm
+```
+
+
+```{r}
+ThisWork <- CS3
 ```
 
 ```{r}
@@ -805,9 +834,11 @@ min(TheCalcs$count)
 Goodbye <- Coereba_Concatenate(Set=NormedNotND, metadata_cols=c("Experiment", "Donor"), outpath="C:/Users/12692/Desktop", filename="DidItWork")
 ```
 
-
-
-
+```{r}
+FCSPath <- file.path("C:/Users/12692/Desktop", "DidItWork.fcs")
+TheData <- Coereba::Coereba_FCS_Reversal(Coereba=FCSPath)
+# View(TheData)
+```
 
 
 # Generating a Summarized Experiment File

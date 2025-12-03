@@ -21,7 +21,7 @@ Coereba_Concatenate <- function(Set, metadata_cols, outpath=NULL, filename="Comb
 
 Coereba_SingleFrame_Reversal <- function(x, metadata_cols){
 
-  InternalPD <- pData(CoerebaGS)
+  InternalPD <- pData(x)
   TheMetadata <- InternalPD |> select(all_of(metadata_cols))
   row.names(TheMetadata) <- NULL
   CoerebaCS <- gs_pop_get_data(x)
