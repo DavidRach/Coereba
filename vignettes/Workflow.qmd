@@ -591,6 +591,225 @@ RetrievedData <- Coereba::Coereba_FCS_Reversal(Coereba=FCSPath)
 head(RetrievedData, 5)
 ```
 
+## Normalization Bypass
+
+Alternatively, if you are planning to normalize the files with CytoNorm, you don't want to return a concatenated file, but individual cytoframe objects. Here is an example workflow:
+
+```{r}
+#| label: ListOfFlowFrames
+CoerebaFlowFrame <- Utility_Coereba(gs=UnmixedGatingSet, subsets="root",
+ sample.name="GROUPNAME", reference=CheckedGates, starter="Comp-PE-Vio770-A",
+ inverse.transform = TRUE, returnType="flowframe", Individual=TRUE, outpath=NULL,
+ columns = MarkersForToday)
+```
+
+```{r}
+CoerebaFlowFrame1 <- unlist(CoerebaFlowFrame)
+
+FlowSet <- flowCore::flowSet(CoerebaFlowFrame1)
+FlowGS <- GatingSet(FlowSet)
+
+MarkersUpdated <- gsub("Comp-", "", MarkersForToday)
+```
+
+```{r}
+MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000,
+                                               pos = 4.5, neg = 0, widthBasis = -1000)
+TransformList <- transformerList(MarkersUpdated, MyBiexponentialTransform)
+
+InverseBiexponential <- flowjo_biexp(inverse=TRUE, channelRange=256, maxValue=1000000, pos=5.25, neg=0, width=-1000)
+ReverseBiexponential <- transformList(MarkersUpdated, InverseBiexponential)
+
+FlowSet_Transformed <- transform(FlowGS, TransformList)
+```
+
+```{r}
+ShinyGatesSplitpoints2 <- ShinyGatesSplitpoints
+colnames(ShinyGatesSplitpoints2) <- gsub("Comp-", "", colnames(ShinyGatesSplitpoints2))
+
+PostCoereba <- Utility_NbyNPlots(x=FlowGS[4], sample.name=c("GROUPNAME"), experiment="ABs",
+condition="DNs", removestrings=".fcs", marginsubset="root", gatesubset="root", 
+ycolumn="PE-Vio770-A", bins=150, clearance=0.1, 
+gatelines=TRUE, reference=ShinyGatesSplitpoints2, outpath=StorageLocationForPlotPDF, returntype="patchwork")
+```
+
+```{r}
+PostCoereba
+```
+
+### Readding filtering data
+
+```{r}
+Specimen <- function(x){
+  pattern <- "([A-Z]+[0-9]+_[0-9]+)(?=_SEB)"
+  result <- stringr::str_extract(x, pattern)
+  result <- data.frame(Specimen = result)
+  return(result)
+}
+
+Experiment <- function(x){
+  pattern <- "(?<=_)AB_[0-9]{2}(?=_)" 
+  result <- stringr::str_extract(x, pattern)
+  result <- data.frame(Experiment = result)
+  return(result)
+}
+```
+
+```{r}
+OriginalPD <- pData(UnmixedGatingSet)
+ValuesOriginal <- OriginalPD |> pull(name)
+TheSpecimen <- map(ValuesOriginal, .f=Specimen) %>% bind_rows()
+TheExperiment <- map(ValuesOriginal, .f=Experiment) %>% bind_rows()
+```
+
+```{r}
+OtherPD <- pData(FlowGS)
+UpdatedPD <- cbind(OtherPD, TheSpecimen, TheExperiment)
+UpdatedPD <- UpdatedPD |> mutate(Donor = str_replace(Specimen, "_[0-9]+$", ""))
+pData(FlowGS) <- UpdatedPD
+```
+
+### Subsetting Controls
+
+```{r}
+TheNormies <- subset(FlowGS, Donor=="NY068")
+#pData(TheNormies)
+NormCounts <- gs_pop_get_stats(TheNormies, nodes="root", type="count")
+TheCount <- sum(NormCounts$count)
+NormiesCS <- gs_cyto_data(TheNormies)
+#pData(NormiesCS)
+TheNewNormies <- cytoset_to_flowSet(NormiesCS)
+```
+
+```{r}
+Batch <- pData(TheNewNormies)$Experiment
+```
+
+```{r}
+library(CytoNorm)
+
+NormPath <- file.path("C:", "Users", "12692", "Desktop", "CytoNorm")
+
+model <- CytoNorm.train(files=TheNewNormies,
+                        labels=Batch,
+                        channels=MarkersUpdated,
+                        transformList=NULL,
+                        seed=1989,
+                        plot=TRUE,
+                        verbose=TRUE,
+                        normMethod.train = "QuantileNorm.train",
+                        normParams = list(nQ = 99),
+                        FlowSOM.params = list(nCells = TheCount,
+                          xdim = 15, ydim = 15, nClus = 9,
+                          scale = FALSE, colsToUse = MarkersUpdated),
+                        outputDir = NormPath,
+                        clean = TRUE,
+                        recompute = TRUE)
+```
+
+```{r}
+LongTermStorage <- file.path(NormPath, "SmallModel.rds")
+saveRDS(object = model, file = LongTermStorage)
+```
+
+```{r}
+LongTermStorage <- file.path(NormPath, "SmallModel.rds")
+previousModel <- readRDS(LongTermStorage)
+goal_q <- getCytoNormQuantiles(previousModel)
+Batch <- pData(TheNormies)$Experiment
+#ForClustering1 <- GetChannels(object = NormalizeGS2[[1]], markers = ForClustering)
+
+model_Distribution <- CytoNorm.train(files=TheNewNormies,
+                        labels=Batch,
+                        channels=MarkersUpdated,
+                        transformList=NULL,
+                        seed=1989,
+                        plot=TRUE,
+                        verbose=TRUE,
+                        normParams = list("goal" = goal_q),
+                        FlowSOM.params = list(nCells = TheCount,
+                          xdim = 15, ydim = 15, nClus = 9,
+                          scale = FALSE, colsToUse=MarkersUpdated),
+                        outputDir = NormPath,
+                        clean = TRUE,
+                        recompute = TRUE)
+```
+
+
+And finally, we normalize everyone else
+```{r}
+AllNormies <- FlowGS
+AllCS <- gs_cyto_data(AllNormies)
+AllFS <- cytoset_to_flowSet(AllCS)
+
+Batch <- pData(AllFS)$Experiment
+
+# Use model or model_Distribution
+
+NormalizeAttempt <- CytoNorm.normalize(model=model, 
+                                       files=AllFS,
+                                       labels=Batch,
+                                       transformList = NULL,
+                                       verbose=TRUE,
+                                       prefix="Norm_",
+                                       transformList.reverse = NULL,
+                                       outputDir= NormPath,
+                                       clean = TRUE, 
+                                       write = FALSE)
+```
+
+And finally, we update the metadata for the new GatingSet
+```{r}
+pd3 <- pData(NormalizeAttempt)
+colnames(pd3) <- "thename"
+
+pd <- pData(FlowGS)
+UpdatedPD <- cbind(pd3, pd)
+
+pData(NormalizeAttempt) <- UpdatedPD
+```
+
+```{r}
+#| eval: FALSE
+Population <- "TestSet"
+UpdatedGS <- GatingSet(NormalizeAttempt)
+pData(UpdatedGS)
+filename <- paste0(Population, "_Norm")
+
+Utility_RidgePlots(gs=UpdatedGS, subset="root", TheY="Specimen", TheFill="Experiment", outpath=NormPath, returntype="pdf", filename = filename, therows = 1)
+
+NormedND <- subset(UpdatedGS, Donor == "NY068")
+
+filename <- paste0(Population, "_Norm_ND006")
+
+Utility_RidgePlots(gs=NormedND, subset="root", TheY="Specimen", TheFill="Experiment", outpath=NormPath, returntype="pdf", filename = filename, therows = 1)
+```
+
+### Reverse Biexponential
+```{r}
+ReversedGS <- transform(NormalizeAttempt, ReverseBiexponential)
+ThisWork <- GatingSet(ReversedGS)
+```
+
+```{r}
+NormedNotND <- subset(ThisWork, Donor != "NY068")
+pData(NormedNotND)
+TheCalcs <- gs_pop_get_stats(NormedNotND, nodes="root", type="count")
+min(TheCalcs$count)
+# 1000
+```
+
+# Out to FCS File
+
+```{r}
+Goodbye <- Coereba_Concatenate(Set=NormedNotND, metadata_cols=c("Experiment", "Donor"), outpath="C:/Users/12692/Desktop", filename="DidItWork")
+```
+
+
+
+
+
+
 # Generating a Summarized Experiment File
 
 Taking the `Utility_Coereba()` output, we can combine it with metadata and panel information into a SummarizedExperiment object. This will permit us in turn to tie in to a lot of the existing Bioconductor project analysis infrastructure. We do this through the `Coereba_Processing()` function.

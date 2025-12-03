@@ -7,10 +7,12 @@
 #' @param returnType Whether to return "flowframe" or "fcs"
 #' @param nameAppend For flowframe and fcs returnType, what gets appended before .fcs 
 #' @param Aggregate Combine the items, finish your documentation. 
+#' @param combineCoereba Internal, used for Coereba flowframe aggregation
 #'
 #' @importFrom flowWorkspace gs_pop_get_data keyword 
 #' @importFrom flowCore parameters exprs write.FCS parameters<-
-#' @importFrom dplyr select bind_cols
+#' @importFrom dplyr select bind_cols filter
+#' @importFrom stringr str_detect
 #' @importFrom tidyselect all_of
 #' @importFrom purrr map flatten
 #' @importFrom Biobase pData
@@ -22,13 +24,21 @@
 #' 
 #' @examples A <- 2+2
 Coereba_FCSExport <- function(data, gs, outpath, filename, fcsname,
-                              returnType, nameAppend, Aggregate=FALSE){
+                              returnType, nameAppend, Aggregate=FALSE, 
+                              coerebaCombine=FALSE){
   # Retrieving param information
   cs <- gs_pop_get_data(gs, "root")
   cf <- cs[[1]]
   original_param <- parameters(cf)
   original_descr <- keyword(cf)
   original_exprs <- exprs(cf)
+
+  if (coerebaCombine==TRUE){
+    paramdata <- original_param@data
+    paramdata <- paramdata |> filter(!str_detect(name, "Coereba"))
+    original_param@data <- paramdata
+    original_exprs <- original_exprs[, !grepl("Coereba", colnames(original_exprs))]
+  }
   
   # Identifying new columns
   OldColNames <- colnames(original_exprs) |> unname()

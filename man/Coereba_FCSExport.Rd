@@ -12,7 +12,8 @@ Coereba_FCSExport(
   fcsname,
   returnType,
   nameAppend,
-  Aggregate = FALSE
+  Aggregate = FALSE,
+  coerebaCombine = FALSE
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ Coereba_FCSExport(
 \item{nameAppend}{For flowframe and fcs returnType, what gets appended before .fcs}
 
 \item{Aggregate}{Combine the items, finish your documentation.}
+
+\item{combineCoereba}{Internal, used for Coereba flowframe aggregation}
 }
 \value{
 A dictionary .csv file, and a .fcs file.
