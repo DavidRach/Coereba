@@ -3,7 +3,7 @@ library(shinytest2)
 library(plotly)
 
 File_Location <- system.file("extdata", package = "Coereba")
-TheCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
+TheCSV <- file.path(File_Location, "ShinyGates.csv")
 ShinyLocation <- system.file("shiny", package = "Coereba")
 
 test_that("{shinytest2} recording: CoerebaApp_CSVOpens", {

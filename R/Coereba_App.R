@@ -33,7 +33,7 @@
 #' library(data.table)
 #'
 #' File_Location <- system.file("extdata", package = "Coereba")
-#' TheCSV <- file.path(File_Location, "GateCutoffsForNKs.csv")
+#' TheCSV <- file.path(File_Location, "ShinyGates.csv")
 #'
 #' FCS_Files <- list.files(path = File_Location, pattern = ".fcs", full.names = TRUE)
 #' UnmixedFCSFiles <- FCS_Files[1]

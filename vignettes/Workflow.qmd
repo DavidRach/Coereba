@@ -41,7 +41,7 @@ library(flowCore)
 library(flowWorkspace)
 library(CytoML)
 library(openCyto)
-library(ggcyto)  
+#library(ggcyto)  
 library(data.table)
 library(dplyr)
 library(purrr) 
@@ -79,10 +79,10 @@ Coereba primarily relies on the infrastructure provided `r Biocpkg("flowWorkspac
 
 # CRAN packages: install.packages("ThePackageName")
 
-# library(dplyr)
-# library(purrr) 
-# library(stringr)
-# library(ggplot2)
+ library(dplyr)
+ library(purrr) 
+ library(stringr)
+ library(ggplot2)
 # library(gt)
 # library(plotly)
 # library(htmltools)
@@ -91,11 +91,13 @@ Coereba primarily relies on the infrastructure provided `r Biocpkg("flowWorkspac
 # Bioconductor packages: BiocManager::install("ThePackageName")
 
 library(Coereba)
-#library(flowCore)
-#library(flowWorkspace)
-#library(openCyto)
-#library(ggcyto)  
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(ggcyto)  
 
+# GitHub packages: remotes::install_github("DavidRach/Luciernaga")
+library(Luciernaga)
 ```
 
 ## Locate your files
@@ -177,9 +179,6 @@ plot(UnmixedGatingSet)
 We can additionally verify that the gating of the cell populations of interest was correct, by visualizing the gates using `r Biocpkg("ggcyto")` or the `Luciernaga::Utility_GatingPlots` function from the `Luciernaga` package. 
 
 ```{r}
-#| label: "Checking the openCyto gate"
-library(Luciernaga)
-
 MyPlot <- Utility_GatingPlots(x=UnmixedGatingSet[4], sample.name=c("GROUPNAME", "TUBENAME"),
                               removestrings=".fcs", subset="root", gtFile=UnmixedGates,
                               DesiredGates=NULL, returnType="plots", outpath = getwd(),
@@ -879,7 +878,7 @@ Specimens <- InitialMetadata |> pull(specimen) |> unique()
 # Adding Adult Normalization Controls Not Present in Study Metadata
 Specimens <- c(Specimens, "NY068_02", "NY068_03", "NY068_03", "NY068_4",
  "NY068_5", "NY068_6", "NY068_7", "NY068_8")
-StudyMetadata <- StudyMetadata |> filter(bid %in% Specimens)
+StudyMetadata <- StudyMetadata |> dplyr::filter(bid %in% Specimens)
 StudyMetadata <- StudyMetadata |> rename(specimen=bid)
 CoerebaMetadata <- left_join(InitialMetadata, StudyMetadata, by="specimen")
 ```
@@ -969,7 +968,7 @@ We can start by viewing all markers:
 #| label: MarkerPlots
 #| warning: FALSE
 
-CordOnly <- Data |> filter(ptype %in% c("HU", "HEU-lo", "HEU-hi"))
+CordOnly <- Data |> dplyr::filter(ptype %in% c("HU", "HEU-lo", "HEU-hi"))
 
 
 ThePlot <- Utility_MarkerPlots(data=CordOnly, myfactor="ptype", shape_palette = shape_ptype, fill_palette = fill_ptype, panel=ThePanel, XAxisLevels=c("Vd2", "CD16", "CXCR5", "HLA-DR"), cex=3, size =3)
