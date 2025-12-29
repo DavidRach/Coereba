@@ -1,26 +1,10 @@
 test_that("Utility_MarkerPlots returns a ggplot2 object", {
 
-  # Prepare the test
-  shape_ptype <- c("HU" = 22, "HEU-lo" = 21, "HEU-hi" = 21)
-  fill_ptype <- c("HU" = "white", "HEU-lo" = "darkgray", "HEU-hi" = "black")
 
-  File_Location <- system.file("extdata", package = "Coereba")
-  panelPath <- file.path(File_Location, "ILTPanelTetramer.csv")
-  binaryPath <- file.path(File_Location, "HeatmapExample.csv")
-  dataPath <- file.path(File_Location, "ReadyFileExample.csv")
-  panelData <- read.csv(panelPath, check.names=FALSE)
-  binaryData <- read.csv(binaryPath, check.names=FALSE)
-  dataData <- read.csv(dataPath, check.names=FALSE)
-
-  All <- Coereba_MarkerExpressions(data=dataData, binary=binaryData,
-    panel=panelData, starter="SparkBlue550")
-
-  # Execute the test
-
-  ThePlot <- Utility_MarkerPlots(data=All, panel=panelData,
-     myfactor="ptype", shape_palette = shape_ptype,
-      fill_palette = fill_ptype, filterForThese=c("CD7", "CD4", "CD8"),
-      XAxisLevels = c("CD7", "CD4", "CD8"))
+ThePlot <- Utility_MarkerPlots(data=CordOnly, myfactor="ptype",
+  shape_palette = shape_ptype, fill_palette = fill_ptype,
+  panel=ThePanel, XAxisLevels=c("Vd2", "CD16", "CXCR5", "HLA-DR"),
+  cex=3, size =3)
 
   # Did it return a data.frame
   expect_true(inherits(ThePlot, "gg"))

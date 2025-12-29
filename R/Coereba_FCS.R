@@ -169,7 +169,7 @@ PinkPonyClub <- function(x, dataset){
 
 
   Hmm <- left_join(TheColumn, Internal, by = x)
-  Hmm <- Hmm |> select(-x)
+  Hmm <- Hmm |> select(-all_of(x))
 
   TheList <- list(Column = Hmm, 
   Description = Internal)
@@ -223,6 +223,7 @@ Coereba_FCS_Reversal <- function(Coereba){
 #' @param Coereba The flowframe/cytoframe object for referencing keyword data
 #' 
 #' @importFrom dplyr select left_join
+#' @importFrom tidyselect all_of
 #' @importFrom flowCore keyword
 #' @importFrom tidyselect all_of
 #' 
@@ -230,7 +231,7 @@ Coereba_FCS_Reversal <- function(Coereba){
 #' 
 #' @noRd
 MetadataRetrieval <- function(x, data, Coereba){
-    Internal <- data |> select(x)
+    Internal <- data |> select(all_of(x))
     Without <- gsub("Coereba_", "", colnames(Internal))
     With <- paste0("Coereba_", Without)
     TheColumns <- c(With, Without)
