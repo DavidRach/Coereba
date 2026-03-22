@@ -63,9 +63,11 @@
 #'  normality="dagostino", correction="none", shape_palette=shape_ptype,
 #'  fill_palette=fill_ptype, XAxisLevels = c("HU", "HEU-lo", "HEU-hi"))
 #'
-Utility_Behemoth <- function(data, var, myfactor, normality=NULL, specifiedNormality = NULL,
-  correction = "none", override=0.05, shape_palette, fill_palette, cex=2, size=3, corral.width=1,
-  XAxisLevels=NULL, statLines=TRUE, statsHeight=NULL, showClose=TRUE, scalePercent=FALSE, keepNS=TRUE){
+Utility_Behemoth <- function(data, var, myfactor, normality=NULL,
+   specifiedNormality = NULL, correction = "none", override=0.05,
+   shape_palette, fill_palette, cex=2, size=3, corral.width=1, 
+   XAxisLevels=NULL, statLines=TRUE, statsHeight=NULL, showClose=TRUE,
+   scalePercent=FALSE, keepNS=TRUE){
 
   TheStatsReturn <- Utility_Stats(data=data, var=var, myfactor=myfactor, normality=normality,
      specifiedNormality=specifiedNormality, correction=correction, override=override,
