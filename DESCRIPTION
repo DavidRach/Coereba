@@ -50,6 +50,7 @@ Suggests:
     rmarkdown,
     shinytest2,
     testthat (>= 3.0.0),
+    vdiffr,
     withr
 License: AGPL (>= 3)
 URL: https://github.com/DavidRach/Coereba, https://davidrach.github.io/Coereba/
