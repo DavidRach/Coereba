@@ -78,12 +78,14 @@ server <- function(input, output, session) {
     # Additional Attempt to Speed Along
     isolate({
 
+    sample_names <- eval(parse(text = input$sampleName))
+
     # Sending variables to Luciernaga
     plots_list <- Luciernaga::Utility_UnityPlot(
       x = input$x_variable,
       y = input$y_variable,
       GatingSet = gatingSet,
-      sample.name = input$sampleName,
+      sample.name = sample_names,
       bins = input$bins,
       clearance = input$clearance,
       removestrings = input$removeStrings,
