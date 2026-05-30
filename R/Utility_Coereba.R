@@ -20,7 +20,7 @@
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows slice_head arrange desc
 #'
-#' @return Either data, flowframe or fcs, individually or concatinated
+#' @return Either "data", "flowframe" or "fcs", individually or concatinated
 #' @export
 #'
 #' @examples

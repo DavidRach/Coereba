@@ -35,11 +35,26 @@ Coereba_FCSExport <- function(data, gs, outpath, filename, fcsname,
 
   if (coerebaCombine==TRUE){
     paramdata <- original_param@data
+    CoerebaParams <- paramdata |> filter(str_detect(name, "Coereba")) |> rownames()
     paramdata <- paramdata |> filter(!str_detect(name, "Coereba"))
     original_param@data <- paramdata
+
     original_exprs <- original_exprs[, !grepl("Coereba", colnames(original_exprs))]
+
+  for(z in CoerebaParams){
+  TheNKey <- names(original_descr)[grepl(paste0("\\", z, "N"), names(original_descr))]
+  CoerebaIDName <- original_descr[TheNKey]
+  DisplayKey <- paste0(sub("$", "", fixed=TRUE, z), "DISPLAY")
+  BaseKey <- sub("Coereba_", "", CoerebaIDName)
+  original_descr1 <- original_descr[!grepl(paste0("\\", z), names(original_descr))]
+  original_descr1 <- original_descr1[!grepl(paste0("\\", CoerebaIDName), names(original_descr1))]
+  original_descr1 <- original_descr1[!grepl(BaseKey, names(original_descr1), ignore.case = TRUE)]
+  original_descr1 <- original_descr1[!grepl(paste0("\\", DisplayKey), names(original_descr1))]
+  original_descr <- original_descr1
   }
-  
+
+  }
+ 
   # Identifying new columns
   OldColNames <- colnames(original_exprs) |> unname()
   NewColNames <- colnames(data)
@@ -119,7 +134,7 @@ Coereba_FCSExport <- function(data, gs, outpath, filename, fcsname,
   new_fcs1@description$`$FIL` <- AssembledName
 
   if(Aggregate == TRUE){
-    new_fcs1@description$CREATOR <- "Coereba v0.99.2"
+    new_fcs1@description$CREATOR <- "Coereba v0.99.6"
     new_fcs1@description$GROUPNAME <- filename
     new_fcs1@description$TUBENAME <- filename
     new_fcs1@description$USERSETTINGNAME <- filename
@@ -135,7 +150,8 @@ Coereba_FCSExport <- function(data, gs, outpath, filename, fcsname,
   if (returnType == "fcs") {write.FCS(new_fcs1, filename = fileSpot, delimiter="#")
   } else {return(new_fcs1)}
 }
-
+  
+  
 #' Internal for Coereba_FCS, Dictionary conversion for Coereba
 #' 
 #' @param x Iterated column name to be appended
@@ -255,3 +271,4 @@ MetadataRetrieval <- function(x, data, Coereba){
     Retained <- Combined |> select(all_of(Without))
     return(Retained)
 }
+  

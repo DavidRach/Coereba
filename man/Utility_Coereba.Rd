@@ -53,7 +53,7 @@ is calculated, Default is set to TRUE to allow for .fcs export.}
 \item{nameAppend}{For flowframe and fcs returnType, what gets appended before .fcs}
 }
 \value{
-Either data, flowframe or fcs, individually or concatinated
+Either "data", "flowframe" or "fcs", individually or concatinated
 }
 \description{
 Runs Coereba for Dichotomized Gating Annotation

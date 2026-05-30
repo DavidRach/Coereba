@@ -7,8 +7,10 @@
 Coereba_Concatenate(
   Set,
   metadata_cols,
+  inverse.transform = TRUE,
   outpath = NULL,
-  filename = "CombinedCoerebaFile"
+  filename = "CombinedCoerebaFile",
+  returnType = "fcs"
 )
 }
 \arguments{
@@ -16,9 +18,14 @@ Coereba_Concatenate(
 
 \item{metadata_cols}{The columns from pData to retain.}
 
+\item{inverse.transform}{Whether to reverse transform
+the exprs matrix, default is TRUE.}
+
 \item{outpath}{Where to store the .fcs file}
 
 \item{filename}{What to call the .fcs file}
+
+\item{returnType}{Whether to return "fcs", "data" or "flowframe"}
 }
 \description{
 Processes multiple Coereba flowframes, retrieves contents according to our Concatenate criteria, then cumulatively processes
