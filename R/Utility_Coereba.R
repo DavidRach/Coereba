@@ -18,7 +18,7 @@
 #' @param nameAppend For flowframe and fcs returnType, what gets appended before .fcs 
 #'
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_rows slice_head arrange desc
 #'
 #' @return Either data, flowframe or fcs, individually or concatinated
 #' @export
@@ -143,16 +143,28 @@ Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL,
   colnames(ReferenceLines) <- NameCleanUp(colnames(ReferenceLines),
                                           removestrings = internalstrings)
   
-  if (sample.name != colnames(ReferenceLines)[[1]]){
-    colnames(ReferenceLines)[1] <- sample.name
+  if (length(sample.name) == 1){
+    if (sample.name != colnames(ReferenceLines)[[1]]){
+      colnames(ReferenceLines)[1] <- sample.name
+    }
+  } else {
+    colnames(ReferenceLines)[1] <- "specimen" # Check 
   }
 
   New <- ReferenceLines
   
-  name <- keyword(x, sample.name)
-
-  Specimens <- ReferenceLines %>% pull(.data[[sample.name]])
-
+  if (length(sample.name) == 2){
+      first <- sample.name[[1]]
+      second <- sample.name[[2]]
+      first <- keyword(x, first)
+      second <- keyword(x, second)
+      name <- paste(first, second, sep="_")
+    } else {name <- keyword(x, sample.name)}
+  
+  if (length(sample.name) == 2){
+    Specimens <- ReferenceLines |> pull(specimen)
+  } else {Specimens <- ReferenceLines %>% pull(.data[[sample.name]])}
+  
   if (!name[[1]] %in% Specimens){message(
     "sample.name ", name, " not recognized among identification names
      found in reference file, returning NULL instead of a data.frame,
@@ -226,7 +238,10 @@ Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL,
   Columns <- Columns[!Columns == "AF"]
   Columns <- c(starter, Columns)
 
-  New1 <- New |> dplyr::filter(.data[[sample.name]] %in% name)
+  if (length(sample.name) == 2){
+      New1 <- New |> dplyr::filter(specimen %in% name)
+  } else {New1 <- New |> dplyr::filter(.data[[sample.name]] %in% name)}
+  
 
   if (nrow(New1) != 1){warning(
     "Multiple rows being iterated on for ", name, ",
@@ -236,8 +251,13 @@ Internal_Coereba <- function(x, subsets, sample.name, subsample = NULL,
 
   # Generating Coereba Cluster Name
   #x <- Columns[2]
+  if (length(sample.name) == 1){
   MyDataPieces <- map(.x=Columns, .f=TheCoerebaIterator, data=MyData,
     reference=New1, sample.name=sample.name, name=name) |> bind_cols()
+  } else {
+  MyDataPieces <- map(.x=Columns, .f=TheCoerebaIterator, data=MyData,
+    reference=New1, sample.name="specimen", name=name) |> bind_cols()
+  }
   
   Combined <- apply(MyDataPieces, 1, paste, collapse = "")
   Cluster <- data.frame(Cluster=Combined)
