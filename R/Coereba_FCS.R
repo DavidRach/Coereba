@@ -222,10 +222,12 @@ Coereba_FCS_Reversal <- function(Coereba){
     Data <- Data |> select(starts_with("Coereba"))
     Data <- Data |> mutate(across(everything(), as.character))
     These <- colnames(Data)
+    These <- These[These != "Coereba_Specimen"] # Ugh...
 
     # x <- These[2]
     # data <- Data
-    Reverted <- map(.f=MetadataRetrieval, .x=These, data=Data, Coereba=Coereba) |> bind_cols()
+    Reverted <- map(.f=MetadataRetrieval, .x=These, data=Data, Coereba=Coereba)
+    Reverted <- Reverted |> bind_cols()
     Assembled <- cbind(Original, Reverted)
   
     return(Assembled)
@@ -252,7 +254,9 @@ MetadataRetrieval <- function(x, data, Coereba){
     With <- paste0("Coereba_", Without)
     TheColumns <- c(With, Without)
     Description <- keyword(Coereba)
+    # Description$ptype <- c("HEU-hi HEU-lo HU HEU-hi")
     Vaiya <- Description[TheColumns]
+    # Vaiya <- Description[With]
     #str(Vaiya)
 
     WithoutFrame <- Vaiya[[Without]]
