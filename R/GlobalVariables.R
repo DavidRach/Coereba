@@ -1,0 +1,12 @@
+utils::globalVariables(c(".", ".data", "ART", "Cluster", "ClusterCount",
+                         "Clusters", "Count", "Cutoff", "Fluorophore",
+                         "Freq", "Identity", "InternalCheck", "MFI", "Marker",
+                         "Middle", "OriginalX", "Plot_Name", "Population",
+                         "SpecimenCount", "TheMax", "TheRange", "TheYMax",
+                         "Time", "Total_Counts", "Value", "Viral", "X_Label",
+                         "aggregate", "alias", "artexposure", "bid",
+                         "complete.cases", "dagostino_result", "distinct",
+                         "freq_table1", "levels_of_bid", "median", "n", "pData<-",
+                         "parameters<-", "ptype", "residuals", "shapiro_result",
+                         "specimen", "sym", "to", "value", "variable", "x", "xVal",
+                         "y", "yVal"))

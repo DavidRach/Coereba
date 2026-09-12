@@ -142,19 +142,4 @@ Utility_Stats <- function(data, var, myfactor, normality=NULL, specifiedNormalit
 }
 
 
-MeanSD <- function(data, var, myfactor) {
-  Tada <- data %>% group_by(.data[[myfactor]]) %>%
-    summarize(Mean = mean(.data[[var]], na.rm = TRUE),
-      SD = sd(.data[[var]], na.rm = TRUE), .groups = "drop")
-  return(Tada)
-}
 
-MedianIQR <- function(data, var, myfactor) {
-  Tada <- data %>% group_by(.data[[myfactor]]) %>%
-    summarize(Median = median(.data[[var]], na.rm = TRUE),
-      IQR = IQR(.data[[var]], na.rm = TRUE),
-      P25 = quantile(.data[[var]], 0.25, na.rm = TRUE),
-      P75 = quantile(.data[[var]], 0.75, na.rm = TRUE),
-      .groups = "drop")
-  return(Tada)
-}
