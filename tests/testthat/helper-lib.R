@@ -3,10 +3,10 @@ withr::local_dir(tmp)
 
 # Prepare the test
 library(flowCore)
-library(flowWorkspace)
 library(openCyto)
 library(data.table)
 library(plotly)
+library(flowWorkspace)
 
 File_Location <- system.file("extdata", package = "Coereba")
 CheckedGates <- file.path(File_Location, "ShinyGates.csv")

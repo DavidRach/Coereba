@@ -17,169 +17,204 @@ export(Utility_Stats)
 importClassesFrom(fBasics,fHTEST)
 importFrom(Biobase,pData)
 importFrom(BiocGenerics,nrow)
-importFrom(DT,DTOutput)
-importFrom(DT,datatable)
-importFrom(DT,renderDT)
+importFrom(DT,
+  DTOutput,
+  datatable,
+  renderDT
+)
 importFrom(Luciernaga,NameCleanUp)
 importFrom(RColorBrewer,brewer.pal)
 importFrom(S4Vectors,metadata)
-importFrom(SummarizedExperiment,SummarizedExperiment)
-importFrom(SummarizedExperiment,assay)
-importFrom(SummarizedExperiment,colData)
-importFrom(SummarizedExperiment,rowData)
+importFrom(SummarizedExperiment,
+  SummarizedExperiment,
+  assay,
+  colData,
+  rowData
+)
 importFrom(broom,tidy)
 importFrom(data.table,fread)
-importFrom(dplyr,across)
-importFrom(dplyr,arrange)
-importFrom(dplyr,bind_cols)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,c_across)
-importFrom(dplyr,case_when)
-importFrom(dplyr,cross_join)
-importFrom(dplyr,desc)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,lag)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,mutate_all)
-importFrom(dplyr,n)
-importFrom(dplyr,n_distinct)
-importFrom(dplyr,pull)
-importFrom(dplyr,relocate)
-importFrom(dplyr,rename)
-importFrom(dplyr,row_number)
-importFrom(dplyr,rowwise)
-importFrom(dplyr,select)
-importFrom(dplyr,semi_join)
-importFrom(dplyr,slice)
-importFrom(dplyr,slice_head)
-importFrom(dplyr,slice_sample)
-importFrom(dplyr,summarise)
-importFrom(dplyr,summarize)
-importFrom(dplyr,ungroup)
-importFrom(flowCore,"parameters<-")
-importFrom(flowCore,exprs)
-importFrom(flowCore,keyword)
-importFrom(flowCore,parameters)
-importFrom(flowCore,write.FCS)
-importFrom(flowWorkspace,gs_get_pop_paths)
-importFrom(flowWorkspace,gs_pop_get_data)
-importFrom(flowWorkspace,gs_pop_get_gate)
-importFrom(flowWorkspace,gs_pop_remove)
-importFrom(flowWorkspace,keyword)
-importFrom(flowWorkspace,load_cytoframe_from_fcs)
+importFrom(dplyr,
+  across,
+  arrange,
+  bind_cols,
+  bind_rows,
+  c_across,
+  case_when,
+  cross_join,
+  desc,
+  filter,
+  group_by,
+  lag,
+  left_join,
+  mutate,
+  mutate_all,
+  n,
+  n_distinct,
+  pull,
+  relocate,
+  rename,
+  row_number,
+  rowwise,
+  select,
+  semi_join,
+  slice,
+  slice_head,
+  slice_sample,
+  summarise,
+  summarize,
+  ungroup
+)
+importFrom(flowCore,
+  "parameters<-",
+  exprs,
+  keyword,
+  parameters,
+  write.FCS
+)
+importFrom(flowWorkspace,
+  gs_get_pop_paths,
+  gs_pop_get_data,
+  gs_pop_get_gate,
+  gs_pop_remove,
+  keyword,
+  load_cytoframe_from_fcs
+)
 importFrom(ggbeeswarm,geom_beeswarm)
-importFrom(ggplot2,aes)
-importFrom(ggplot2,element_blank)
-importFrom(ggplot2,element_text)
-importFrom(ggplot2,geom_boxplot)
-importFrom(ggplot2,geom_line)
-importFrom(ggplot2,geom_text)
-importFrom(ggplot2,geom_tile)
-importFrom(ggplot2,geom_vline)
-importFrom(ggplot2,ggplot)
-importFrom(ggplot2,ggsave)
-importFrom(ggplot2,labs)
-importFrom(ggplot2,lims)
-importFrom(ggplot2,position_dodge)
-importFrom(ggplot2,scale_fill_manual)
-importFrom(ggplot2,scale_shape_manual)
-importFrom(ggplot2,scale_y_continuous)
-importFrom(ggplot2,stat_summary)
-importFrom(ggplot2,theme)
-importFrom(ggplot2,theme_bw)
-importFrom(gt,cell_fill)
-importFrom(gt,cell_text)
-importFrom(gt,cells_body)
-importFrom(gt,cols_align)
-importFrom(gt,cols_width)
-importFrom(gt,gt)
-importFrom(gt,opt_table_font)
-importFrom(gt,sub_values)
-importFrom(gt,tab_style)
+importFrom(ggplot2,
+  aes,
+  element_blank,
+  element_text,
+  geom_boxplot,
+  geom_line,
+  geom_text,
+  geom_tile,
+  geom_vline,
+  ggplot,
+  ggsave,
+  labs,
+  lims,
+  position_dodge,
+  scale_fill_manual,
+  scale_shape_manual,
+  scale_y_continuous,
+  stat_summary,
+  theme,
+  theme_bw
+)
+importFrom(gt,
+  cell_fill,
+  cell_text,
+  cells_body,
+  cols_align,
+  cols_width,
+  gt,
+  opt_table_font,
+  sub_values,
+  tab_style
+)
 importFrom(htmltools,div)
 importFrom(htmlwidgets,onRender)
 importFrom(lubridate,ymd_hms)
 importFrom(magrittr,"%>%")
 importFrom(methods,new)
 importFrom(openCyto,gs_add_gating_method)
-importFrom(plotly,ggplotly)
-importFrom(plotly,plotlyOutput)
-importFrom(plotly,renderPlotly)
-importFrom(plotly,style)
-importFrom(purrr,flatten)
-importFrom(purrr,map)
-importFrom(purrr,walk)
+importFrom(plotly,
+  ggplotly,
+  plotlyOutput,
+  renderPlotly,
+  style
+)
+importFrom(purrr,
+  flatten,
+  map,
+  walk
+)
 importFrom(rlang,sym)
 importFrom(scales,percent)
-importFrom(shiny,actionButton)
-importFrom(shiny,checkboxInput)
-importFrom(shiny,column)
-importFrom(shiny,fileInput)
-importFrom(shiny,fluidRow)
-importFrom(shiny,icon)
-importFrom(shiny,isolate)
-importFrom(shiny,mainPanel)
-importFrom(shiny,modalDialog)
-importFrom(shiny,numericInput)
-importFrom(shiny,observe)
-importFrom(shiny,observeEvent)
-importFrom(shiny,reactive)
-importFrom(shiny,reactiveValues)
-importFrom(shiny,removeModal)
-importFrom(shiny,renderTable)
-importFrom(shiny,renderUI)
-importFrom(shiny,req)
-importFrom(shiny,runApp)
-importFrom(shiny,selectInput)
-importFrom(shiny,showModal)
-importFrom(shiny,sidebarLayout)
-importFrom(shiny,sidebarPanel)
-importFrom(shiny,tableOutput)
-importFrom(shiny,tagList)
-importFrom(shiny,tags)
-importFrom(shiny,textInput)
-importFrom(shiny,uiOutput)
-importFrom(shiny,updateSelectInput)
-importFrom(shinydashboard,dashboardBody)
-importFrom(shinydashboard,dashboardHeader)
-importFrom(shinydashboard,dashboardPage)
-importFrom(shinydashboard,dashboardSidebar)
-importFrom(shinydashboard,menuItem)
-importFrom(shinydashboard,sidebarMenu)
-importFrom(shinydashboard,tabItem)
-importFrom(shinydashboard,tabItems)
+importFrom(shiny,
+  actionButton,
+  checkboxInput,
+  column,
+  fileInput,
+  fluidRow,
+  icon,
+  isolate,
+  mainPanel,
+  modalDialog,
+  numericInput,
+  observe,
+  observeEvent,
+  reactive,
+  reactiveValues,
+  removeModal,
+  renderTable,
+  renderUI,
+  req,
+  runApp,
+  selectInput,
+  showModal,
+  sidebarLayout,
+  sidebarPanel,
+  tableOutput,
+  tagList,
+  tags,
+  textInput,
+  uiOutput,
+  updateSelectInput
+)
+importFrom(shinydashboard,
+  dashboardBody,
+  dashboardHeader,
+  dashboardPage,
+  dashboardSidebar,
+  menuItem,
+  sidebarMenu,
+  tabItem,
+  tabItems
+)
 importFrom(shinyjs,useShinyjs)
-importFrom(stats,aov)
-importFrom(stats,kruskal.test)
-importFrom(stats,loess)
-importFrom(stats,pairwise.t.test)
-importFrom(stats,pairwise.wilcox.test)
-importFrom(stats,pchisq)
-importFrom(stats,pnorm)
-importFrom(stats,setNames)
-importFrom(stats,shapiro.test)
-importFrom(stats,t.test)
-importFrom(stats,wilcox.test)
-importFrom(stringr,fixed)
-importFrom(stringr,str_detect)
-importFrom(stringr,str_pad)
-importFrom(stringr,str_wrap)
-importFrom(tibble,as_tibble)
-importFrom(tibble,rownames_to_column)
-importFrom(tibble,tibble)
-importFrom(tidyr,pivot_longer)
-importFrom(tidyr,pivot_wider)
-importFrom(tidyr,separate_wider_delim)
-importFrom(tidyr,unnest)
-importFrom(tidyselect,all_of)
-importFrom(tidyselect,any_of)
-importFrom(tidyselect,everything)
-importFrom(tidyselect,starts_with)
-importFrom(tidyselect,where)
-importFrom(utils,read.csv)
-importFrom(utils,write.csv)
+importFrom(stats,
+  aov,
+  kruskal.test,
+  loess,
+  pairwise.t.test,
+  pairwise.wilcox.test,
+  pchisq,
+  pnorm,
+  setNames,
+  shapiro.test,
+  t.test,
+  wilcox.test
+)
+importFrom(stringr,
+  str_detect,
+  str_pad,
+  str_wrap
+)
+importFrom(tibble,
+  as_tibble,
+  rownames_to_column,
+  tibble
+)
+importFrom(tidyr,
+  pivot_longer,
+  pivot_wider,
+  separate_wider_delim,
+  unnest
+)
+importFrom(tidyselect,
+  all_of,
+  any_of,
+  everything,
+  starts_with,
+  where
+)
+importFrom(utils,
+  read.csv,
+  write.csv
+)
 importFrom(viridis,scale_fill_viridis)
-importFrom(zoo,rollapply)
-importFrom(zoo,zoo)
+importFrom(zoo,
+  rollapply,
+  zoo
+)

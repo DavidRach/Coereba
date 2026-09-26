@@ -19,7 +19,7 @@
 #' @param height Default 3, sets height for savePlot
 #' 
 #' @importFrom ggplot2 ggplot aes geom_boxplot position_dodge scale_fill_manual
-#' scale_shape_manual ggsave labs theme_bw theme element_blank
+#'  scale_shape_manual ggsave labs theme_bw theme element_blank
 #' @importFrom ggbeeswarm geom_beeswarm
 #' 
 #' @export
