@@ -20,13 +20,14 @@ MetadataRetrieval <- function(x, data, Coereba){
     With <- paste0("Coereba_", Without)
     TheColumns <- c(With, Without)
     Description <- keyword(Coereba)
-    # Description$ptype <- c("HEU-hi HEU-lo HU HEU-hi")
+    # Description |> data.frame(check.names=FALSE) |> t() |> View()
     Vaiya <- Description[TheColumns]
-    # Vaiya <- Description[With]
-    #str(Vaiya)
+    #names(Vaiya)
 
     WithoutFrame <- Vaiya[[Without]]
-    if (length(WithoutFrame) == 1){WithoutFrame <- strsplit(WithoutFrame, " ")}
+    if (length(WithoutFrame) == 1 && Without == "specimen"){
+        WithoutFrame <- WithoutFrame # Very specific DHIM bug fix
+    } else {WithoutFrame <- strsplit(WithoutFrame, " ")}
     WithoutFrame <- data.frame(WithoutFrame, check.names = FALSE)
     colnames(WithoutFrame) <- Without
 

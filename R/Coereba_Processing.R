@@ -14,9 +14,8 @@
 #' @importFrom flowWorkspace load_cytoframe_from_fcs
 #' @importFrom dplyr select group_by summarise n ungroup left_join mutate rename
 #' @importFrom tidyselect all_of
-#' @importFrom tidyr pivot_wider
+#' @importFrom tidyr pivot_wider unite unnest separate_wider_delim
 #' @importFrom utils read.csv
-#' @importFrom tidyr unnest separate_wider_delim
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' 
 #' @return A summarized experiment object
@@ -28,7 +27,7 @@
 #' library(Coereba)
 #' 
 Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
-  metadataTemplate=FALSE, outpath=NULL, panel, SpecimenVariable="specimen", ClusterVariable="Cluster"){
+  metadataTemplate=FALSE, outpath=NULL, panel, SpecimenVariable=NULL, ClusterVariable="Cluster"){
   
   # Converging on a data.frame
   if (class(x) == "character"){
@@ -45,12 +44,50 @@ Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
     CoerebaOne <- Coereba
   } else {message("Class not recognized at reversal step")}
 
-  #KnownColumns <- c("Cluster", "specimen")
-  #|> select(all_of(KnownColumns))
+  # Reading in the panel
+  if (!is.data.frame(panel)){panelData <- read.csv(panel, check.names=FALSE)
+    } else {panelData <- panel}
+  panelData$Fluorophore <- gsub("-", "", panelData$Fluorophore)
+
+  # Reading in the metadata
+  if (!is.null(themetadata)){
+    if (!is.data.frame(themetadata)){
+      themetadata <- read.csv(themetadata, check.names = FALSE)
+    } else {themetadata <- themetadata}
+  }
+
+  if (is.null(SpecimenVariable) & !is.null(metadata_columns)){
+    # print("Aggregate")
+    themetadata <- themetadata |> select(all_of(metadata_columns))
+    themetadata <- themetadata |> 
+      unite("TheSpecimen", all_of(metadata_columns), sep = "_", remove = FALSE)
+
+    CoerebaOne <- CoerebaOne |> 
+      unite("TheSpecimen", all_of(metadata_columns), sep = "_", remove = FALSE) 
+    SpecimenVariable <- "TheSpecimen"
+
+  } else if (is.null(SpecimenVariable) & is.null(metadata_columns)){
+    # print("Provide Stand-In")
+    SpecimenVariable <- "specimen"
+  } else if (!is.null(SpecimenVariable) & is.null(metadata_columns)){
+    # print("As you wish")
+    SpecimenVariable <- SpecimenVariable
+  } else if (!is.null(SpecimenVariable) & !is.null(metadata_columns)){
+    # print("Dueling Banjos")
+        themetadata <- themetadata |> select(all_of(metadata_columns))
+    themetadata <- themetadata |> 
+      unite("TheSpecimen", all_of(metadata_columns), sep = "_", remove = FALSE)
+
+    CoerebaOne <- CoerebaOne |> 
+      unite("TheSpecimen", all_of(metadata_columns), sep = "_", remove = FALSE) 
+    SpecimenVariable <- "TheSpecimen"
+  } else {
+    stop("Provide arguments to SpecimenVariable or metadata_columns")
+  }
 
   # Deriving ratio cluster*specimen/specimen
   TheSpecimens <- CoerebaOne |> group_by(.data[[SpecimenVariable]]) |>
-    summarise(SpecimenCount = n(), .groups = "drop") #Note, specimen would need to be distinctly identifying
+    summarise(SpecimenCount = n(), .groups = "drop") 
   TheClusters <- CoerebaOne |> group_by(.data[[SpecimenVariable]], .data[[ClusterVariable]]) |>
     summarise(Count = n(), .groups = "drop")
   Merging <- left_join(TheClusters, TheSpecimens, by = SpecimenVariable)
@@ -58,50 +95,27 @@ Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
 
   Counts <- Data |> select(!all_of(c("Ratio", "SpecimenCount"))) |>
     pivot_wider(names_from = all_of(SpecimenVariable), values_from = "Count")
-  Counts[is.na(Counts)] <- 0
   Counts1 <- Counts |> select(-all_of(ClusterVariable))
+  Counts1[is.na(Counts1)] <- 0
 
   Ratio <- Data |> select(!all_of(c("Count", "SpecimenCount"))) |>
     pivot_wider(names_from = all_of(SpecimenVariable), values_from = "Ratio")
-  Ratio[is.na(Ratio)] <- 0
   Ratio1 <- Ratio |> select(-all_of(ClusterVariable))
-  ClusterNameOrder <- Ratio |> pull(Cluster)
+  Ratio1[is.na(Ratio1)] <- 0
+  ClusterNameOrder <- Ratio |> pull(ClusterVariable)
 
   # Returning a metadata template when none is provided
-  Names <- colnames(Counts)
-  Names <- Names[-grep(ClusterVariable, Names)]
-  Metadata <- data.frame(specimen=Names) # Specimen List
 
   if (metadataTemplate==TRUE){
+    Names <- colnames(Counts)
+    Names <- Names[-grep(ClusterVariable, Names)]
+    Metadata <- data.frame(specimen=Names) # Specimen List
     if (!is.null(outpath)){Location <- outpath} else {Location <- getwd()}
     CSVName <- "Coereba_metadataTemplate.csv"
     StorageLocation <- file.path(Location, CSVName)
     write.csv(Metadata, StorageLocation, row.names=FALSE)
+    return(StorageLocation)
   }
-
-  # Swapping in the provided metadata template
-  if (!is.null(themetadata)){
-    if (!is.data.frame(themetadata)){
-      Metadata <- read.csv(themetadata, check.names = FALSE)
-    } else {Metadata <- themetadata}
-  
-    if (!is.null(metadata_columns)){
-      if (!SpecimenVariable %in% metadata_columns){
-        TheseColumns <- c(SpecimenVariable, metadata_columns)
-      } else {TheseColumns <- metadata_columns}
-      Metadata <- Metadata |> select(all_of(TheseColumns))
-    } else {#message("Keeping all provided metadata columns")
-    }
-      Metadata <- Metadata |> rename(specimen = all_of(SpecimenVariable))
-      Metadata <- Metadata %>% unique()  # Required to reduce duplicates from Coereba cell by cells
-  } else {#message("Using default metadata for SpecimenVariable column")
-  }
-
-  # Reading in the panel
-  if (!is.data.frame(panel)){panelData <- read.csv(panel, check.names=FALSE)
-    } else {panelData <- panel}
-  
-  panelData$Fluorophore <- gsub("-", "", panelData$Fluorophore)
 
   # Assembling rowNames (Cluster by Marker Status)
   TheDataset <- Data |> group_by(.data[[ClusterVariable]]) |>
@@ -123,6 +137,9 @@ Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
   # Rearranging to match Ratio order of clusters
   C$Identity <- factor(C$Identity, levels = ClusterNameOrder)
   C <- C[order(C$Identity), ]
+
+  Metadata <- themetadata |> rename(specimen = all_of(SpecimenVariable))
+  Metadata <- Metadata |> unique()
   
   #Assembling Summarized Experiment 
   MySE <- SummarizedExperiment(assays=list(ratios=Ratio1, count=Counts1),

@@ -50,6 +50,9 @@ returnType="All", CombinatorialArgs=NULL){
   binary <- as.data.frame(binary@listData)
   TheCluster <- binary |> dplyr::pull(Identity)
   AllMarkers <- binary |> select(!starts_with("Identity")) |> colnames()
+  RemoveThis <- AllMarkers[grepl("NA", AllMarkers)]
+  AllMarkers <- AllMarkers[!grepl("NA", AllMarkers)]
+  binary <- binary |> select(!all_of(RemoveThis))
 
   data <- assay(x, theassay)
   #data %>% select(where(is.numeric)) %>% purrr::map_dbl(sum, na.rm = TRUE)
@@ -58,7 +61,7 @@ returnType="All", CombinatorialArgs=NULL){
   colnames(tdata1) <- TheCluster #Likely issue spot
   tdata1 <- data.frame(tdata1, check.names=FALSE)
   Dataset <- cbind(Metadata, tdata1)
-  # Dataset |> mutate(RowSum = rowSums(across(where(is.numeric))))
+  # Dataset |> View()
 
 
   if (returnType == "Combinatorial" && !is.null(CombinatorialArgs)){
@@ -75,7 +78,7 @@ returnType="All", CombinatorialArgs=NULL){
 
   if (returnType == "All"){
   # Return Marker Expressions for All Markers
-  # x <- AllMarkers[1]
+  # x <- AllMarkers[10]
   SwampPuppy <- map(.x=AllMarkers, .f=Internal_Aggregate, data=Dataset,
     binary=binary) |> bind_cols()
 
@@ -95,6 +98,8 @@ returnType="All", CombinatorialArgs=NULL){
 
   #Reattach Metadata to Summarized Marker Expressions
   MarkerExpressions <- cbind(Metadata, SwampPuppy)
+  #MarkerExpressions |> select(specimen, CD89, CD88) |>
+  #  arrange(desc(CD89)) |> mutate(across(where(is.numeric), ~round(.x, 2)))
 
   return(MarkerExpressions)
 }

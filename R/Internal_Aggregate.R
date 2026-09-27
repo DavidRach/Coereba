@@ -15,7 +15,12 @@ Internal_Aggregate <- function(x, data, binary){
   Column <- x # The column fluorophore
   Positive <- binary |> filter(.data[[Column]] == 1) |> pull(Identity)
   TotalColumns <- length(Positive)
+
+  #InternalData <- data |> select(all_of(Positive))
+  data <- data[, !(is.na(names(data)) | names(data) == "")]
+
   InternalData <- data |> select(all_of(Positive))
+
   if (length(Positive) != ncol(InternalData)){stop("We have a column number mismatch!")}
 
   if(length(Positive) > 0){
@@ -30,6 +35,8 @@ Internal_Aggregate <- function(x, data, binary){
     InternalFinal <- Subsetted |> select(aggregate) |>
       mutate_all(~0) # Since No Positive Columns
   }
+
+  summary(InternalFinal)
 
   #Change Name
   colnames(InternalFinal)[1] <- Column

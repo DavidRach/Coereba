@@ -23,7 +23,8 @@ Utility_MarkerPlots(
   height = 3,
   filterForThese = NULL,
   combinatorialStartsWith = NULL,
-  style = "overlap"
+  style = "overlap",
+  MarkerName = "Marker"
 )
 }
 \arguments{
@@ -65,6 +66,8 @@ Utility_MarkerPlots(
 of characters (ex. CD45)}
 
 \item{style}{Default is "overlap", alternatively "separate" returns individual geom_boxplots}
+
+\item{MarkerName}{Default Marker, switch if second column is called Antigen.}
 }
 \value{
 Returns a ggplot object to R or designated Folder

@@ -29,12 +29,13 @@ Coereba_SingleFrame_Reversal <- function(x, metadata_cols,
     Data <- data.frame(Data, check.names=FALSE)
     Original <- Data |> select(!starts_with("Coereba"))
     Data <- Data |> select(starts_with("Coereba"))
+    TheseColumns <- colnames(Data)
     Data <- Data |> mutate(
-      across(c(Coereba_Cluster, Coereba_specimen), round))
-
+      across(all_of(TheseColumns), round))
     Data <- Data |> mutate(across(everything(), as.character))
     These <- colnames(Data)
-    # x <- These[1]
+    # x <- These[2]
+    
     Reverted <- map(.f=MetadataRetrieval, .x=These,
        data=Data, Coereba=CoerebaCF) |> bind_cols()
     Assembled <- cbind(Original, Reverted)

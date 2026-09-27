@@ -15,7 +15,10 @@ export(Utility_LongitudinalBehemoth)
 export(Utility_MarkerPlots)
 export(Utility_Stats)
 importClassesFrom(fBasics,fHTEST)
-importFrom(Biobase,pData)
+importFrom(Biobase,
+  exprs,
+  pData
+)
 importFrom(BiocGenerics,nrow)
 importFrom(DT,
   DTOutput,
@@ -68,6 +71,7 @@ importFrom(flowCore,
   "parameters<-",
   exprs,
   keyword,
+  pData,
   parameters,
   write.FCS
 )
@@ -127,6 +131,7 @@ importFrom(plotly,
 importFrom(purrr,
   flatten,
   map,
+  map2,
   walk
 )
 importFrom(rlang,sym)
@@ -200,6 +205,7 @@ importFrom(tidyr,
   pivot_longer,
   pivot_wider,
   separate_wider_delim,
+  unite,
   unnest
 )
 importFrom(tidyselect,

@@ -13,19 +13,19 @@ CheckedGates <- file.path(File_Location, "ShinyGates.csv")
 
 FCS_Files <- list.files(path = File_Location, pattern = ".fcs", full.names = TRUE)
 UnmixedFCSFiles <- FCS_Files[1]
-UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles,
+UnmixedCytoSet <- flowWorkspace::load_cytoset_from_fcs(UnmixedFCSFiles,
   truncate_max_range = FALSE, transformation = FALSE)
-UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
+UnmixedGatingSet <- flowWorkspace::GatingSet(UnmixedCytoSet)
 Markers <- colnames(UnmixedCytoSet[[1]])
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
-biex_transform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000,
+biex_transform <- flowWorkspace::flowjo_biexp_trans(channelRange = 256, maxValue = 1000000,
   pos = 4.5, neg = 0, widthBasis = -1000)
 TransformList <- flowWorkspace::transformerList(KeptMarkers, biex_transform)
 UnmixedGatingSet <- flowWorkspace::transform(UnmixedGatingSet, TransformList)
 UnmixedGates <- fread(file.path(path = File_Location,
   pattern = 'GatesUnmixed.csv'))
-UnmixedGating <- gatingTemplate(UnmixedGates)
-gt_gating(UnmixedGating, UnmixedGatingSet)
+UnmixedGating <- openCyto::gatingTemplate(UnmixedGates)
+openCyto::gt_gating(UnmixedGating, UnmixedGatingSet)
 
 MarkersForToday <- c("Comp-BV570-A", "Comp-RB780-A", "Comp-BUV661-A", "Comp-PE-Vio770-A")
 

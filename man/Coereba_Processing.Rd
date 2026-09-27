@@ -12,7 +12,7 @@ Coereba_Processing(
   metadataTemplate = FALSE,
   outpath = NULL,
   panel,
-  SpecimenVariable = "specimen",
+  SpecimenVariable = NULL,
   ClusterVariable = "Cluster"
 )
 }

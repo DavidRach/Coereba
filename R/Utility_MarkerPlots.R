@@ -20,6 +20,7 @@
 #' @param combinatorialStartsWith Default NULL, if aggregated data is combinatorial, starting string
 #' of characters (ex. CD45)
 #' @param style Default is "overlap", alternatively "separate" returns individual geom_boxplots
+#' @param MarkerName Default Marker, switch if second column is called Antigen. 
 #'
 #' @importFrom utils read.csv
 #' @importFrom dplyr pull
@@ -69,14 +70,17 @@
 Utility_MarkerPlots <- function(data, panel, myfactor, shape_palette,
    fill_palette, cex=1, size=1.5, corral.width=1, crossbar="median", XAxisLevels=NULL,
    savePlot=FALSE, outpath=NULL, filename = NULL, dpi = 600, width=9, height=3,
-   filterForThese=NULL, combinatorialStartsWith=NULL, style="overlap"){
+   filterForThese=NULL, combinatorialStartsWith=NULL, style="overlap", MarkerName="Marker"){
 
   if (!is.data.frame(panel)) {MyPanel <- read.csv(panel, check.names = FALSE)
   } else {MyPanel <- panel}
 
   TheColumnNames <- colnames(data)
 
-  if(is.null(combinatorialStartsWith)) {DataColNames <- MyPanel |> pull(Marker)
+  TheColumnNames <- TheColumnNames[!is.na(TheColumnNames)]
+  data <- data |> select(all_of(TheColumnNames))
+
+  if(is.null(combinatorialStartsWith)) {DataColNames <- MyPanel |> pull(MarkerName)
   } else {DataColNames <- data |> select(starts_with(combinatorialStartsWith)) |> colnames()}
 
   MetaColumns <- setdiff(TheColumnNames, DataColNames)

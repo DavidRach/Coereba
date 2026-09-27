@@ -15,7 +15,7 @@ Coereba_Concatenate <- function(Set, metadata_cols,
   inverse.transform=TRUE, outpath=NULL,
   filename="CombinedCoerebaFile", returnType="fcs"){ 
 
-  # x <- Set[1]
+  # x <- Set[3]
   AllData <- map(.x=Set, .f=Coereba_SingleFrame_Reversal,
      metadata_cols=metadata_cols,
      inverse.transform=inverse.transform) |> bind_rows()
