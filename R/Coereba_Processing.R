@@ -138,7 +138,7 @@ Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
   C$Identity <- factor(C$Identity, levels = ClusterNameOrder)
   C <- C[order(C$Identity), ]
 
-  Metadata <- themetadata |> rename(specimen = all_of(SpecimenVariable))
+  #Metadata <- themetadata |> rename(specimen = all_of(SpecimenVariable))
   Metadata <- Metadata |> unique()
   
   #Assembling Summarized Experiment 

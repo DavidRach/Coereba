@@ -4,17 +4,13 @@
 \alias{Coereba_FCS_Reversal}
 \title{Handles Description Digging for Dictionary Reversal going FCS to data}
 \usage{
-Coereba_FCS_Reversal(
-  Coereba,
-  additionalMetadata = NULL,
-  specimenBypass = FALSE
-)
+Coereba_FCS_Reversal(Coereba, keywordConvert = NULL, specimenBypass = FALSE)
 }
 \arguments{
 \item{Coereba}{Either a flow/cytoframe with embedded Keywords. Alternately, the file.path to the .fcs file
 with the same embedded keywords}
 
-\item{additionalMetadata}{Default NULL, bypass to switch '\emph{Key' to 'Coereba}' values}
+\item{keywordConvert}{Default NULL, bypass to switch '\emph{Key' to 'Coereba}' values}
 
 \item{specimenBypass}{Default NULL, handles scenarios where both specimen (from Coereba) and Specimen column
 and keywords are present}

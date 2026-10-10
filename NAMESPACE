@@ -68,11 +68,13 @@ importFrom(dplyr,
   ungroup
 )
 importFrom(flowCore,
+  "keyword<-",
   "parameters<-",
   exprs,
   keyword,
   pData,
   parameters,
+  read.FCS,
   write.FCS
 )
 importFrom(flowWorkspace,

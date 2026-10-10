@@ -25,20 +25,44 @@ MetadataRetrieval <- function(x, data, Coereba){
     #names(Vaiya)
 
     WithoutFrame <- Vaiya[[Without]]
-    if (length(WithoutFrame) == 1 && Without == "specimen"){
-        WithoutFrame <- WithoutFrame # Very specific DHIM bug fix
-    } else {WithoutFrame <- strsplit(WithoutFrame, " ")}
-    WithoutFrame <- data.frame(WithoutFrame, check.names = FALSE)
-    colnames(WithoutFrame) <- Without
+    WithoutFrame2 <- strsplit(WithoutFrame, " ") # Where issue arises
+    #  length(WithoutFrame2[[1]])
 
     WithFrame <- Vaiya[[With]]
-    if (is.numeric(WithFrame)){WithFrame <- as.character(WithFrame)}
-    if (length(WithFrame) == 1){WithFrame <- strsplit(WithFrame, " ")}
-    WithFrame <- data.frame(WithFrame, check.names = FALSE)
+    if (is.numeric(WithFrame)){WithFrame2 <- as.character(WithFrame)
+        } else {WithFrame2 <- WithFrame}
+    if (length(WithFrame2) == 1){WithFrame3 <- strsplit(WithFrame2, " ")
+        } else {WithFrame3 <- WithFrame2}
+    # length(WithFrame2[[1]])
+
+    if (any(grepl("+", WithFrame3, fixed = TRUE))) {
+    WithFrame3 <- format(as.numeric(WithFrame3[[1]]), scientific = FALSE, trim = TRUE)
+    WithFrame3 <- list(WithFrame3)
+    }
+
+    if (length(WithoutFrame2[[1]]) != length(WithFrame3[[1]])){
+        warning("There is an extra space in the provided name")
+
+        if (length(WithoutFrame2[[1]]) != 1){
+            message("Replacing WithoutFrame")
+            WithoutFrame2 <- list(WithoutFrame)}
+        if (length(WithFrame3[[1]]) != 1){
+            message("Replacing WithFrame")
+            WithFrame3 <- list(WithFrame2)}
+    }
+
+    WithFrame <- data.frame(unlist(WithFrame3), check.names = FALSE)
+    #View(WithFrame)
     colnames(WithFrame) <- With
 
+    WithoutFrame <- data.frame(unlist(WithoutFrame2), check.names = FALSE)
+    #View(WithoutFrame)
+    colnames(WithoutFrame) <- Without
+
     SpecimenDictionary <- cbind(WithoutFrame, WithFrame)
+    # View(SpecimenDictionary)
     Combined <- left_join(data, SpecimenDictionary, by=With)
+    #View(Combined)
     Retained <- Combined |> select(all_of(Without))
     return(Retained)
 }
