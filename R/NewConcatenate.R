@@ -52,12 +52,12 @@ ColumnToKeyword <- function(x, data){
   if(!is.numeric(IndividualColumn)){ # Is not numeric
     Values <- IndividualColumn |> dplyr::pull(x) |> unique()
 
-    Dictionary <- tibble::tibble(Values = Values, Values_Key = seq(1000, by = 1000, length.out = length(Values)))
+    Dictionary <- tibble::tibble(Values = Values, Coereba_Values = seq(1000, by = 1000, length.out = length(Values)))
     colnames(Dictionary) <- gsub("Values", x, colnames(Dictionary))
     return(Dictionary)
   } else { # Is numeric already
     Values <- IndividualColumn |> dplyr::pull(x) |> unique()
-    Dictionary <- tibble::tibble(Values = Values, Values_Key = Values)
+    Dictionary <- tibble::tibble(Values = Values, Coereba_Values = Values)
     colnames(Dictionary) <- gsub("Values", x, colnames(Dictionary))
     return(Dictionary)
   }
