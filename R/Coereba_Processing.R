@@ -93,6 +93,8 @@ Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
   Merging <- left_join(TheClusters, TheSpecimens, by = SpecimenVariable)
   Data <- Merging |> mutate(Ratio = Count / SpecimenCount)
 
+  Data <- Data |> filter(!.data[[ClusterVariable]] %in% "NA")
+
   Counts <- Data |> select(!all_of(c("Ratio", "SpecimenCount"))) |>
     pivot_wider(names_from = all_of(SpecimenVariable), values_from = "Count")
   Counts1 <- Counts |> select(-all_of(ClusterVariable))
