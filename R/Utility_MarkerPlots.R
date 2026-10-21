@@ -21,26 +21,15 @@
 #' of characters (ex. CD45)
 #' @param style Default is "overlap", alternatively "separate" returns individual geom_boxplots
 #' @param MarkerName Default Marker, switch if second column is called Antigen. 
+#' @param DropThese Removes these markers from both data and XAxisLevels
 #'
 #' @importFrom utils read.csv
-#' @importFrom dplyr pull
-#' @importFrom tidyr pivot_longer
-#' @importFrom tidyselect all_of
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_boxplot
-#' @importFrom ggplot2 stat_summary
+#' @importFrom dplyr pull filter
+#' @importFrom tidyr pivot_longer all_of
+#' @importFrom ggplot2 ggplot aes geom_boxplot stat_summary
+#'  scale_shape_manual scale_fill_manual labs theme_bw element_blank
+#'  element_text theme ggsave position_dodge
 #' @importFrom ggbeeswarm geom_beeswarm
-#' @importFrom ggplot2 scale_shape_manual
-#' @importFrom ggplot2 scale_fill_manual
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 element_text
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 ggsave
-#' @importFrom ggplot2 position_dodge
-#' @importFrom dplyr filter
 #' @importFrom stats setNames
 #'
 #' @return Returns a ggplot object to R or designated Folder
@@ -70,7 +59,8 @@
 Utility_MarkerPlots <- function(data, panel, myfactor, shape_palette,
    fill_palette, cex=1, size=1.5, corral.width=1, crossbar="median", XAxisLevels=NULL,
    savePlot=FALSE, outpath=NULL, filename = NULL, dpi = 600, width=9, height=3,
-   filterForThese=NULL, combinatorialStartsWith=NULL, style="overlap", MarkerName="Marker"){
+   filterForThese=NULL, combinatorialStartsWith=NULL, style="overlap", MarkerName="Marker",
+   DropThese=NULL){
 
   if (!is.data.frame(panel)) {MyPanel <- read.csv(panel, check.names = FALSE)
   } else {MyPanel <- panel}
@@ -93,6 +83,14 @@ Utility_MarkerPlots <- function(data, panel, myfactor, shape_palette,
 
   if(!is.null(filterForThese))(MeltedData <- MeltedData |>
     dplyr::filter(Marker %in% filterForThese))
+
+  if (!is.null(DropThese)){
+
+    MeltedData <- MeltedData |>
+    dplyr::filter(!Marker %in% DropThese)
+    
+    XAxisLevels <- XAxisLevels[!XAxisLevels %in% DropThese]
+  }
 
   if(!is.null(XAxisLevels)){
     MeltedData$Marker <- factor(MeltedData$Marker, levels = XAxisLevels)}

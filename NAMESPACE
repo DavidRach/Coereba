@@ -8,6 +8,7 @@ export(Coereba_GateCutoffs)
 export(Coereba_MarkerExpressions)
 export(Coereba_Processing)
 export(Coereba_UpdateGates)
+export(HeatmapParser)
 export(Utility_Behemoth)
 export(Utility_Coereba)
 export(Utility_Heatmap)
@@ -204,6 +205,7 @@ importFrom(tibble,
   tibble
 )
 importFrom(tidyr,
+  all_of,
   pivot_longer,
   pivot_wider,
   separate_wider_delim,
