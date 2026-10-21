@@ -21,8 +21,8 @@ Coereba_FCS_Reversal <- function(Coereba, keywordConvert=NULL, specimenBypass=FA
   
   if (!class(Coereba) %in% c("flowFrame", "cytoframe")){
     if (class(Coereba) %in% "character"){
-      #Coereba <- load_cytoframe_from_fcs(Coereba, transformation=FALSE, truncate_max_range = FALSE)\
-      Coereba <- flowCore::read.FCS(Coereba, transformation=FALSE, truncate_max_range = FALSE)
+      Coereba <- load_cytoframe_from_fcs(Coereba, transformation=FALSE, truncate_max_range = FALSE)
+      #Coereba <- flowCore::read.FCS(Coereba, transformation=FALSE, truncate_max_range = FALSE)
     } else {stop("Please provide either a flowframe, cytoframe or the path to an .fcs file")}
   }
 
