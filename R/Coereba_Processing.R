@@ -142,7 +142,7 @@ Coereba_Processing <- function(x, themetadata=NULL, metadata_columns=NULL,
 
   # Metadata <- themetadata |> rename(specimen = all_of(SpecimenVariable))
   # Metadata <- Metadata |> unique()
-  Metadata <- theetadata |> unique()
+  Metadata <- themetadata |> unique()
   
   #Assembling Summarized Experiment 
   MySE <- SummarizedExperiment(assays=list(ratios=Ratio1, count=Counts1),

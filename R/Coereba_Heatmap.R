@@ -10,12 +10,8 @@
 #'
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom utils read.csv
-#' @importFrom dplyr select
-#' @importFrom tidyselect any_of
-#' @importFrom tidyselect all_of
-#' @importFrom tidyselect where
-#' @importFrom tidyselect everything
-#' @importFrom dplyr relocate
+#' @importFrom dplyr select slice relocate
+#' @importFrom tidyselect any_of all_of where everything
 #' @importFrom tibble rownames_to_column
 #' @importFrom gt gt
 #' @importFrom gt tab_style
@@ -60,7 +56,7 @@ Coereba_Heatmap <- function(data, RemoveMarkers=NULL, MarkerOrder=NULL,
   UpdatedData <- cbind(Pops, RoundedExpressions)
   TheTable <- data.frame(t(UpdatedData), check.names=FALSE)
   colnames(TheTable) <- TheTable[1,]
-  TheTable <- TheTable[-1,]
+  TheTable <- TheTable |> slice(-1)
   TheTable <- TheTable %>% rownames_to_column(., var="Marker")
   TheColumns <- colnames(TheTable)
   TheColumns <- TheColumns[-1]
